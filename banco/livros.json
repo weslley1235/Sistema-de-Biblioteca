@@ -1,0 +1,32 @@
+[
+  {
+    "id": "2a2dec0b-1ef8-44a8-8cbf-0e8b2d8af068",
+    "titulo": "Harry Potter e o Cálice de Fogo",
+    "autor": "J.K Rowling",
+    "ano": 2000
+  },
+  {
+    "id": "c3565f6c-6d80-4119-befa-e68b21a10d07",
+    "titulo": "Diario de um Banana",
+    "autor": "J.K Rowling",
+    "ano": 2000
+  },
+  {
+    "id": "34a4b731-dfa7-404c-baff-ac6ff113184b",
+    "titulo": "Turma da Monica - Lendas Brasileiras",
+    "autor": "Mauricio de Sousa",
+    "ano": 2009
+  },
+  {
+    "id": "eb17392c-131e-4078-b9e0-7507db773f42",
+    "titulo": "O Senhor dos Anéis",
+    "autor": "J. R. R. Tolkien",
+    "ano": 1954
+  },
+  {
+    "id": "c67c80eb-0627-449f-a5b2-7dd23dcdce93",
+    "titulo": "Supernatural",
+    "autor": " Keith R.A. DeCandido",
+    "ano": 2007
+  }
+]

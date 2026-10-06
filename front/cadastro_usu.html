@@ -1,0 +1,85 @@
+<!doctype html>
+
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Cadastro de Usuário</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+
+<body>
+    <div class="cartao">
+        <div class="cartao-conteudo">
+            <!-- FRENTE: CADASTRO -->
+            <div class="cartao-frente">
+                <h1>Cadastrar Usuário</h1>
+                <form id="formulario">
+
+                    <label>Nome completo:</label>
+                    <input type="text" id="nome" required />
+
+                    <label>E-mail:</label>
+                    <input type="email" id="email" required />
+
+                    <label>Senha:</label>
+                    <input type="password" id="senha" required />
+
+                    <label>CPF ou RA:</label>
+                    <input type="text" id="cpf_Matri" required />
+
+                    <label>Telefone:</label>
+                    <input type="text" id="tel" required />
+
+                    <label>Tipo de usuário:</label>
+                    <select id="tipoUsu" required>
+                        <option value="">Selecione</option>
+                        <option value="Aluno">Aluno</option>
+                        <option value="Professor">Professor</option>
+                    </select>
+
+                    <button type="submit">Cadastrar usuário</button>
+
+                </form>
+
+                <p id="mensagem"></p>
+
+                <p>Já possui cadastro?</p>
+
+                <button type="button" id="entrarSistema">
+                    Entrar no sistema
+                </button>
+
+            </div>
+
+
+            <!-- VERSO: LOGIN -->
+
+            <div class="cartao-verso">
+
+                <h1>Entrar no sistema</h1>
+
+                <form id="formLogin">
+
+                    <label>E-mail:</label>
+                    <input type="email" id="emailLogin" required />
+
+                    <label>Senha:</label>
+                    <input type="password" id="senhaLogin" required />
+
+                    <button type="submit">Entrar</button>
+
+                </form>
+
+                <p id="mensagemLogin"></p>
+
+                <button type="button" id="voltarCadastro">
+                    Voltar para cadastro
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="cadastro_usu.js"></script>
+    <script src="login.js"></script>
+
+</body>
+</html>

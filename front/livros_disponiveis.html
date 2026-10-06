@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Livros disponíveis</title>
+     <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <h1>Livros disponíveis</h1>
+
+    <div id="listaLivros"></div>
+
+    <script>
+      async function carregarLivros() {
+        const respostaLivros = await fetch("/livro");
+
+        const livros = await respostaLivros.json();
+
+        const respostaEmprestimo = await fetch("/emprestimo");
+
+        const emprestimo = await respostaEmprestimo.json();
+
+        const lista = document.getElementById("listaLivros");
+
+        lista.innerHTML = "";
+
+        livros.forEach((livro) => {
+
+          const livroEmprestado = emprestimo.find((item) => {
+            return item.livroId == livro.id && item.devolvido == false;
+          });
+
+          if (!livroEmprestado) {
+            const div = document.createElement("div");
+
+            div.innerHTML = `
+    <h3>Nome: ${livro.titulo}</h3>
+
+    <p>Autor: ${livro.autor}</p>
+
+    <p>Ano: ${livro.ano}</p>
+
+    <button onclick="window.location.href='/novo-emprestimo?livroId=${livro.id}'">
+        Emprestar
+    </button>
+
+    <hr>
+`;
+
+            lista.appendChild(div);
+          }
+        });
+      }
+
+      carregarLivros();
+    </script>
+
+        <button onclick="window.location.href = '/index'">Voltar</button>
+        <button onclick="window.location.href = '/logout'">Sair</button>
+
+  </body>
+</html>

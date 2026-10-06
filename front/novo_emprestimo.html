@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Novo empréstimo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <h1>Novo empréstimo</h1>
+
+    <div id="dadosLivro"></div>
+
+    <h2>Dados do usuário</h2>
+
+    <label>
+      Nome:
+      <input type="text" id="nome" />
+    </label>
+
+    <br /><br />
+
+    <label>
+      Telefone:
+      <input type="text" id="tel" />
+    </label>
+
+    <br /><br />
+
+    <label>
+      CPF/Matrícula:
+      <input type="text" id="cpfMatri" />
+    </label>
+
+    <br /><br />
+
+    <label>
+      Data do empréstimo:
+      <input type="date" id="dataEmprestimo" />
+    </label>
+
+    <br /><br />
+
+    <label>
+      Data de devolução:
+      <input type="date" id="dataDevolucao" />
+    </label>
+
+    <br /><br />
+
+    <button onclick="fazerEmprestimo()">Confirmar empréstimo</button>
+
+    <button onclick="window.location.href = '/livros-disponiveis'">
+      Voltar
+    </button>
+
+    <p id="mensagem"></p>
+
+    <script>
+      const parametros = new URLSearchParams(window.location.search);
+      const livroId = parametros.get("livroId");
+      async function carregarLivro() {
+        const resposta = await fetch(`/livro/${livroId}`);
+        const livro = await resposta.json();
+        const dadosLivro = document.getElementById("dadosLivro");
+
+        dadosLivro.innerHTML = `
+                <h2>Livro escolhido</h2>
+
+                <p>Nome: ${livro.titulo}</p>
+
+                <p>Autor: ${livro.autor}</p>
+
+                <p>Ano: ${livro.ano}</p>
+            `;
+      }
+
+      async function fazerEmprestimo() {
+        const nome = document.getElementById("nome").value;
+        const tel = document.getElementById("tel").value;
+        const cpfMatri = document.getElementById("cpfMatri").value;
+        const dataEmprestimo = document.getElementById("dataEmprestimo").value;
+        const dataDevolucao = document.getElementById("dataDevolucao").value;
+        const resposta = await fetch("/emprestimo", {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            livroId: livroId,
+            nome: nome,
+            tel: tel,
+            cpfMatri: cpfMatri,
+            dataEmprestimo: dataEmprestimo,
+            dataDevolucao: dataDevolucao,
+          }),
+        });
+
+        const resultado = await resposta.json();
+
+        if (resposta.ok) {
+          alert(resultado.mensagem);
+
+          window.location.href = "/livros-emprestados";
+        } else {
+          alert(resultado.mensagem || "Erro ao realizar empréstimo");
+        }
+      }
+      carregarLivro();
+    </script>
+          <button onclick="window.location.href = '/logout'">Sair</button>
+
+  </body>
+</html>

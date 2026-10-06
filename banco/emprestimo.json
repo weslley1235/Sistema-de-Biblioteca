@@ -1,0 +1,52 @@
+[
+  {
+    "id": "81aaf5a6-5b93-461d-b3ba-62798bb539d4",
+    "livroId": "1791205006355",
+    "nome": "weslley",
+    "tel": "1234567890",
+    "cpfMatri": "123456",
+    "dataEmprestimo": "2026-10-05",
+    "dataDevolucao": "2026-10-05",
+    "devolvido": true
+  },
+  {
+    "id": "1bcb925f-ada2-4248-a691-759c040c1acd",
+    "livroId": "34a4b731-dfa7-404c-baff-ac6ff113184b",
+    "nome": "weslley",
+    "tel": "12991957578",
+    "cpfMatri": "1234567",
+    "dataEmprestimo": "2026-10-05",
+    "dataDevolucao": "2026-10-05",
+    "devolvido": true
+  },
+  {
+    "id": "707dad12-e94c-4745-9ac3-48249f521d53",
+    "livroId": "eb17392c-131e-4078-b9e0-7507db773f42",
+    "nome": "weslley",
+    "tel": "12991957578",
+    "cpfMatri": "123456",
+    "dataEmprestimo": "2026-10-05",
+    "dataDevolucao": "2026-10-05",
+    "devolvido": true
+  },
+  {
+    "id": "39461c9a-4072-4a1c-b4fb-298e2176f345",
+    "livroId": "34a4b731-dfa7-404c-baff-ac6ff113184b",
+    "nome": "lucas",
+    "tel": "1234567890",
+    "cpfMatri": "123456",
+    "dataEmprestimo": "2026-10-05",
+    "dataDevolucao": "2026-10-05",
+    "devolvido": true
+  },
+  {
+    "id": "e6e38fed-049c-48fd-8387-da89fbbf33e5",
+    "livroId": "c67c80eb-0627-449f-a5b2-7dd23dcdce93",
+    "nome": "weslley",
+    "tel": "1234567890",
+    "cpfMatri": "123456",
+    "dataEmprestimo": "2026-10-05",
+    "dataDevolucao": "2026-10-05",
+    "devolvido": true
+  }
+]

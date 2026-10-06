@@ -1,0 +1,11 @@
+[
+  {
+    "id": "5d7b04c0-f7b4-4748-a2a4-5f62fe417b9c",
+    "nome": "Weslley",
+    "email": "weslley@gmail.com",
+    "senha": "$2b$10$tSuJtVfcZfEvI3ac6NDKRuEBHyOV7rmBE.oB4Ii8jTsYedI2ZoiqS",
+    "cpf_Matri": "12345",
+    "tel": "123456",
+    "tipoUsu": "Aluno"
+  }
+]

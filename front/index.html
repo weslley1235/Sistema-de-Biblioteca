@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Biblioteca</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>Biblioteca WS</h1>
+      <p>Gerencie seus livros</p>
+    </header>
+
+    <main>
+      <section class="cadastro">
+        <h2>Cadastrar Livro</h2>
+
+        <form id="formLivro">
+          <input
+            type="text"
+            id="titulo"
+            placeholder="Título do livro"
+            required
+          />
+
+          <input type="text" id="autor" placeholder="Autor" required />
+
+          <input type="number" id="ano" placeholder="Ano" required />
+
+          <button type="submit">Cadastrar Livro</button>
+        </form>
+
+        <p id="mensagem"></p>
+      </section>
+
+      <section class="livros">
+        <h2>Livros cadastrados</h2>
+
+        <div id="listaLivros"></div>
+      </section>
+
+      <button onclick="window.location.href = '/livros-emprestados'">Livros emprestados</button>
+      <button onclick="window.location.href = '/livros-disponiveis'">Livros disponíveis</button>
+      <button onclick="window.location.href = '/logout'">Sair</button>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
