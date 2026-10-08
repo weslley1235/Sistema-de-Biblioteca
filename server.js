@@ -27,6 +27,7 @@ import {
   emprestimoSchema,
   devolverEmprestimo,
 } from './backend/emprestimo.js';
+import { requestHandler } from './backend/books/controller.js';
 
 // SERVIDOR
 
@@ -145,26 +146,7 @@ server.get('/index', { preHandler: verificarLogin }, async (request, reply) => {
 
 // Cadastrar livro
 
-server.post(
-  '/livro',
-  { preHandler: verificarLogin },
-  async (request, reply) => {
-    try {
-      const { titulo, autor, ano } = request.body;
-      const resultado = await registrarlivro(titulo, autor, ano);
-
-      return reply.status(resultado.status).send({
-        mensagem: resultado.mensagem,
-      });
-    } catch (erro) {
-      console.log('Erro ao cadastrar livro:', erro);
-
-      return reply.status(500).send({
-        mensagem: 'Erro do servidor',
-      });
-    }
-  },
-);
+server.post('/livro', { preHandler: verificarLogin }, requestHandler);
 
 // Listar livros
 
