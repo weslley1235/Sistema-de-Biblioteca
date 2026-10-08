@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap');
 
 :root {
   --papel: #f2f4f8;
@@ -15,9 +15,9 @@
   --l4: #2f6b4f;
   --l5: #3d4f9f;
   --raio: 14px;
-  --sombra: 0 1px 2px rgba(23,35,58,.06),0 6px 18px rgba(23,35,58,.06);
-  --forte: 0 2px 4px rgba(23,35,58,.08),0 14px 32px rgba(23,35,58,.14);
-  --rapido: 180ms cubic-bezier(.3,.7,.3,1);
+  --sombra: 0 1px 2px rgba(23, 35, 58, 0.06), 0 6px 18px rgba(23, 35, 58, 0.06);
+  --forte: 0 2px 4px rgba(23, 35, 58, 0.08), 0 14px 32px rgba(23, 35, 58, 0.14);
+  --rapido: 180ms cubic-bezier(0.3, 0.7, 0.3, 1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -28,8 +28,8 @@
     --tinta-suave: #9aa6bd;
     --linha: #2a3650;
     --destaque: #4cb5c9;
-    --sombra: 0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
-    --forte: 0 2px 4px rgba(0,0,0,.4),0 14px 32px rgba(0,0,0,.45);
+    --sombra: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 18px rgba(0, 0, 0, 0.25);
+    --forte: 0 2px 4px rgba(0, 0, 0, 0.4), 0 14px 32px rgba(0, 0, 0, 0.45);
   }
 }
 
@@ -48,10 +48,19 @@ body {
   max-width: 1080px;
   min-height: 100vh;
   padding: 48px 24px 72px;
-  font: 16px/1.6 "Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font:
+    16px/1.6 'Manrope',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
   color: var(--tinta);
   background:
-    radial-gradient(900px 400px at 85% -10%,rgba(31,122,140,.14),transparent 70%),
+    radial-gradient(
+      900px 400px at 85% -10%,
+      rgba(31, 122, 140, 0.14),
+      transparent 70%
+    ),
     var(--papel);
 }
 
@@ -65,12 +74,12 @@ h1,
 h2,
 h3 {
   margin: 0 0 12px;
-  font-family: "Fraunces",Georgia,serif;
+  font-family: 'Fraunces', Georgia, serif;
   line-height: 1.15;
 }
 
 h1 {
-  font-size: clamp(2rem,5vw,3rem);
+  font-size: clamp(2rem, 5vw, 3rem);
   margin-bottom: 20px;
 }
 
@@ -121,9 +130,13 @@ button {
   border-radius: 999px;
   background: var(--tinta);
   color: var(--papel);
-  font: 600 .95rem inherit;
+  font: 600 0.95rem inherit;
   cursor: pointer;
-  transition: transform var(--rapido),box-shadow var(--rapido),background var(--rapido),border-color var(--rapido);
+  transition:
+    transform var(--rapido),
+    box-shadow var(--rapido),
+    background var(--rapido),
+    border-color var(--rapido);
 }
 
 button:hover {
@@ -131,11 +144,11 @@ button:hover {
   border-color: var(--destaque);
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(31,122,140,.35);
+  box-shadow: 0 8px 18px rgba(31, 122, 140, 0.35);
 }
 
 button:active {
-  transform: scale(.97);
+  transform: scale(0.97);
 }
 
 button:focus-visible,
@@ -160,7 +173,7 @@ input:focus,
 select:focus {
   outline: none;
   border-color: var(--destaque);
-  box-shadow: 0 0 0 4px rgba(31,122,140,.2);
+  box-shadow: 0 0 0 4px rgba(31, 122, 140, 0.2);
 }
 
 label {
@@ -189,7 +202,7 @@ body > form select {
   padding: 9px 11px;
 }
 
-body > form button[type="submit"] {
+body > form button[type='submit'] {
   width: 100%;
   margin: 4px 0 0;
 }
@@ -213,7 +226,7 @@ body > form button[type="submit"] {
 
 main {
   display: grid;
-  grid-template-columns: minmax(280px,360px) 1fr;
+  grid-template-columns: minmax(280px, 360px) 1fr;
   gap: 28px;
   align-items: start;
 }
@@ -228,7 +241,7 @@ section.cadastro {
   box-shadow: var(--sombra);
 }
 
-section.cadastro button[type="submit"] {
+section.cadastro button[type='submit'] {
   width: 100%;
 }
 
@@ -250,13 +263,15 @@ section.cadastro button[type="submit"] {
   border-radius: var(--raio);
   background: var(--superficie);
   box-shadow: var(--sombra);
-  transition: transform var(--rapido),box-shadow var(--rapido);
+  transition:
+    transform var(--rapido),
+    box-shadow var(--rapido);
 }
 
 #listaLivros > div::before,
 #listaEmprestimo > div::before,
 #dadosLivro::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0 auto 0 0;
   width: 10px;
@@ -269,23 +284,23 @@ section.cadastro button[type="submit"] {
   box-shadow: var(--forte);
 }
 
-#listaLivros > div:nth-child(5n+2),
-#listaEmprestimo > div:nth-child(5n+2) {
+#listaLivros > div:nth-child(5n + 2),
+#listaEmprestimo > div:nth-child(5n + 2) {
   --cor: var(--l2);
 }
 
-#listaLivros > div:nth-child(5n+3),
-#listaEmprestimo > div:nth-child(5n+3) {
+#listaLivros > div:nth-child(5n + 3),
+#listaEmprestimo > div:nth-child(5n + 3) {
   --cor: var(--l3);
 }
 
-#listaLivros > div:nth-child(5n+4),
-#listaEmprestimo > div:nth-child(5n+4) {
+#listaLivros > div:nth-child(5n + 4),
+#listaEmprestimo > div:nth-child(5n + 4) {
   --cor: var(--l4);
 }
 
-#listaLivros > div:nth-child(5n+5),
-#listaEmprestimo > div:nth-child(5n+5) {
+#listaLivros > div:nth-child(5n + 5),
+#listaEmprestimo > div:nth-child(5n + 5) {
   --cor: var(--l5);
 }
 
@@ -347,7 +362,7 @@ body:has(#formulario) > form {
 }
 
 body:has(#formulario) label {
-  font-size: .8rem;
+  font-size: 0.8rem;
   margin-bottom: 3px;
 }
 
@@ -355,13 +370,13 @@ body:has(#formulario) input,
 body:has(#formulario) select {
   padding: 7px 9px;
   margin-bottom: 7px;
-  font-size: .9rem;
+  font-size: 0.9rem;
 }
 
 body:has(#formulario) button {
   padding: 7px 12px;
   margin-bottom: 5px;
-  font-size: .85rem;
+  font-size: 0.85rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -381,77 +396,77 @@ body:has(#formulario) button {
 /* CARTÃO DE CADASTRO E LOGIN */
 
 body:has(#formulario) {
-max-width: 400px;
-padding: 30px 16px;
+  max-width: 400px;
+  padding: 30px 16px;
 }
 
 .cartao {
-width: 100%;
-perspective: 1000px;
+  width: 100%;
+  perspective: 1000px;
 }
 
 .cartao-conteudo {
-position: relative;
-width: 100%;
-transition: transform 0.7s;
-transform-style: preserve-3d;
+  position: relative;
+  width: 100%;
+  transition: transform 0.7s;
+  transform-style: preserve-3d;
 }
 
 .cartao.virado .cartao-conteudo {
-transform: rotateY(180deg);
+  transform: rotateY(180deg);
 }
 
 .cartao-frente,
 .cartao-verso {
-width: 100%;
-padding: 24px;
-border: 1px solid var(--linha);
-border-radius: var(--raio);
-background: var(--superficie);
-box-shadow: var(--forte);
-backface-visibility: hidden;
+  width: 100%;
+  padding: 24px;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  background: var(--superficie);
+  box-shadow: var(--forte);
+  backface-visibility: hidden;
 }
 
 .cartao-verso {
-position: absolute;
-top: 0;
-left: 0;
-transform: rotateY(180deg);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotateY(180deg);
 }
 
 .cartao-frente h1,
 .cartao-verso h1 {
-font-size: 1.7rem;
-margin-bottom: 18px;
+  font-size: 1.7rem;
+  margin-bottom: 18px;
 }
 
 .cartao-frente form,
 .cartao-verso form {
-margin: 0;
+  margin: 0;
 }
 
 .cartao-frente input,
 .cartao-frente select,
 .cartao-verso input {
-padding: 9px 11px;
-margin-bottom: 10px;
+  padding: 9px 11px;
+  margin-bottom: 10px;
 }
 
 .cartao-frente button,
 .cartao-verso button {
-width: 100%;
-margin: 4px 0 10px;
+  width: 100%;
+  margin: 4px 0 10px;
 }
 
 #entrarSistema,
 #voltarCadastro {
-background: transparent;
-border-color: var(--destaque);
-color: var(--destaque);
+  background: transparent;
+  border-color: var(--destaque);
+  color: var(--destaque);
 }
 
 #entrarSistema:hover,
 #voltarCadastro:hover {
-background: var(--destaque);
-color: #fff;
+  background: var(--destaque);
+  color: #fff;
 }

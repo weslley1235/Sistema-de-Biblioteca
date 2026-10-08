@@ -1,20 +1,20 @@
 // IMPORTAÇÃO
 
-import fs from "node:fs";
+import fs from 'node:fs';
 
 // ARQUIVO DE DADOS
 
-const caminho = "./banco/usuario.json";
+const caminho = './banco/usuario.json';
 
 // LISTAR USUÁRIOS
 
 export function listaUsuarios() {
   try {
-    const dados = fs.readFileSync(caminho, "utf8");
+    const dados = fs.readFileSync(caminho, 'utf8');
 
     return JSON.parse(dados);
   } catch (erro) {
-    console.log("Erro ao ler dados do Usúario:", erro);
+    console.log('Erro ao ler dados do Usúario:', erro);
   }
 }
 
@@ -24,18 +24,22 @@ export function salvarUsu(usuarios) {
   try {
     fs.writeFileSync(caminho, JSON.stringify(usuarios, null, 2));
   } catch (erro) {
-    console.log("Erro ao salvar usúarios:", erro);
+    throw new Error(erro.message);
   }
 }
 
 // CADASTRAR USUÁRIO
 
 export function cadastrarUsuario(usuario) {
-  const usuarios = listaUsuarios();
+  try {
+    const usuarios = listaUsuarios();
 
-  usuarios.push(usuario);
+    usuarios.push(usuario);
 
-  salvarUsu(usuarios);
+    salvarUsu(usuarios);
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
 
 // BUSCAR USUÁRIO PELO E-MAIL

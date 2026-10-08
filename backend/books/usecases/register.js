@@ -1,14 +1,14 @@
 // IMPORTAÇÕES
 import { v4 as uuidv4 } from 'uuid';
 
-import { bookValidation } from './books/validator.js';
-import { findByTitle, save } from './books/repository.js';
+import { bookValidation } from '../validator.js';
+import { findByTitle, save } from '../repository.js';
 
 // CADASTRAR LIVRO
 
-export async function registrar(titulo, autor, ano) {
+export async function register(payload) {
   try {
-    const validation = bookValidation({ titulo, autor, ano });
+    const validation = bookValidation(payload);
 
     if (!validation.success) {
       return {
@@ -17,7 +17,7 @@ export async function registrar(titulo, autor, ano) {
       };
     }
 
-    const findBook = findByTitle(titulo);
+    const findBook = findByTitle(payload.titulo);
 
     if (findBook) {
       return {
@@ -28,9 +28,7 @@ export async function registrar(titulo, autor, ano) {
 
     await save({
       id: uuidv4(),
-      titulo,
-      autor,
-      ano,
+      ...payload,
     });
 
     return {

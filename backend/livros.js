@@ -1,15 +1,15 @@
 // IMPORTAÇÃO
 
-import fs from "node:fs";
+import fs from 'node:fs';
 
 // ARQUIVO DE DADOS
 
-const caminho = "./banco/livros.json";
+const caminho = './banco/livros.json';
 
 // LISTAR LIVROS
 
 export function listaLivros() {
-  const dados = fs.readFileSync(caminho, "utf8");
+  const dados = fs.readFileSync(caminho, 'utf8');
 
   return JSON.parse(dados);
 }
@@ -44,7 +44,7 @@ export function buscarLivroPorTitulo(titulo) {
   const livros = listaLivros();
 
   return livros.find(
-    (livro) => livro.titulo.toLowerCase() == titulo.toLowerCase()
+    (livro) => livro.titulo.toLowerCase() == titulo.toLowerCase(),
   );
 }
 

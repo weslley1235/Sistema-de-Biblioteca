@@ -48,5 +48,15 @@
     "dataEmprestimo": "2026-10-05",
     "dataDevolucao": "2026-10-05",
     "devolvido": true
+  },
+  {
+    "id": "e83cd135-2790-4c52-9ccf-882656f69310",
+    "livroId": "c3565f6c-6d80-4119-befa-e68b21a10d07",
+    "nome": "John Doe",
+    "tel": "00000000000",
+    "cpfMatri": "00000000000",
+    "dataEmprestimo": "2026-10-08",
+    "dataDevolucao": "2026-11-08",
+    "devolvido": true
   }
 ]

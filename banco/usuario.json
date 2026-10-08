@@ -7,5 +7,14 @@
     "cpf_Matri": "12345",
     "tel": "123456",
     "tipoUsu": "Aluno"
+  },
+  {
+    "id": "701935e7-3be0-429a-92b6-8e1ededa12fc",
+    "nome": "Bruno Cardoso",
+    "email": "bruno@teste.com",
+    "senha": "$2b$10$2yUazsHEkAeQaCAyV8fOYOpWSsa9ZDDfcCPhw8kdiW2yj/6q1GPyG",
+    "cpf_Matri": "00000000000",
+    "tel": "00000000000",
+    "tipoUsu": "Aluno"
   }
 ]
