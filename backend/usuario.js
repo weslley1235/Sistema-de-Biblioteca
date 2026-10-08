@@ -1,20 +1,20 @@
 // IMPORTAÇÃO
 
-import fs from "node:fs";
+import fs from 'node:fs';
 
 // ARQUIVO DE DADOS
 
-const caminho = "./banco/usuario.json";
+const caminho = './banco/usuario.json';
 
 // LISTAR USUÁRIOS
 
 export function listaUsuarios() {
   try {
-    const dados = fs.readFileSync(caminho, "utf8");
+    const dados = fs.readFileSync(caminho, 'utf8');
 
     return JSON.parse(dados);
   } catch (erro) {
-    console.log("Erro ao ler dados do Usúario:", erro);
+    console.log('Erro ao ler dados do Usúario:', erro);
   }
 }
 
@@ -24,7 +24,7 @@ export function salvarUsu(usuarios) {
   try {
     fs.writeFileSync(caminho, JSON.stringify(usuarios, null, 2));
   } catch (erro) {
-    console.log("Erro ao salvar usúarios:", erro);
+    console.log('Erro ao salvar usúarios:', erro);
   }
 }
 

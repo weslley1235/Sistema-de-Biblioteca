@@ -1,16 +1,30 @@
 // IMPORTAÇÕES
 
-import { fastify } from "fastify";
-import fastifyStatic from "@fastify/static";
-import fastifyCookie from "@fastify/cookie";
-import fastifySession from "@fastify/session";
-import { v4 as uuidv4 } from "uuid";
+import { fastify } from 'fastify';
+import fastifyStatic from '@fastify/static';
+import fastifyCookie from '@fastify/cookie';
+import fastifySession from '@fastify/session';
+import { v4 as uuidv4 } from 'uuid';
 
-import {registrar as registrarUsuario,login} from "./backend/autenticacao_usuario.js";
-import { registrar as registrarlivro } from "./backend/autenticacao_livro.js";
+import {
+  registrar as registrarUsuario,
+  login,
+} from './backend/autenticacao_usuario.js';
+import { registrar as registrarlivro } from './backend/autenticacao_livro.js';
 
-import {buscarLivro,listaLivros,excluirLivro,atualizarLivro} from "./backend/livros.js";
-import {cadastrarEmprestimo,listaEmprestimo,verificarEmprestimo,emprestimoSchema,devolverEmprestimo} from "./backend/emprestimo.js";
+import {
+  buscarLivro,
+  listaLivros,
+  excluirLivro,
+  atualizarLivro,
+} from './backend/livros.js';
+import {
+  cadastrarEmprestimo,
+  listaEmprestimo,
+  verificarEmprestimo,
+  emprestimoSchema,
+  devolverEmprestimo,
+} from './backend/emprestimo.js';
 
 // SERVIDOR
 
@@ -20,7 +34,7 @@ const server = fastify();
 
 function verificarLogin(request, reply, done) {
   if (!request.session.usuario) {
-    return reply.redirect("/");
+    return reply.redirect('/');
   }
 
   done();
@@ -31,32 +45,31 @@ function verificarLogin(request, reply, done) {
 server.register(fastifyCookie);
 
 server.register(fastifySession, {
-secret: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-cookieName: "bibliotecaSession",
-cookie: {
-secure: false,
-httpOnly: true,
-path: "/",
-sameSite: "lax",
-},
+  secret: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  cookieName: 'bibliotecaSession',
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    path: '/',
+    sameSite: 'lax',
+  },
 });
 
-
 server.register(fastifyStatic, {
-  root: "/Users/weslley/Documents/projetos e aulas/projetos/Projeto-biblioteca/front",
+  root: '/Users/weslley/Documents/projetos e aulas/projetos/Projeto-biblioteca/front',
 });
 
 // AUTENTICAÇÃO
 
 // Página inicial
 
-server.get("/", async (request, reply) => {
-  return reply.sendFile("cadastro_usu.html");
+server.get('/', async (request, reply) => {
+  return reply.sendFile('cadastro_usu.html');
 });
 
 // Cadastro de usuário
 
-server.post("/usuario", async (request, reply) => {
+server.post('/usuario', async (request, reply) => {
   try {
     const { nome, email, senha, cpf_Matri, tel, tipoUsu } = request.body;
 
@@ -73,17 +86,17 @@ server.post("/usuario", async (request, reply) => {
       mensagem: resultado.mensagem,
     });
   } catch (erro) {
-    console.log("Erro ao cadastrar usúario", erro);
+    console.log('Erro ao cadastrar usúario', erro);
 
     return reply.status(500).send({
-      mensagem: "Erro interno do servidor",
+      mensagem: 'Erro interno do servidor',
     });
   }
 });
 
 // Login
 
-server.post("/login", async (request, reply) => {
+server.post('/login', async (request, reply) => {
   try {
     const { email, senha } = request.body;
 
@@ -95,43 +108,42 @@ server.post("/login", async (request, reply) => {
       });
     }
 
-    request.session.set("usuario", resultado.usuario);
+    request.session.set('usuario', resultado.usuario);
 
     await request.session.save();
 
-    console.log("Sessão salva:", request.session.get("usuario")); 
-    return reply.status(200).send({ mensagem: "Login realizado com sucesso", });
-
+    console.log('Sessão salva:', request.session.get('usuario'));
+    return reply.status(200).send({ mensagem: 'Login realizado com sucesso' });
   } catch (erro) {
-    console.log("Erro ao realizar login:", erro);
+    console.log('Erro ao realizar login:', erro);
 
     return reply.status(500).send({
-      mensagem: "Erro do servidor",
+      mensagem: 'Erro do servidor',
     });
   }
 });
 
 // Logout
 
-server.get("/logout", async (request, reply) => {
+server.get('/logout', async (request, reply) => {
   await request.session.destroy();
 
-  return reply.redirect("/cadastro_usu.html");
+  return reply.redirect('/cadastro_usu.html');
 });
 
 // Página principal
 
-server.get("/index",{preHandler: verificarLogin,},
-  async (request, reply) => {
-    return reply.sendFile("index.html");
-  },
-);
+server.get('/index', { preHandler: verificarLogin }, async (request, reply) => {
+  return reply.sendFile('index.html');
+});
 
 // LIVROS
 
 // Cadastrar livro
 
-server.post("/livro",{ preHandler: verificarLogin },
+server.post(
+  '/livro',
+  { preHandler: verificarLogin },
   async (request, reply) => {
     try {
       const { titulo, autor, ano } = request.body;
@@ -141,10 +153,10 @@ server.post("/livro",{ preHandler: verificarLogin },
         mensagem: resultado.mensagem,
       });
     } catch (erro) {
-      console.log("Erro ao cadastrar livro:", erro);
+      console.log('Erro ao cadastrar livro:', erro);
 
       return reply.status(500).send({
-        mensagem: "Erro do servidor",
+        mensagem: 'Erro do servidor',
       });
     }
   },
@@ -152,23 +164,26 @@ server.post("/livro",{ preHandler: verificarLogin },
 
 // Listar livros
 
-server.get("/livro", { preHandler: verificarLogin }, async (request, reply) => {
+server.get('/livro', { preHandler: verificarLogin }, async (request, reply) => {
   try {
     const livros = listaLivros();
 
     return reply.send(livros);
   } catch (erro) {
-    console.log("Erro a listas os livros:", erro);
+    console.log('Erro a listas os livros:', erro);
 
     return reply.status(500).send({
-      mensagem: "Erro do servidor",
+      mensagem: 'Erro do servidor',
     });
   }
 });
 
 // Buscar livro pelo ID
 
-server.get("/livro/:id",{ preHandler: verificarLogin }, async (request, reply) => {
+server.get(
+  '/livro/:id',
+  { preHandler: verificarLogin },
+  async (request, reply) => {
     try {
       const { id } = request.params;
       const livro = buscarLivro(id);
@@ -179,10 +194,10 @@ server.get("/livro/:id",{ preHandler: verificarLogin }, async (request, reply) =
 
       return reply.send(livro);
     } catch (erro) {
-      console.log("Erro ao buscar livro:", erro);
+      console.log('Erro ao buscar livro:', erro);
 
       return reply.status(500).send({
-        mensagem: "Erro do servidor",
+        mensagem: 'Erro do servidor',
       });
     }
   },
@@ -190,7 +205,10 @@ server.get("/livro/:id",{ preHandler: verificarLogin }, async (request, reply) =
 
 // Atualizar livro
 
-server.put("/livro/:id",{ preHandler: verificarLogin },async (request, reply) => {
+server.put(
+  '/livro/:id',
+  { preHandler: verificarLogin },
+  async (request, reply) => {
     try {
       const { id } = request.params;
       const { titulo, autor, ano } = request.body;
@@ -199,20 +217,20 @@ server.put("/livro/:id",{ preHandler: verificarLogin },async (request, reply) =>
 
       if (!livro) {
         return reply.status(404).send({
-          mensagem: "livro não encontrado",
+          mensagem: 'livro não encontrado',
         });
       }
 
       atualizarLivro(id, titulo, autor, ano);
 
       return reply.send({
-        mensagem: "Livro atualizado com sucesso!",
+        mensagem: 'Livro atualizado com sucesso!',
       });
     } catch (erro) {
-      console.log("Erro ao atualizar livro:", erro);
+      console.log('Erro ao atualizar livro:', erro);
 
       return reply.status(500).send({
-        mensagem: "Erro do servidor",
+        mensagem: 'Erro do servidor',
       });
     }
   },
@@ -220,27 +238,30 @@ server.put("/livro/:id",{ preHandler: verificarLogin },async (request, reply) =>
 
 // Excluir livro
 
-server.delete("/livro/:id",{ preHandler: verificarLogin },async (request, reply) => {
+server.delete(
+  '/livro/:id',
+  { preHandler: verificarLogin },
+  async (request, reply) => {
     try {
       const { id } = request.params;
       const livro = buscarLivro(id);
 
       if (!livro) {
         return reply.status(404).send({
-          mensagem: "Livro não encontrado",
+          mensagem: 'Livro não encontrado',
         });
       }
 
       excluirLivro(id);
 
       return reply.send({
-        mensagem: "Livro excluido com sucesso",
+        mensagem: 'Livro excluido com sucesso',
       });
     } catch (erro) {
-      console.log("Erro ao excluir livro:", erro);
+      console.log('Erro ao excluir livro:', erro);
 
       return reply.status(500).send({
-        mensagem: "Erro do servidor",
+        mensagem: 'Erro do servidor',
       });
     }
   },
@@ -251,30 +272,39 @@ server.delete("/livro/:id",{ preHandler: verificarLogin },async (request, reply)
 // Página de livros emprestados
 
 server.get(
-  "/livros-emprestados",
+  '/livros-emprestados',
   { preHandler: verificarLogin },
   async (request, reply) => {
-    return reply.sendFile("livros_emprestados.html");
+    return reply.sendFile('livros_emprestados.html');
   },
 );
 
 // Página de livros disponíveis
 
-server.get("/livros-disponiveis",{ preHandler: verificarLogin },async (request, reply) => {
-    return reply.sendFile("livros_disponiveis.html");
+server.get(
+  '/livros-disponiveis',
+  { preHandler: verificarLogin },
+  async (request, reply) => {
+    return reply.sendFile('livros_disponiveis.html');
   },
 );
 
 // Página de novo empréstimo
 
-server.get("/novo-emprestimo",{ preHandler: verificarLogin },async (request, reply) => {
-    return reply.sendFile("novo_emprestimo.html");
+server.get(
+  '/novo-emprestimo',
+  { preHandler: verificarLogin },
+  async (request, reply) => {
+    return reply.sendFile('novo_emprestimo.html');
   },
 );
 
 // Cadastrar empréstimo
 
-server.post("/emprestimo",{ preHandler: verificarLogin },async (request, reply) => {
+server.post(
+  '/emprestimo',
+  { preHandler: verificarLogin },
+  async (request, reply) => {
     try {
       const { livroId, nome, tel, cpfMatri, dataEmprestimo, dataDevolucao } =
         request.body;
@@ -298,7 +328,7 @@ server.post("/emprestimo",{ preHandler: verificarLogin },async (request, reply) 
 
       if (!livro) {
         return reply.status(404).send({
-          mensagem: "Livro não encontrado",
+          mensagem: 'Livro não encontrado',
         });
       }
 
@@ -306,7 +336,7 @@ server.post("/emprestimo",{ preHandler: verificarLogin },async (request, reply) 
 
       if (emprestimoExistente) {
         return reply.status(400).send({
-          mensagem: "Este livro já está emprestado",
+          mensagem: 'Este livro já está emprestado',
         });
       }
 
@@ -324,13 +354,13 @@ server.post("/emprestimo",{ preHandler: verificarLogin },async (request, reply) 
       cadastrarEmprestimo(emprestimo);
 
       return reply.status(201).send({
-        mensagem: "Empréstimo confirmado!",
+        mensagem: 'Empréstimo confirmado!',
       });
     } catch (erro) {
-      console.log("Erro ao cadastrar emprestimo:", erro);
+      console.log('Erro ao cadastrar emprestimo:', erro);
 
       return reply.status(500).send({
-        mensagem: "Erro do servidor",
+        mensagem: 'Erro do servidor',
       });
     }
   },
@@ -338,16 +368,19 @@ server.post("/emprestimo",{ preHandler: verificarLogin },async (request, reply) 
 
 // Listar empréstimos
 
-server.get("/emprestimo",{ preHandler: verificarLogin },async (request, reply) => {
+server.get(
+  '/emprestimo',
+  { preHandler: verificarLogin },
+  async (request, reply) => {
     try {
       const emprestimo = listaEmprestimo();
 
       return reply.send(emprestimo);
     } catch (erro) {
-      console.log("Erro ao listar empréstimos", erro);
+      console.log('Erro ao listar empréstimos', erro);
 
       return reply.status(500).send({
-        mensagem: "Erro do servidor",
+        mensagem: 'Erro do servidor',
       });
     }
   },
@@ -355,7 +388,10 @@ server.get("/emprestimo",{ preHandler: verificarLogin },async (request, reply) =
 
 // Devolver livro
 
-server.put("/emprestimo/:id",{ preHandler: verificarLogin },async (request, reply) => {
+server.put(
+  '/emprestimo/:id',
+  { preHandler: verificarLogin },
+  async (request, reply) => {
     try {
       const { id } = request.params;
 
@@ -363,18 +399,18 @@ server.put("/emprestimo/:id",{ preHandler: verificarLogin },async (request, repl
 
       if (!resultado) {
         return reply.status(404).send({
-          mensagem: "Emprestimo não encontrado",
+          mensagem: 'Emprestimo não encontrado',
         });
       }
-      
+
       return reply.send({
-        mensagem: "livro devolvido com sucesso!",
+        mensagem: 'livro devolvido com sucesso!',
       });
     } catch (erro) {
-      console.group("Erro ao devolver livros:", erro);
+      console.group('Erro ao devolver livros:', erro);
 
       return reply.status(500).send({
-        mensagem: "Erro do servidor",
+        mensagem: 'Erro do servidor',
       });
     }
   },
@@ -383,6 +419,6 @@ server.put("/emprestimo/:id",{ preHandler: verificarLogin },async (request, repl
 // INICIAR SERVIDOR
 
 server.listen({
-  host: "0.0.0.0",
+  host: '0.0.0.0',
   port: process.env.PORT ?? 3333,
 });

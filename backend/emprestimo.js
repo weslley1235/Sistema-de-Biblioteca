@@ -1,27 +1,27 @@
 // IMPORTAÇÕES
 
-import fs from "node:fs";
-import { z } from "zod";
+import fs from 'node:fs';
+import { z } from 'zod';
 
 // ARQUIVO DE DADOS
 
-const caminho = "./banco/emprestimo.json";
+const caminho = './banco/emprestimo.json';
 
 // VALIDAÇÃO
 
 export const emprestimoSchema = z.object({
-  livroId: z.string().min(1, "Livro é obrigatório"),
-  nome: z.string().min(1, "Nome é obrigatório"),
-  tel: z.string().min(1, "Telefone é obrigatório"),
-  cpfMatri: z.string().min(1, "CPF ou matrícula é obrigatório"),
-  dataEmprestimo: z.string().min(1, "Data do empréstimo é obrigatória"),
-  dataDevolucao: z.string().min(1, "Data de devolução é obrigatória"),
+  livroId: z.string().min(1, 'Livro é obrigatório'),
+  nome: z.string().min(1, 'Nome é obrigatório'),
+  tel: z.string().min(1, 'Telefone é obrigatório'),
+  cpfMatri: z.string().min(1, 'CPF ou matrícula é obrigatório'),
+  dataEmprestimo: z.string().min(1, 'Data do empréstimo é obrigatória'),
+  dataDevolucao: z.string().min(1, 'Data de devolução é obrigatória'),
 });
 
 // LISTAR EMPRÉSTIMOS
 
 export function listaEmprestimo() {
-  const dados = fs.readFileSync(caminho, "utf8");
+  const dados = fs.readFileSync(caminho, 'utf8');
 
   return JSON.parse(dados);
 }
@@ -66,9 +66,7 @@ export function verificarEmprestimo(livroId) {
 export function devolverEmprestimo(id) {
   const emprestimos = listaEmprestimo();
 
-  const emprestimo = emprestimos.find(
-    (emprestimo) => emprestimo.id == id
-  );
+  const emprestimo = emprestimos.find((emprestimo) => emprestimo.id == id);
 
   if (!emprestimo) {
     return false;

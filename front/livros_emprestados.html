@@ -13,21 +13,20 @@
 
     <script>
       async function carregarEmprestimo() {
-        const resposta = await fetch("/emprestimo");
+        const resposta = await fetch('/emprestimo');
         const emprestimo = await resposta.json();
-        const lista = document.getElementById("listaEmprestimo");
+        const lista = document.getElementById('listaEmprestimo');
 
-        lista.innerHTML = "";
+        lista.innerHTML = '';
 
         for (const item of emprestimo) {
-
           if (item.devolvido) {
             continue;
           }
 
           const respostaLivro = await fetch(`/livro/${item.livroId}`);
           const livro = await respostaLivro.json();
-          const div = document.createElement("div");
+          const div = document.createElement('div');
 
           div.innerHTML = `
                     <h3>Nome: ${livro.titulo}</h3>
@@ -37,7 +36,7 @@
                     <p>Data do empréstimo: ${item.dataEmprestimo}</p>
 
                     <p>Data da devolução:
-                        ${item.dataDevolucao ?? "Ainda não devolvido"}
+                        ${item.dataDevolucao ?? 'Ainda não devolvido'}
                     </p>
 
                     <button onclick="devolverLivro('${item.id}')">
@@ -55,14 +54,14 @@
 
       async function devolverLivro(id) {
         const resposta = await fetch(`/emprestimo/${id}`, {
-          method: "PUT",
+          method: 'PUT',
         });
 
         const resultado = await resposta.json();
         alert(resultado.mensagem);
 
-        if(resposta.ok){
-            carregarEmprestimo();
+        if (resposta.ok) {
+          carregarEmprestimo();
         }
       }
     </script>

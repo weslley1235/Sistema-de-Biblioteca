@@ -1,23 +1,20 @@
 // IMPORTAÇÕES
 
-import { cadastrarLivro, buscarLivroPorTitulo } from "./livros.js";
-import { z } from "zod";
-import { v4 as uuidv4 } from "uuid";
-
+import { cadastrarLivro, buscarLivroPorTitulo } from './livros.js';
+import { z } from 'zod';
+import { v4 as uuidv4 } from 'uuid';
 
 // VALIDAÇÃO
 
 const livroSchema = z.object({
-  titulo: z.string().min(1, "Titulo obrigatorio"),
-  autor: z.string().min(1, "Autor é obrigatorio"),
-  ano: z.number().min(1, "Ano é obrigatorio"),
+  titulo: z.string().min(1, 'Titulo obrigatorio'),
+  autor: z.string().min(1, 'Autor é obrigatorio'),
+  ano: z.number().min(1, 'Ano é obrigatorio'),
 });
-
 
 // CADASTRAR LIVRO
 
 export async function registrar(titulo, autor, ano) {
-
   const resultado = livroSchema.safeParse({
     titulo,
     autor,
@@ -36,7 +33,7 @@ export async function registrar(titulo, autor, ano) {
   if (livros) {
     return {
       status: 409,
-      mensagem: "Esse livro já tem cadastro",
+      mensagem: 'Esse livro já tem cadastro',
     };
   }
 
@@ -49,7 +46,6 @@ export async function registrar(titulo, autor, ano) {
 
   return {
     status: 201,
-    mensagem: "Livro cadastrado com sucesso",
+    mensagem: 'Livro cadastrado com sucesso',
   };
 }
-
