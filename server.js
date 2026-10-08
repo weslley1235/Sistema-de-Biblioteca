@@ -5,6 +5,8 @@ import fastifyStatic from '@fastify/static';
 import fastifyCookie from '@fastify/cookie';
 import fastifySession from '@fastify/session';
 import { v4 as uuidv4 } from 'uuid';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import {
   registrar as registrarUsuario,
@@ -27,6 +29,8 @@ import {
 } from './backend/emprestimo.js';
 
 // SERVIDOR
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const server = fastify();
 
@@ -56,7 +60,7 @@ server.register(fastifySession, {
 });
 
 server.register(fastifyStatic, {
-  root: '/Users/weslley/Documents/projetos e aulas/projetos/Projeto-biblioteca/front',
+  root: path.join(__dirname, 'front'),
 });
 
 // AUTENTICAÇÃO
