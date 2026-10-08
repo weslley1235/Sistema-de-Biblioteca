@@ -24,18 +24,22 @@ export function salvarUsu(usuarios) {
   try {
     fs.writeFileSync(caminho, JSON.stringify(usuarios, null, 2));
   } catch (erro) {
-    console.log('Erro ao salvar usúarios:', erro);
+    throw new Error(erro.message);
   }
 }
 
 // CADASTRAR USUÁRIO
 
 export function cadastrarUsuario(usuario) {
-  const usuarios = listaUsuarios();
+  try {
+    const usuarios = listaUsuarios();
 
-  usuarios.push(usuario);
+    usuarios.push(usuario);
 
-  salvarUsu(usuarios);
+    salvarUsu(usuarios);
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
 
 // BUSCAR USUÁRIO PELO E-MAIL

@@ -70,24 +70,31 @@ export async function registrar(nome, email, senha, cpf_Matri, tel, tipoUsu) {
     };
   }
 
-  const senhaCrptografada = await bcrypt.hash(senha, 10);
+  try {
+    const senhaCrptografada = await bcrypt.hash(senha, 10);
 
-  const usuario = {
-    id: uuidv4(),
-    nome,
-    email,
-    senha: senhaCrptografada,
-    cpf_Matri,
-    tel,
-    tipoUsu,
-  };
+    const usuario = {
+      id: uuidv4(),
+      nome,
+      email,
+      senha: senhaCrptografada,
+      cpf_Matri,
+      tel,
+      tipoUsu,
+    };
 
-  cadastrarUsuario(usuario);
+    cadastrarUsuario(usuario);
 
-  return {
-    status: 201,
-    mensagem: 'Usuario cadastrado com sucesso',
-  };
+    return {
+      status: 201,
+      mensagem: 'Usuario cadastrado com sucesso',
+    };
+  } catch (error) {
+    return {
+      status: 500,
+      message: error.message,
+    };
+  }
 }
 
 // LOGIN
