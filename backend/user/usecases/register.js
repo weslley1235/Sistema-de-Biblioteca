@@ -1,0 +1,57 @@
+import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcrypt';
+import { userValidation } from '../validator.js';
+import { findByEmail, findByCpf, save } from '../repository.js';
+
+function createUser(data, hashedPassword) {
+  return {
+    id: uuidv4(),
+    nome: data.nome,
+    cpf: data.cpf,
+    email: data.email,
+    tel: data.tel,
+    tipoUsu: data.tipoUsu,
+    password: hashedPassword,
+  };
+}
+
+export async function register(data) {
+  try {
+    const result = userValidation(data);
+
+    if (!result.success) {
+      return { status: 400, message: result.error.issues[0].message };
+    }
+
+    if (findByEmail(data.email)) {
+      return { status: 409, message: 'Esse email já está cadastrado' };
+    }
+
+    if (findByCpf(data.cpf)) {
+      return {
+        status: 409,
+        message: 'Esse CPF já está cadastrado',
+      };
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const user = createUser(data, hashedPassword);
+
+    await save(user);
+
+    return {
+      status: 201,
+      message: 'Usuario cadastrado com sucesso',
+      user: {
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        cpf: user.cpf,
+        tel: user.tel,
+        tipoUsu: user.tipoUsu,
+      },
+    };
+  } catch (error) {
+    return { status: 500, message: error.message };
+  }
+}

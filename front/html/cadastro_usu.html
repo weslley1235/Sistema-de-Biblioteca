@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Cadastro de Usuário</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
   </head>
 
   <body>
@@ -23,12 +23,12 @@
             <label>Senha:</label>
             <input type="password" id="senha" required />
 
-            <label>CPF ou RA:</label>
-            <input type="text" id="cpf_Matri" required />
+            <label>CPF:</label>
+            <input type="text" id="cpf" required />
 
             <label>Telefone:</label>
-            <input type="text" id="tel" required />
-
+            <input type="text" id="tel" maxlength="11" inputmode="numeric" required />
+            
             <label>Tipo de usuário:</label>
             <select id="tipoUsu" required>
               <option value="">Selecione</option>
@@ -69,7 +69,7 @@
         </div>
       </div>
     </div>
-    <script src="cadastro_usu.js"></script>
-    <script src="login.js"></script>
+    <script src="/js/cadastro_usu.js"></script>
+    <script src="/js/login.js"></script>
   </body>
 </html>
