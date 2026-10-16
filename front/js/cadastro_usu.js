@@ -1,17 +1,17 @@
-const registerForm = document.getElementById('formulario');
-const registerMessage = document.getElementById('mensagem');
+const registerForm = document.querySelector('#formulario');
+const registerMessage = document.querySelector('#mensagem');
 const card = document.querySelector('.cartao');
 
 async function registerUser(event) {
   event.preventDefault();
 
   const user = {
-    nome: document.getElementById('nome').value,
-    email: document.getElementById('email').value,
-    password: document.getElementById('senha').value,
-    cpf: document.getElementById('cpf').value,
-    tel: document.getElementById('tel').value,
-    tipoUsu: document.getElementById('tipoUsu').value,
+    nome: document.querySelector('#nome').value,
+    email: document.querySelector('#email').value,
+    password: document.querySelector('#senha').value,
+    cpf: document.querySelector('#cpf').value,
+    tel: document.querySelector('#tel').value,
+    tipoUsu: document.querySelector('#tipoUsu').value,
   };
 
   try {
@@ -35,12 +35,10 @@ async function registerUser(event) {
 
 registerForm.addEventListener('submit', registerUser);
 
-document.getElementById('entrarSistema').addEventListener('click', () => {
+document.querySelector('#entrarSistema').addEventListener('click', () => {
   card.classList.add('virado');
 });
 
-document.getElementById('voltarCadastro').addEventListener('click', () => {
+document.querySelector('#voltarCadastro').addEventListener('click', () => {
   card.classList.remove('virado');
 });
-
-  
