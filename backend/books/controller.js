@@ -1,9 +1,24 @@
+import { bookValidation } from './validator.js';
 import { register } from './usecases/index.js';
 
-export async function requestController(request, reply) {
-  const resultado = await register(request.body);
+export async function requestHandler(request, reply) {
+  try {
+    const validation = bookValidation(request.body);
+    if (!validation.success) {
+      return {
+        status: 400,
+        message: validation.error.issues[0].message,
+      };
+    }
 
-  return reply.code(resultado.status).send({
-    mensagem: resultado.message,
-  });
+    const save = await register(request.body);
+
+    return save;
+  } catch (erro) {
+    console.log('Erro ao cadastrar livro:', erro);
+
+    return reply.status(500).send({
+      mensagem: 'Erro do servidor',
+    });
+  }
 }

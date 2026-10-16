@@ -1,20 +1,20 @@
 [
   {
-    "id": "af329aed-885e-4938-860f-2f89698c07c2",
-    "nome": "weslley",
-    "cpf": "12345678911",
+    "id": "5d7b04c0-f7b4-4748-a2a4-5f62fe417b9c",
+    "nome": "Weslley",
     "email": "weslley@gmail.com",
-    "tel": "12345678911",
-    "tipoUsu": "Aluno",
-    "password": "$2b$10$Bk5L7Zbn38pk.3mmoUmcguz4fbLLK/I8cKxrajDUn3JAmXUUpoXFK"
+    "senha": "$2b$10$tSuJtVfcZfEvI3ac6NDKRuEBHyOV7rmBE.oB4Ii8jTsYedI2ZoiqS",
+    "cpf_Matri": "12345",
+    "tel": "123456",
+    "tipoUsu": "Aluno"
   },
   {
-    "id": "b49999a4-ecb1-4e36-ade0-92d8b037fccc",
-    "nome": "lucas",
-    "cpf": "12345678901",
-    "email": "lucas@gmail.com",
-    "tel": "12992616010",
-    "tipoUsu": "Aluno",
-    "password": "$2b$10$3mSz6cJ.0fryq5dya6TpI.VDez1hkLZ53h7vpSDLIGr9Q7KHBc9m."
+    "id": "701935e7-3be0-429a-92b6-8e1ededa12fc",
+    "nome": "Bruno Cardoso",
+    "email": "bruno@teste.com",
+    "senha": "$2b$10$2yUazsHEkAeQaCAyV8fOYOpWSsa9ZDDfcCPhw8kdiW2yj/6q1GPyG",
+    "cpf_Matri": "00000000000",
+    "tel": "00000000000",
+    "tipoUsu": "Aluno"
   }
 ]
