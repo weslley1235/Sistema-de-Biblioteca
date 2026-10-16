@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
-import { userValidation } from '../validator.js';
 import { findByEmail, findByCpf, save } from '../repository.js';
 
 function createUser(data, hashedPassword) {
@@ -17,14 +16,11 @@ function createUser(data, hashedPassword) {
 
 export async function register(data) {
   try {
-    const result = userValidation(data);
-
-    if (!result.success) {
-      return { status: 400, message: result.error.issues[0].message };
-    }
-
     if (findByEmail(data.email)) {
-      return { status: 409, message: 'Esse email já está cadastrado' };
+      return {
+        status: 409,
+        message: 'Esse email já está cadastrado',
+      };
     }
 
     if (findByCpf(data.cpf)) {
@@ -52,6 +48,9 @@ export async function register(data) {
       },
     };
   } catch (error) {
-    return { status: 500, message: error.message };
+    return {
+      status: 500,
+      message: error.message,
+    };
   }
 }
