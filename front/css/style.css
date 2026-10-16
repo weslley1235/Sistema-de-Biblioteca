@@ -470,3 +470,39 @@ body:has(#formulario) {
   background: var(--destaque);
   color: #fff;
 }
+
+.cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.usuario-logado {
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 12px;
+  border-left: 4px solid #273c75;
+  box-shadow: 0 3px 12px #00000012;
+  text-align: left;
+  margin-bottom: 60px;
+  backdrop-filter: blur(6px);
+}
+
+.usuario-logado h3 {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 700;
+  color: #e6e6e6;
+}
+
+.status-usuario {
+  font-size: 16px;
+  color: #16803d;
+}
+.usuario-logado {
+  background: transparent;
+  box-shadow: none;
+}
+
+.usuario-logado p {
+  color: #fff0f0;
+}

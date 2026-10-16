@@ -5,11 +5,11 @@
 
 ## Arquitetura
 
-- Separe a estrutura de validação da estrutura do server
-- Separe a implementação de banco da lógica do endpoint
-- Adicione validações específicas de CPF
-- Deixe o controller somente como um roteador de funções
-- Crie um usecase que será um orquestrador e nele ficarão as regras de negócio
+- Separe a estrutura de validação da estrutura do server✅
+- Separe a implementação de banco da lógica do endpoint✅
+- Adicione validações específicas de CPF ✅
+- Deixe o controller somente como um roteador de funções✅
+- Crie um usecase que será um orquestrador e nele ficarão as regras de negócio✅
 
 ### Estrutura sugerida
 

@@ -6,14 +6,15 @@
 
     <title>Biblioteca</title>
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
   </head>
 
   <body>
-    <header>
-      <h1>Biblioteca WS</h1>
-      <p>Gerencie seus livros</p>
-    </header>
+    <div class="usuario-logado">
+      <p>Bem-vindo(a),</p>
+      <h3 id="nomeUsuario">Usuário</h3>
+      <span class="status-usuario">Status (● Online)</span>
+    </div>
 
     <main>
       <section class="cadastro">
@@ -22,13 +23,11 @@
         <form id="formLivro">
           <input
             type="text"
-            id="titulo"
+            id="title"
             placeholder="Título do livro"
             required
           />
-
           <input type="text" id="autor" placeholder="Autor" required />
-
           <input type="number" id="ano" placeholder="Ano" required />
 
           <button type="submit">Cadastrar Livro</button>
@@ -52,6 +51,6 @@
       <button onclick="window.location.href = '/logout'">Sair</button>
     </main>
 
-    <script src="script.js"></script>
+    <script src="/js/script.js"></script>
   </body>
 </html>
