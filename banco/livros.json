@@ -1,20 +1,14 @@
 [
   {
-    "id": "34a4b731-dfa7-404c-baff-ac6ff113184b",
-    "title": "Turma da Monica - Lendas Brasileiras",
-    "autor": "Mauricio de Sousa",
-    "ano": 2009
-  },
-  {
     "id": "3c99f4f3-a455-4ef5-b917-0fb934157f88",
     "title": "O Idiota",
     "autor": "Fiódor Dostoivski",
     "ano": 1868
   },
   {
-    "id": "001f7a8a-5d47-4686-90b6-2ef428b43262",
-    "title": "Harry Potter e o calice de fogo",
-    "autor": "J.K. Rowling",
-    "ano": 2900
+    "id": "b50d3476-86e8-4ff6-a000-3fd7037b560d",
+    "title": "A coragem de não agradar",
+    "autor": "Ichiro Kishimi",
+    "ano": 2018
   }
 ]

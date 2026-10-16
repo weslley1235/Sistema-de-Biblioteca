@@ -5,10 +5,10 @@ import userRoutes from './backend/user/routes.js';
 import loanRoutes from './backend/emprestimo/routes.js';
 
 import { requestHandler } from './backend/books/controller.js';
-import { destroyHandler } from './backend/books/controllerDestroy.js';
-import { updateHandler } from './backend/books/controllerUpdate.js';
-import { listBooksHandler } from './backend/books/controllerList.js';
-import { findBookHandler } from './backend/books/controllerFindBook.js';
+import { destroyHandler } from './backend/books/destroyController.js';
+import { updateHandler } from './backend/books/updateController.js';
+import { listBooksHandler } from './backend/books/listController.js';
+import { findBookHandler } from './backend/books/findBookController.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

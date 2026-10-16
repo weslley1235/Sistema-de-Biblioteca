@@ -18,5 +18,25 @@
     "dataDevolucao": "2026-10-13",
     "id": "b11bbeaf-2145-42f0-b6d7-0c92b6aa6bbd",
     "devolvido": true
+  },
+  {
+    "livroId": "001f7a8a-5d47-4686-90b6-2ef428b43262",
+    "nome": "weslley",
+    "tel": "12345678911",
+    "cpf": "12345678911",
+    "dataEmprestimo": "2026-10-16",
+    "dataDevolucao": "2026-10-16",
+    "id": "66d6d2f4-5118-4772-befb-48bd7aca331b",
+    "devolvido": true
+  },
+  {
+    "livroId": "b50d3476-86e8-4ff6-a000-3fd7037b560d",
+    "nome": "weslley",
+    "tel": "12345678911",
+    "cpf": "12345678911",
+    "dataEmprestimo": "2026-10-16",
+    "dataDevolucao": "2026-10-16",
+    "id": "b136285e-199a-4ec3-a327-cb704dacc33f",
+    "devolvido": true
   }
 ]

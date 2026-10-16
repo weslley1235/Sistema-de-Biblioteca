@@ -1,4 +1,4 @@
-import { list, save, findById } from '../repository.js';
+import { findById, update as updateBook } from '../repository.js';
 
 export function update(id, dados) {
   const book = findById(id);
