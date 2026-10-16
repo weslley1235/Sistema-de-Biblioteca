@@ -1,7 +1,10 @@
+// IMPORTAÇÕES
 import { v4 as uuidv4 } from 'uuid';
 
 import { bookValidation } from '../validator.js';
-import { findByTitle, list, save } from '../repository.js';
+import { findByTitle, save } from '../repository.js';
+
+// CADASTRAR LIVRO
 
 export async function register(payload) {
   try {
@@ -14,7 +17,7 @@ export async function register(payload) {
       };
     }
 
-    const findBook = findByTitle(payload.title);
+    const findBook = findByTitle(payload.titulo);
 
     if (findBook) {
       return {
@@ -23,14 +26,10 @@ export async function register(payload) {
       };
     }
 
-    const books = list();
-
-    books.push({
+    await save({
       id: uuidv4(),
-      ...validation.data,
+      ...payload,
     });
-
-    save(books);
 
     return {
       status: 201,
@@ -39,7 +38,7 @@ export async function register(payload) {
   } catch (error) {
     return {
       status: 500,
-      message: error.message,
+      mensage: error.mensage,
     };
   }
 }

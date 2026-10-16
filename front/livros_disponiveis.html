@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Livros disponíveis</title>
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
@@ -34,42 +34,22 @@
             const div = document.createElement('div');
 
             div.innerHTML = `
-          <h3>Nome: ${livro.title}</h3>
+    <h3>Nome: ${livro.titulo}</h3>
 
-          <p>Autor: ${livro.autor}</p>
+    <p>Autor: ${livro.autor}</p>
 
-          <p>Ano: ${livro.ano}</p>
+    <p>Ano: ${livro.ano}</p>
 
-          <button onclick="window.location.href='/novo-emprestimo?livroId=${livro.id}'">
-              Emprestar
-          </button>
+    <button onclick="window.location.href='/novo-emprestimo?livroId=${livro.id}'">
+        Emprestar
+    </button>
 
-          <button onclick="excluirLivro('${livro.id}')"> Excluir livro </button>
-
-          <hr>
-      `;
+    <hr>
+`;
 
             lista.appendChild(div);
           }
         });
-      }
-
-      async function excluirLivro(id) {
-        const confirmar = confirm('Deseja realmente excluir este livro?');
-
-        if (!confirmar) return;
-
-        const resposta = await fetch(`/livro/${id}`, {
-          method: 'DELETE',
-        });
-
-        const resultado = await resposta.json();
-
-        alert(resultado.mensagem || resultado.message);
-
-        if (resposta.ok) {
-          carregarLivros();
-        }
       }
 
       carregarLivros();
