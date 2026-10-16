@@ -1,6 +1,6 @@
 import { update } from './usecases/index.js';
 
-export async function updateHandler(request, reply) {
+export async function updateController(request, reply) {
   try {
     const { id } = request.params;
     const resultado = update(id, request.body);

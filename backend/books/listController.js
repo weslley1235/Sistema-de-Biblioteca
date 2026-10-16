@@ -1,6 +1,6 @@
 import { listBooks } from './usecases/index.js';
 
-export async function listBooksHandler(request, reply) {
+export async function listBooksController(request, reply) {
   try {
     const livros = listBooks();
     return reply.send(livros);

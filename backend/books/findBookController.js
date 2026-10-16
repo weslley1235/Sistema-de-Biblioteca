@@ -1,6 +1,6 @@
 import { findBook } from './usecases/index.js';
 
-export async function findBookHandler(request, reply) {
+export async function findBookController(request, reply) {
   try {
     const livro = findBook(request.params.id);
 

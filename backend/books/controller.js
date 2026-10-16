@@ -1,6 +1,6 @@
 import { register } from './usecases/index.js';
 
-export async function requestHandler(request, reply) {
+export async function requestController(request, reply) {
   const resultado = await register(request.body);
 
   return reply.code(resultado.status).send({
