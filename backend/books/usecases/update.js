@@ -10,15 +10,7 @@ export function update(id, dados) {
     };
   }
 
-  const books = list();
-  const index = books.findIndex((item) => item.id === book.id);
-
-  books[index] = {
-    ...books[index],
-    ...dados,
-  };
-
-  save(books);
+  updateBook(id, dados);
 
   return {
     status: 200,

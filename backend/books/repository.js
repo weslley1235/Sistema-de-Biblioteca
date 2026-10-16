@@ -10,7 +10,7 @@ function list() {
     throw new Error(error.message);
   }
 }
-
+6;
 function save(books) {
   try {
     fs.writeFileSync(path, JSON.stringify(books, null, 2));
@@ -49,4 +49,23 @@ function destroy(id) {
   }
 }
 
-export { list, save, findById, findByTitle, destroy };
+function update(id, dados) {
+  try {
+    const books = list();
+    const index = books.findIndex((book) => String(book.id) === String(id));
+
+    if( index == -1 ){
+      return false;
+    }
+
+    books[index] = { ...books[index], ...dados};
+    save(books);
+
+    return true;
+    
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+export { list, save, findById, findByTitle, update, destroy };
