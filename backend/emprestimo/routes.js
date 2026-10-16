@@ -1,33 +1,31 @@
-
-import {createLoanHandler,listLoansHandler,returnLoanHandler} from './handler.js';
+import {createLoanController,listLoansController,returnLoansController} from './handler.js';
 
 export default async function loanRoutes(server) {
-  
-  function verifyLogin(request, reply, done) {
+  const verifyLogin = (request, reply, done) => {
     if (!request.session.usuario) {
       return reply.redirect('/');
     }
 
     done();
-  }
+  };
 
   const protectedRoute = { preHandler: verifyLogin };
 
-  server.get('/livros-emprestados', protectedRoute, (request, reply) => {
-    return reply.sendFile('html/livros_emprestados.html');
-  });
+  server.get('/livros-emprestados', protectedRoute, (request, reply) =>
+    reply.sendFile('html/livros_emprestados.html'),
+  );
 
-  server.get('/livros-disponiveis', protectedRoute, (request, reply) => {
-    return reply.sendFile('html/livros_disponiveis.html');
-  });
+  server.get('/livros-disponiveis', protectedRoute, (request, reply) =>
+    reply.sendFile('html/livros_disponiveis.html'),
+  );
 
-  server.get('/novo-emprestimo', protectedRoute, (request, reply) => {
-    return reply.sendFile('html/novo_emprestimo.html');
-  });
+  server.get('/novo-emprestimo', protectedRoute, (request, reply) =>
+    reply.sendFile('html/novo_emprestimo.html'),
+  );
 
-  server.post('/emprestimo', protectedRoute, createLoanHandler);
+  server.post('/emprestimo', protectedRoute, createLoanController);
 
-  server.get('/emprestimo', protectedRoute, listLoansHandler);
+  server.get('/emprestimo', protectedRoute, listLoansController);
 
-  server.put('/emprestimo/:id', protectedRoute, returnLoanHandler);
+  server.put('/emprestimo/:id', protectedRoute, returnLoansController);
 }
