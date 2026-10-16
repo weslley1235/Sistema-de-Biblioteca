@@ -4,11 +4,11 @@ import server from './backend/fastify.js';
 import userRoutes from './backend/user/routes.js';
 import loanRoutes from './backend/emprestimo/routes.js';
 
-import { requestHandler } from './backend/books/controller.js';
-import { destroyHandler } from './backend/books/destroyController.js';
-import { updateHandler } from './backend/books/updateController.js';
-import { listBooksHandler } from './backend/books/listController.js';
-import { findBookHandler } from './backend/books/findBookController.js';
+import { requestController } from './backend/books/controller.js';
+import { destroyController } from './backend/books/destroyController.js';
+import { updateController } from './backend/books/updateController.js';
+import { listBooksController } from './backend/books/listController.js';
+import { findBookController } from './backend/books/findBookController.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -53,15 +53,15 @@ server.register(userRoutes);
 server.register(loanRoutes);
 
 // Livros
-server.post('/livro', { preHandler: verificarLogin }, requestHandler);
+server.post('/livro', { preHandler: verificarLogin }, requestController);
 
-server.get('/livro', { preHandler: verificarLogin }, listBooksHandler);
+server.get('/livro', { preHandler: verificarLogin }, listBooksController);
 
-server.get('/livro/:id', { preHandler: verificarLogin }, findBookHandler);
+server.get('/livro/:id', { preHandler: verificarLogin }, findBookController);
 
-server.put('/livro/:id', { preHandler: verificarLogin }, updateHandler);
+server.put('/livro/:id', { preHandler: verificarLogin }, updateController);
 
-server.delete('/livro/:id', { preHandler: verificarLogin }, destroyHandler);
+server.delete('/livro/:id', { preHandler: verificarLogin }, destroyController);
 
 // Logout
 server.get('/logout', async (request, reply) => {

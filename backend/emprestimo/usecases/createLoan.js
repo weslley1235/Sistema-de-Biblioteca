@@ -3,7 +3,7 @@ import { createLoan, findActiveLoan } from '../loan.js';
 import { findBook } from '../../books/usecases/index.js';
 import { findByCpf } from '../../user/repository.js';
 
-export function registerLoan(data) {
+export function lendBook(data) {
   const { livroId, cpf, tel } = data;
 
   const user = findByCpf(cpf)

@@ -1,5 +1,5 @@
 import { listLoans, loanSchema, returnLoan } from './loan.js';
-import { registerLoan } from './usecases/createLoan.js';
+import { lendBook } from './usecases/createLoan.js';
 
 function asyncHandler(handler) {
   return async (request, reply) => {
@@ -27,7 +27,7 @@ export const createLoanHandler = asyncHandler(async (request, reply) => {
     );
   }
 
-  const loan = registerLoan(result.data);
+  const loan = lendBook(result.data);
 
   if (loan.error) {
     return sendError(reply, 400, loan.error);
