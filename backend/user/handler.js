@@ -1,4 +1,4 @@
-import { register, login, destroy } from './usecases/index.js';
+import { register, login, destroy, list, update } from './usecases/index.js';
 import { userValidation } from './validator.js';
 
 export const registerHandler = async (request, reply) => {
@@ -39,10 +39,22 @@ export const loginHandler = async (request, reply) => {
   });
 };
 
-export const destroyHandler = async (request, reply) => {
-  const result = await destroy(request.params.id);
+export const updateHandler = async (request, reply) => {
+  const result = await update(request.params.id, request.body);
 
-  return reply.code(result.status).send(result);
+  if (result.status !== 200) {
+    return reply.code(result.status).send(result);
+  }
+
+  return reply.send({
+    message: result.message,
+  });
+};
+
+export const listUsersHandler = async (request, reply) => {
+  const users = await list();
+
+  return reply.send(users);
 };
 
 export const currentUserHandler = async (request, reply) => {
@@ -57,4 +69,26 @@ export const currentUserHandler = async (request, reply) => {
   return reply.send({
     nome: usuario.nome,
   });
+};
+
+export const destroyHandler = async (request, reply) => {
+  const id = request.params.id;
+  const usuario = request.session.get('usuario');
+
+  const result = await destroy(id);
+
+  if (result.status !== 200) {
+    return reply.code(result.status).send(result);
+  }
+
+  if (usuario?.id === id) {
+    await request.session.destroy();
+
+    return reply.send({
+      ...result,
+      propriaConta: true,
+    });
+  }
+
+  return reply.send(result);
 };

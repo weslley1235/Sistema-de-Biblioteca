@@ -1,16 +1,14 @@
-import { findById, update as updateBook } from '../repository.js';
+import { update as updateBook } from '../repository.js';
 
-export function update(id, dados) {
-  const book = findById(id);
+export async function update(id, dados) {
+  const updated = await updateBook(id, dados);
 
-  if (!book) {
+  if (!updated) {
     return {
       status: 404,
       message: 'Livro não encontrado',
     };
   }
-
-  updateBook(id, dados);
 
   return {
     status: 200,

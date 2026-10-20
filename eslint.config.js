@@ -6,7 +6,7 @@ export default [
   { ignores: ['node_modules/'] },
   js.configs.recommended,
   {
-    files: ['server.js', 'backend/**/*.js', 'banco/**/*.js'],
+    files: ['server.js', 'database/**/*.js', 'backend/**/*.js', 'banco/**/*.js'],
     languageOptions: { globals: globals.node },
   },
   {

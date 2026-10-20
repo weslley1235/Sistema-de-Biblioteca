@@ -5,16 +5,19 @@ function asyncHandler(handler) {
   return async (request, reply) => {
     try {
       return await handler(request, reply);
-
     } catch (error) {
       request.log.error(error);
-      return reply.code(500).send({ mensagem: 'Erro do servidor' });
+      return reply.code(500).send({
+        mensagem: 'Erro do servidor',
+      });
     }
   };
 }
 
 function sendError(reply, statusCode, message) {
-  return reply.code(statusCode).send({ mensagem: message });
+  return reply.code(statusCode).send({
+    mensagem: message,
+  });
 }
 
 async function createLoan(request, reply) {
@@ -28,7 +31,7 @@ async function createLoan(request, reply) {
     );
   }
 
-  const loan = lendBook(result.data);
+  const loan = await lendBook(result.data);
 
   if (loan.error) {
     return sendError(reply, 400, loan.error);
@@ -40,11 +43,13 @@ async function createLoan(request, reply) {
 }
 
 async function getLoans(request, reply) {
-  return reply.send(listLoans());
+  const loans = await listLoans();
+
+  return reply.send(loans);
 }
 
 async function returnLoanBook(request, reply) {
-  const returned = returnLoan(request.params.id);
+  const returned = await returnLoan(request.params.id);
 
   if (!returned) {
     return sendError(reply, 404, 'Empréstimo não encontrado');

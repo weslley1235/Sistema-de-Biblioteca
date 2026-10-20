@@ -9,17 +9,32 @@ const botaoFormulario = formLivro.querySelector('button[type="submit"]');
 
 // LISTAR LIVROS
 async function carregarLivros() {
-  const resposta = await fetch('/livro');
-  const livros = await resposta.json();
+  const respostaLivros = await fetch('/livro');
+  const livros = await respostaLivros.json();
+
+  const respostaEmprestimos = await fetch('/emprestimo');
+  const emprestimos = await respostaEmprestimos.json();
 
   listaLivros.innerHTML = '';
 
   livros.forEach((livro) => {
+    const emprestado = emprestimos.some(
+      (emprestimo) =>
+        emprestimo.livroId === livro.id && emprestimo.devolvido === false,
+    );
+
     const div = document.createElement('div');
     div.classList.add('livro');
 
     div.innerHTML = `
-      <h3>${livro.title}</h3>
+    <div class="titulo-livro">
+        <h3>${livro.title}</h3>
+        <span class="status-livro ${emprestado ? 'emprestado' : 'disponivel'}">
+        <span class="bolinha"></span>
+          ${emprestado ? 'Emprestado' : 'Disponível'}
+        </span>
+    </div>
+
       <p><strong>Autor:</strong> ${livro.autor}</p>
       <p><strong>Ano:</strong> ${livro.ano}</p>
       <div class="botoes">

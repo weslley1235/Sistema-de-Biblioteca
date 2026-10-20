@@ -10,11 +10,37 @@
   </head>
 
   <body>
-    <div class="usuario-logado">
-      <p>Bem-vindo(a),</p>
-      <h3 id="nomeUsuario">Usuário</h3>
-      <span class="status-usuario">Status (● Online)</span>
-    </div>
+    <header class="cabecalho">
+      <nav class="menu">
+        <div class="menu-item">
+          <button type="button" class="menu-botao">Livros ▾</button>
+
+          <div class="submenu">
+            <a href="/livros-disponiveis">Livros disponíveis</a>
+            <a href="/livros-emprestados">Livros Emprestados</a>
+            <a href="/livros-inativos">Livros Inativos</a>
+          </div>
+        </div>
+
+        <div class="menu-item">
+          <button type="button" class="menu-botao">Usuários ▾</button>
+
+          <div class="submenu">
+            <a href="/usuarios">Usuários cadastrados</a>
+          </div>
+        </div>
+
+        <div class="menu-item">
+          <a class="menu-botao sair" href="/logout">Sair</a>
+        </div>
+      </nav>
+
+      <div class="usuario-logado">
+        <p>Bem-vindo(a), <strong id="nomeUsuario">Usuário</strong></p>
+
+        <span class="status-usuario">● Online</span>
+      </div>
+    </header>
 
     <main>
       <section class="cadastro">
@@ -27,7 +53,9 @@
             placeholder="Título do livro"
             required
           />
+
           <input type="text" id="autor" placeholder="Autor" required />
+
           <input type="number" id="ano" placeholder="Ano" required />
 
           <button type="submit">Cadastrar Livro</button>
@@ -41,14 +69,6 @@
 
         <div id="listaLivros"></div>
       </section>
-
-      <button onclick="window.location.href = '/livros-emprestados'">
-        Livros emprestados
-      </button>
-      <button onclick="window.location.href = '/livros-disponiveis'">
-        Livros disponíveis
-      </button>
-      <button onclick="window.location.href = '/logout'">Sair</button>
     </main>
 
     <script src="/js/script.js"></script>

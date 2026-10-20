@@ -1,68 +1,69 @@
-import fs from 'node:fs';
+import database from '../../database/db.js';
 
-const path = './banco/usuario.json';
+async function list() {
+  const result = await database.query('SELECT * FROM usuarios ORDER BY nome');
 
-function list() {
-  try {
-    const data = fs.readFileSync(path, 'utf8');
-    return JSON.parse(data);
-    
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  return result.rows;
 }
 
-function save(user) {
-  try {
-    const users = list();
-    users.push(user);
-    fs.writeFileSync(path, JSON.stringify(users, null, 2));
-    return user;
+async function save(user) {
+  const { id, nome, email, cpf, tel, tipoUsu, senha } = user;
 
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  const result = await database.query(
+    `INSERT INTO usuarios (id, nome, email, cpf, tel, tipousu, senha)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING *`,
+    [id, nome, email, cpf, tel, tipoUsu, senha],
+  );
+
+  return result.rows[0];
 }
 
-function findById(id) {
-  try {
-    const users = list();
-    return users.find((user) => user.id == id);
+async function findById(id) {
+  const result = await database.query('SELECT * FROM usuarios WHERE id = $1', 
+    [id]
+  );
 
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  return result.rows[0];
 }
 
-function findByEmail(email) {
-  try {
-    const users = list();
-    return users.find((user) => user.email == email);
+async function findByEmail(email) {
+  const result = await database.query(
+    'SELECT * FROM usuarios WHERE email = $1',
+    [email],
+  );
 
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  return result.rows[0];
 }
 
-function findByCpf(cpf) {
-  try {
-    const users = list();
-    return users.find((user) => user.cpf === cpf);
+async function findByCpf(cpf) {
+  const result = await database.query('SELECT * FROM usuarios WHERE cpf = $1', 
+    [cpf]
+  );
 
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  return result.rows[0];
 }
 
-function destroy(id) {
-  try {
-    const users = list();
-    const newUsers = users.filter((user) => user.id !== id);
-    fs.writeFileSync(path, JSON.stringify(newUsers, null, 2));
+async function destroy(id) {
+  const result = await database.query('DELETE FROM usuarios WHERE id = $1', 
+    [id]
+  );
 
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  return result.rowCount > 0;
 }
 
-export { list, save, findById, findByEmail, findByCpf, destroy };
+async function update(id, user) {
+  const { nome, email, cpf, tel } = user;
+
+  const result = await database.query(
+    `UPDATE usuarios
+     SET nome = $1, email = $2, cpf = $3, tel = $4
+     WHERE id = $5
+     RETURNING *`,
+    [nome, email, cpf, tel, id],
+  );
+
+  return result.rows[0];
+}
+
+export { list, save, findById, findByEmail, findByCpf, destroy, update };

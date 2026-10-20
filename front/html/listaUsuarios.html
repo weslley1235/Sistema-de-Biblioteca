@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <title>Usuários cadastrados</title>
+  </head>
+  <body>
+    <h1>Usuários cadastrados</h1>
+
+    <form id="formEditar" hidden>
+      <h2>Editar usuário</h2>
+
+      <label>Nome:</label>
+      <input name="nome" placeholder="Nome" required />
+
+      <label>Email:</label>
+      <input name="email" type="email" placeholder="E-mail" required />
+
+      <label>Telefone:</label>
+      <input name="tel" placeholder="Telefone" required />
+
+      <label>CPF:</label>
+      <input name="cpf" placeholder="CPF completo (opcional)" />
+
+      <button type="submit">Salvar alterações</button>
+      <button type="button" id="cancelarEdicao" style="display: block; margin-top: 15px">Cancelar</button>
+    </form>
+
+    <div id="listaUsuarios"></div>
+
+    <button style = "display: block; margin-top: 25px;" onclick="window.location.href =  '/index'">Voltar</button>
+
+    <script src="../js/listaUsuarios.js"></script>
+  </body>
+</html>

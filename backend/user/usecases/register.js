@@ -10,20 +10,20 @@ function createUser(data, hashedPassword) {
     email: data.email,
     tel: data.tel,
     tipoUsu: data.tipoUsu,
-    password: hashedPassword,
+    senha: hashedPassword,
   };
 }
 
 export async function register(data) {
   try {
-    if (findByEmail(data.email)) {
+    if (await findByEmail(data.email)) {
       return {
         status: 409,
         message: 'Esse email já está cadastrado',
       };
     }
 
-    if (findByCpf(data.cpf)) {
+    if (await findByCpf(data.cpf)) {
       return {
         status: 409,
         message: 'Esse CPF já está cadastrado',

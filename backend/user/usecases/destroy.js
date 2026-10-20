@@ -1,8 +1,8 @@
 import { findById, destroy as destroyUser } from '../repository.js';
 
-export function destroy(id) {
+export async function destroy(id) {
   try {
-    const user = findById(id);
+    const user = await findById(id);
 
     if (!user) {
       return {
@@ -11,12 +11,12 @@ export function destroy(id) {
       };
     }
 
-    destroyUser(id);
+    await destroyUser(id);
+
     return {
       status: 200,
       message: 'Usuario excluido com sucesso',
     };
-    
   } catch (error) {
     return {
       status: 500,

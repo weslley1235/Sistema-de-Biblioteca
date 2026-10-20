@@ -6,13 +6,19 @@ export async function login(email, password) {
   const result = userLoginValidation({ email, password });
 
   if (!result.success) {
-    return { status: 400, message: result.error.issues[0].message };
+    return {
+      status: 400,
+      message: result.error.issues[0].message,
+    };
   }
 
-  const user = findByEmail(email);
+  const user = await findByEmail(email);
 
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return { status: 401, message: 'Email ou Password invalidos!' };
+  if (!user || !(await bcrypt.compare(password, user.senha))) {
+    return {
+      status: 401,
+      message: 'Email ou senha inválidos!',
+    };
   }
 
   return {

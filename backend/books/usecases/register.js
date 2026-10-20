@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { bookValidation } from '../validator.js';
-import { findByTitle, list, save } from '../repository.js';
+import { findByTitle, save } from '../repository.js';
 
 export async function register(payload) {
   try {
@@ -14,23 +14,19 @@ export async function register(payload) {
       };
     }
 
-    const findBook = findByTitle(payload.title);
+    const existingBook = await findByTitle(validation.data.title);
 
-    if (findBook) {
+    if (existingBook) {
       return {
         status: 409,
         message: 'Esse livro já tem cadastro',
       };
     }
 
-    const books = list();
-
-    books.push({
+    await save({
       id: uuidv4(),
       ...validation.data,
     });
-
-    save(books);
 
     return {
       status: 201,

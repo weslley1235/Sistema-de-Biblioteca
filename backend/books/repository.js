@@ -1,71 +1,86 @@
-import fs from 'node:fs';
 
-const path = './banco/livros.json';
+import database from '../../database/db.js';
 
-function list() {
-  try {
-    const dados = fs.readFileSync(path, 'utf8');
-    return JSON.parse(dados);
-  } catch (error) {
-    throw new Error(error.message);
-  }
-}
-6;
-function save(books) {
-  try {
-    fs.writeFileSync(path, JSON.stringify(books, null, 2));
-  } catch (error) {
-    throw new Error(error.message);
-  }
+async function list() {
+  const result = await database.query(
+    `SELECT id, title, autor, ano FROM livros WHERE ativo = TRUE ORDER BY title`);
+  return result.rows;
 }
 
-function findById(id) {
-  try {
-    const books = list();
-    return books.find((book) => book.id === id);
-  } catch (error) {
-    throw new Error(error.message);
-  }
+async function listInactive() {
+  const result = await database.query(
+    `SELECT id, title, autor, ano FROM livros WHERE ativo = FALSE ORDER BY title`);
+  return result.rows;
 }
 
-function findByTitle(title) {
-  try {
-    const books = list();
-    return books.find(
-      (book) => book.title.toLowerCase() === title.toLowerCase(),
+async function save(book) {
+  const books = Array.isArray(book) ? book : [book];
+
+  for (const item of books) {
+    await database.query(
+      `INSERT INTO livros (id, title, autor, ano) VALUES ($1, $2, $3, $4)`,
+      [item.id, item.title, item.autor, item.ano],
     );
-  } catch (error) {
-    throw new Error(error.message);
   }
 }
 
-function destroy(id) {
-  try {
-    const books = list();
-    const newBooks = books.filter((book) => String(book.id) !== String(id));
-    save(newBooks);
-  } catch (error) {
-    throw new Error(error.message);
-  }
+async function findById(id) {
+  const result = await database.query(
+    'SELECT id, title, autor, ano FROM livros WHERE id = $1',
+    [id],
+  );
+
+  return result.rows[0];
 }
 
-function update(id, dados) {
-  try {
-    const books = list();
-    const index = books.findIndex((book) => String(book.id) === String(id));
+async function findByTitle(title) {
+  const result = await database.query(
+    `SELECT id, title, autor, ano FROM livros WHERE LOWER(title) = LOWER($1) LIMIT 1`,
+    [title],
+  );
 
-    if( index == -1 ){
-      return false;
-    }
-
-    books[index] = { ...books[index], ...dados};
-    save(books);
-
-    return true;
-    
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  return result.rows[0];
 }
 
-export { list, save, findById, findByTitle, update, destroy };
+async function update(id, dados) {
+  const book = await findById(id);
+
+  if (!book) return false;
+
+  const result = await database.query(
+    `UPDATE livros SET title = $1, autor = $2, ano = $3 WHERE id = $4`,
+    [dados.title ?? book.title, dados.autor ?? book.autor, dados.ano ?? book.ano, id],
+  );
+
+  return result.rowCount > 0;
+}
+
+async function destroy(id, definitive = false) {
+  if (definitive) {
+    await database.query('DELETE FROM emprestimos WHERE livro_id = $1', [id]);
+    const result = await database.query(
+      'DELETE FROM livros WHERE id = $1',
+      [id],
+    );
+
+    return result.rowCount > 0;
+  }
+
+  const result = await database.query(
+    'UPDATE livros SET ativo = FALSE WHERE id = $1',
+    [id],
+  );
+
+  return result.rowCount > 0;
+}
+
+async function reactivate(id) {
+  const result = await database.query(
+    `UPDATE livros SET ativo = TRUE WHERE id = $1 AND ativo = FALSE`,
+    [id],
+  );
+
+  return result.rowCount > 0;
+}
+
+export {list,listInactive,save,findById,findByTitle,update,destroy,reactivate};

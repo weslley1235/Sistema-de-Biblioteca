@@ -33,10 +33,12 @@
 
                     <p>Ano: ${livro.ano}</p>
 
-                    <p>Data do empréstimo: ${item.dataEmprestimo}</p>
+                    <p>Data do empréstimo: ${new Date(item.dataEmprestimo).toLocaleDateString('pt-BR', 
+                      { timeZone: 'UTC' })}</p>
 
                     <p>Data da devolução:
-                        ${item.dataDevolucao ?? 'Ainda não devolvido'}
+                        ${item.dataDevolucao ? new Date(item.dataDevolucao).toLocaleDateString('pt-BR', 
+                        { timeZone: 'UTC' }) : 'Ainda não devolvido'}
                     </p>
 
                     <button onclick="devolverLivro('${item.id}')">

@@ -48,6 +48,14 @@ server.get('/index', { preHandler: verificarLogin }, async (request, reply) => {
   return reply.sendFile('html/index.html');
 });
 
+server.get('/usuarios', { preHandler: verificarLogin }, async (request, reply) => {
+  return reply.sendFile('html/listaUsuarios.html');
+});
+
+server.get('/livros-inativos', { preHandler: verificarLogin }, async (request, reply) => {
+  return reply.sendFile('html/livros_inativos.html');
+});
+
 // Usuários e empréstimos
 server.register(userRoutes);
 server.register(loanRoutes);
