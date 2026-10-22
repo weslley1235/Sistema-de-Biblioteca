@@ -2,15 +2,10 @@ import { listBooks, listInactiveBooks } from './usecases/index.js';
 
 export async function listBooksController(request, reply) {
   try {
-    let livros;
+    if (request.query.inactive === 'true')
+      return reply.send(await listInactiveBooks());
 
-    if (request.query.inactive === 'true') {
-      livros = await listInactiveBooks();
-    } else {
-      livros = await listBooks();
-    }
-
-    return reply.send(livros);
+    return reply.send(await listBooks());
   } catch (erro) {
     request.log.error(erro);
     return reply.code(500).send({

@@ -1,15 +1,16 @@
-
 import database from '../../database/db.js';
 
 async function list() {
   const result = await database.query(
-    `SELECT id, title, autor, ano FROM livros WHERE ativo = TRUE ORDER BY title`);
+    `SELECT id, title, autor, ano FROM livros WHERE ativo = TRUE ORDER BY title`,
+  );
   return result.rows;
 }
 
 async function listInactive() {
   const result = await database.query(
-    `SELECT id, title, autor, ano FROM livros WHERE ativo = FALSE ORDER BY title`);
+    `SELECT id, title, autor, ano FROM livros WHERE ativo = FALSE ORDER BY title`,
+  );
   return result.rows;
 }
 
@@ -49,7 +50,12 @@ async function update(id, dados) {
 
   const result = await database.query(
     `UPDATE livros SET title = $1, autor = $2, ano = $3 WHERE id = $4`,
-    [dados.title ?? book.title, dados.autor ?? book.autor, dados.ano ?? book.ano, id],
+    [
+      dados.title ?? book.title,
+      dados.autor ?? book.autor,
+      dados.ano ?? book.ano,
+      id,
+    ],
   );
 
   return result.rowCount > 0;
@@ -58,10 +64,9 @@ async function update(id, dados) {
 async function destroy(id, definitive = false) {
   if (definitive) {
     await database.query('DELETE FROM emprestimos WHERE livro_id = $1', [id]);
-    const result = await database.query(
-      'DELETE FROM livros WHERE id = $1',
-      [id],
-    );
+    const result = await database.query('DELETE FROM livros WHERE id = $1', [
+      id,
+    ]);
 
     return result.rowCount > 0;
   }
@@ -83,4 +88,13 @@ async function reactivate(id) {
   return result.rowCount > 0;
 }
 
-export {list,listInactive,save,findById,findByTitle,update,destroy,reactivate};
+export {
+  list,
+  listInactive,
+  save,
+  findById,
+  findByTitle,
+  update,
+  destroy,
+  reactivate,
+};
