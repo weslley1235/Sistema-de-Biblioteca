@@ -84,3 +84,4 @@ async function reactivate(id) {
 }
 
 export {list,listInactive,save,findById,findByTitle,update,destroy,reactivate};
+ 

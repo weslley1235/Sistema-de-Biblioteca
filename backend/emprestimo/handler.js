@@ -1,5 +1,7 @@
-import { listLoans, loanSchema, returnLoan } from './loan.js';
+import { loanValidation } from './validator.js';
 import { lendBook } from './usecases/createLoan.js';
+import { listLoans } from './usecases/listLoans.js';
+import { returnLoan } from './usecases/returnLoan.js';
 
 function asyncHandler(handler) {
   return async (request, reply) => {
@@ -21,17 +23,17 @@ function sendError(reply, statusCode, message) {
 }
 
 async function createLoan(request, reply) {
-  const result = loanSchema.safeParse(request.body);
+  const validation = loanValidation(request.body);
 
-  if (!result.success) {
+  if (!validation.success) {
     return sendError(
       reply,
       400,
-      result.error.issues[0]?.message ?? 'Dados inválidos',
+      validation.error.issues[0]?.message ?? 'Dados inválidos',
     );
   }
 
-  const loan = await lendBook(result.data);
+  const loan = await lendBook(validation.data);
 
   if (loan.error) {
     return sendError(reply, 400, loan.error);

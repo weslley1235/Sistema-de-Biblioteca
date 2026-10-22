@@ -1,8 +1,8 @@
-const registerForm = document.querySelector('#formulario');
-const registerMessage = document.querySelector('#mensagem');
+const form = document.querySelector('#formulario');
+const mensagem = document.querySelector('#mensagem');
 const card = document.querySelector('.cartao');
 
-async function registerUser(event) {
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const user = {
@@ -22,23 +22,16 @@ async function registerUser(event) {
     });
 
     const result = await response.json();
-    registerMessage.textContent = result.message;
+    mensagem.textContent = result.message;
 
-    if (response.ok) {
-      window.location.href = '/index';
-    }
-  } catch (error) {
-    console.error(error);
-    registerMessage.textContent = 'Não foi possível conectar ao servidor';
+    if (response.ok) window.location.href = '/index';
+  } catch {
+    mensagem.textContent = 'Não foi possível conectar ao servidor';
   }
-}
+});
 
-registerForm.addEventListener('submit', registerUser);
-
-document.querySelector('#entrarSistema').addEventListener('click', () => {
+document.querySelector('#entrarSistema').onclick = () =>
   card.classList.add('virado');
-});
 
-document.querySelector('#voltarCadastro').addEventListener('click', () => {
+document.querySelector('#voltarCadastro').onclick = () =>
   card.classList.remove('virado');
-});

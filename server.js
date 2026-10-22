@@ -11,8 +11,11 @@ import { listBooksController } from './backend/books/listController.js';
 import { findBookController } from './backend/books/findBookController.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PORT = process.env.PORT ?? 3333;
 
+// ---------------------------------------------------------------------------
 // Configurações
+// ---------------------------------------------------------------------------
 server.register(fastifyCookie);
 
 server.register(fastifySession, {
@@ -31,59 +34,56 @@ server.register(fastifyStatic, {
 });
 
 // Verificar login
-function verificarLogin(request, reply, done) {
+
+async function verificarLogin(request, reply) {
   if (!request.session.usuario) {
     return reply.redirect('/');
   }
-
-  done();
 }
 
+const protegida = { preHandler: verificarLogin };
+
 // Páginas
-server.get('/', async (request, reply) => {
-  return reply.sendFile('html/cadastro_usu.html');
-});
 
-server.get('/index', { preHandler: verificarLogin }, async (request, reply) => {
-  return reply.sendFile('html/index.html');
-});
+const paginasProtegidas = {
+  '/index': 'html/index.html',
+  '/usuarios': 'html/listaUsuarios.html',
+  '/livros-inativos': 'html/livros_inativos.html',
+};
 
-server.get('/usuarios', { preHandler: verificarLogin }, async (request, reply) => {
-  return reply.sendFile('html/listaUsuarios.html');
-});
+server.get('/', (request, reply) => reply.sendFile('html/cadastro_usu.html'));
 
-server.get('/livros-inativos', { preHandler: verificarLogin }, async (request, reply) => {
-  return reply.sendFile('html/livros_inativos.html');
-});
+for (const [rota, arquivo] of Object.entries(paginasProtegidas)) {
+  server.get(rota, protegida, (request, reply) => reply.sendFile(arquivo));
+}
 
 // Usuários e empréstimos
+
 server.register(userRoutes);
 server.register(loanRoutes);
 
 // Livros
-server.post('/livro', { preHandler: verificarLogin }, requestController);
 
-server.get('/livro', { preHandler: verificarLogin }, listBooksController);
-
-server.get('/livro/:id', { preHandler: verificarLogin }, findBookController);
-
-server.put('/livro/:id', { preHandler: verificarLogin }, updateController);
-
-server.delete('/livro/:id', { preHandler: verificarLogin }, destroyController);
+server.post('/livro', protegida, requestController);
+server.get('/livro', protegida, listBooksController);
+server.get('/livro/:id', protegida, findBookController);
+server.put('/livro/:id', protegida, updateController);
+server.delete('/livro/:id', protegida, destroyController);
 
 // Logout
+
 server.get('/logout', async (request, reply) => {
   await request.session.destroy();
   return reply.redirect('/');
 });
 
 // Iniciar servidor
+
 try {
-  server.listen({
-    host: '0.0.0.0',
-    port: process.env.PORT ?? 3333,
-  });
-  console.log('Servidor rodando na porta 3333'); 
+  await server.listen({ host: '0.0.0.0', port: PORT });
+  console.log(`Servidor rodando na porta ${PORT}`);
+  
 } catch (error) {
-  throw new Error(error.message);
+  server.log.error(error);
+  process.exit(1);
 }
