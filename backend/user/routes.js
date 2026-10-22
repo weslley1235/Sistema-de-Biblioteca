@@ -1,14 +1,12 @@
-import { registerHandler, loginHandler, destroyHandler, currentUserHandler, listUsersHandler, updateHandler } from './handler.js';
+import {registerController,loginController,destroyController,currentUserController,listUsersController,updateController} from './controller.js';
 
 export default async function userRoutes(server) {
-    server.post('/user', registerHandler);
-    server.post('/login', loginHandler);
+  server.post('/user', registerController);
+  server.post('/login', loginController);
 
-    
-    server.get('/user', listUsersHandler);
-    server.get('/user/me', currentUserHandler);
+  server.get('/user', listUsersController);
+  server.get('/user/me', currentUserController);
 
-    server.put('/user/:id', updateHandler);
-    server.delete('/user/:id', destroyHandler);
-    
+  server.put('/user/:id', updateController);
+  server.delete('/user/:id', destroyController);
 }
