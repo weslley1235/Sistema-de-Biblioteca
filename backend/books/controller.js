@@ -1,9 +1,26 @@
 import { register } from './usecases/index.js';
+import { bookValidation } from './validator.js';
 
 export async function requestController(request, reply) {
-  const resultado = await register(request.body);
+  try {
+    const validation = bookValidation(request.body);
 
-  return reply.code(resultado.status).send({
-    mensagem: resultado.message,
-  });
+    if (!validation.success) {
+      return reply.code(400).send({
+        mensagem: validation.error.issues[0].message,
+      });
+    }
+
+    const resultado = await register(validation.data);
+
+    return reply.code(resultado.status).send({
+      mensagem: resultado.message,
+    });
+  } catch (erro) {
+    request.log.error(erro);
+
+    return reply.code(500).send({
+      mensagem: 'Erro ao cadastrar livro',
+    });
+  }
 }

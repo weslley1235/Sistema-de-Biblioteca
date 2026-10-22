@@ -1,4 +1,4 @@
-import {createLoanController,listLoansController,returnLoansController} from './handler.js';
+import {createLoanController,listLoansController,returnLoanController} from './controller.js';
 
 export default async function loanRoutes(server) {
   const verifyLogin = (request, reply, done) => {
@@ -27,5 +27,5 @@ export default async function loanRoutes(server) {
 
   server.get('/emprestimo', protectedRoute, listLoansController);
 
-  server.put('/emprestimo/:id', protectedRoute, returnLoansController);
+  server.put('/emprestimo/:id', protectedRoute, returnLoanController);
 }

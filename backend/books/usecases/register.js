@@ -1,20 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { bookValidation } from '../validator.js';
 import { findByTitle, save } from '../repository.js';
 
-export async function register(payload) {
+export async function register(data) {
   try {
-    const validation = bookValidation(payload);
-
-    if (!validation.success) {
-      return {
-        status: 400,
-        message: validation.error.issues[0].message,
-      };
-    }
-
-    const existingBook = await findByTitle(validation.data.title);
+    const existingBook = await findByTitle(data.title);
 
     if (existingBook) {
       return {
@@ -25,7 +15,7 @@ export async function register(payload) {
 
     await save({
       id: uuidv4(),
-      ...validation.data,
+      ...data,
     });
 
     return {

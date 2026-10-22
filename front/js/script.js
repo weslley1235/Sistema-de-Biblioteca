@@ -1,4 +1,3 @@
-// ELEMENTOS DA PÁGINA
 const formLivro = document.querySelector('#formLivro');
 const title = document.querySelector('#title');
 const autor = document.querySelector('#autor');
@@ -7,8 +6,7 @@ const mensagem = document.querySelector('#mensagem');
 const listaLivros = document.querySelector('#listaLivros');
 const botaoFormulario = formLivro.querySelector('button[type="submit"]');
 
-// LISTAR LIVROS
-async function carregarLivros() {
+const carregarLivros = async () => {
   const respostaLivros = await fetch('/livro');
   const livros = await respostaLivros.json();
 
@@ -27,27 +25,26 @@ async function carregarLivros() {
     div.classList.add('livro');
 
     div.innerHTML = `
-    <div class="titulo-livro">
+      <div class="titulo-livro">
         <h3>${livro.title}</h3>
         <span class="status-livro ${emprestado ? 'emprestado' : 'disponivel'}">
-        <span class="bolinha"></span>
+          <span class="bolinha"></span>
           ${emprestado ? 'Emprestado' : 'Disponível'}
         </span>
-    </div>
-
+      </div>
       <p><strong>Autor:</strong> ${livro.autor}</p>
       <p><strong>Ano:</strong> ${livro.ano}</p>
       <div class="botoes">
         <button onclick="editarLivro('${livro.id}', '${livro.title}', '${livro.autor}', '${livro.ano}')" class="btn-atualizar">Atualizar</button>
         <button onclick="excluirLivro('${livro.id}')" class="btn-excluir">Excluir</button>
-      </div>`;
+      </div>
+    `;
 
     listaLivros.appendChild(div);
   });
-}
+};
 
-// EDITAR LIVRO
-function editarLivro(id, titleLivro, autorLivro, anoLivro) {
+const editarLivro = (id, titleLivro, autorLivro, anoLivro) => {
   title.value = titleLivro;
   autor.value = autorLivro;
   ano.value = anoLivro;
@@ -55,14 +52,12 @@ function editarLivro(id, titleLivro, autorLivro, anoLivro) {
   formLivro.dataset.id = id;
   botaoFormulario.textContent = 'Salvar alteração';
   mensagem.textContent = 'Edite os dados do livro e clique em salvar.';
-}
+};
 
-// CADASTRAR OU ATUALIZAR LIVRO
-formLivro.addEventListener('submit', async function (evento) {
-  evento.preventDefault();
+formLivro.addEventListener('submit', async (evento) => {
+  evento.preventDefault()
 
   const id = formLivro.dataset.id;
-
   const dados = {
     title: title.value,
     autor: autor.value,
@@ -70,21 +65,11 @@ formLivro.addEventListener('submit', async function (evento) {
   };
 
   try {
-    let resposta;
-
-    if (id) {
-      resposta = await fetch(`/livro/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dados),
-      });
-    } else {
-      resposta = await fetch('/livro', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dados),
-      });
-    }
+    const resposta = await fetch(id ? `/livro/${id}` : '/livro', {
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados),
+    });
 
     const resultado = await resposta.json();
     mensagem.textContent = resultado.mensagem;
@@ -93,33 +78,29 @@ formLivro.addEventListener('submit', async function (evento) {
       formLivro.reset();
       delete formLivro.dataset.id;
       botaoFormulario.textContent = 'Cadastrar Livro';
-      carregarLivros();
+      await carregarLivros();
     }
   } catch {
-    mensagem.textContent = 'Erro ao cadastrar o livro.';
+    mensagem.textContent = 'Erro ao salvar o livro.';
   }
 });
 
-// EXCLUIR LIVRO
-async function excluirLivro(id) {
-  const resposta = await fetch(`/livro/${id}`, {
-    method: 'DELETE',
-  });
+const excluirLivro = async (id) => {
+  try {
+    const resposta = await fetch(`/livro/${id}`, {
+      method: 'DELETE',
+    });
 
-  const resultado = await resposta.json();
-  mensagem.textContent = resultado.mensagem;
-  carregarLivros();
-}
+    const resultado = await resposta.json();
+    mensagem.textContent = resultado.mensagem;
 
-// DISPONIBILIZAR FUNÇÕES
-window.excluirLivro = excluirLivro;
-window.editarLivro = editarLivro;
+    if (resposta.ok) await carregarLivros();
+  } catch {
+    mensagem.textContent = 'Erro ao excluir o livro.';
+  }
+};
 
-// CARREGAR LIVROS
-carregarLivros();
-
-// CARREGAR USUÁRIO LOGADO
-async function carregarUsuario() {
+const carregarUsuario = async () => {
   const nome = document.querySelector('#nomeUsuario');
 
   try {
@@ -129,6 +110,10 @@ async function carregarUsuario() {
   } catch {
     nome.textContent = 'Usuário';
   }
-}
+};
 
+window.editarLivro = editarLivro;
+window.excluirLivro = excluirLivro;
+
+carregarLivros();
 carregarUsuario();

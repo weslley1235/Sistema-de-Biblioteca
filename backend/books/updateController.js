@@ -1,32 +1,37 @@
 import { update, reactivate } from './usecases/index.js';
+import { bookValidation } from './validator.js';
 
 export async function updateController(request, reply) {
   try {
-    let resultado;
-
     if (request.query.reactivate === 'true') {
       const reactivated = await reactivate(request.params.id);
 
-      if (reactivated) {
-        resultado = {
-          status: 200,
-          message: 'Livro reativado com sucesso',
-        };
-      } else {
-        resultado = {
-          status: 404,
-          message: 'Livro não encontrado ou já ativo',
-        };
+      if (!reactivated) {
+        return reply.code(404).send({
+          mensagem: 'Livro não encontrado ou já ativo',
+        });
       }
-    } else {
-      resultado = await update(request.params.id, request.body);
+
+      return reply.send({
+        mensagem: 'Livro reativado com sucesso',
+      });
     }
+
+    const validation = bookValidation(request.body);
+
+    if (!validation.success) {
+      return reply.code(400).send({
+        mensagem: validation.error.issues[0].message,
+      });
+    }
+
+    const resultado = await update(request.params.id, validation.data);
 
     return reply.code(resultado.status).send({
       mensagem: resultado.message,
     });
-  } catch (erro) {
-    request.log.error(erro);
+  } catch (error) {
+    request.log.error(error);
 
     return reply.code(500).send({
       mensagem: 'Erro ao atualizar livro',

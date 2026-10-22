@@ -1,25 +1,28 @@
 const listaUsuarios = document.querySelector('#listaUsuarios');
+const formEditar = document.querySelector('#formEditar');
 
-async function carregarUsuarios() {
-  const usuarios = await (await fetch('/user')).json();
+const carregarUsuarios = async () => {
+  const resposta = await fetch('/user');
+  const usuarios = await resposta.json();
 
-  listaUsuarios.innerHTML = 
-  usuarios.map(({ id, nome, email, tel, cpf, tipoUsu }) => `
-    <div>
-      <h3>${nome}</h3>
-      <p>E-mail: ${email}</p>
-      <p>Telefone: ${tel}</p>
-      <p>CPF: ${cpf}</p>
-      <p>Tipo: ${tipoUsu}</p>
-      <button onclick="editarUsuario('${id}')">Editar</button>
-      <button onclick="excluirUsuario('${id}')">Excluir</button>
-    </div>
-  `,
+  listaUsuarios.innerHTML = usuarios
+    .map(
+      ({ id, nome, email, tel, cpf, tipoUsu }) => `
+        <div>
+          <h3>${nome}</h3>
+          <p>E-mail: ${email}</p>
+          <p>Telefone: ${tel}</p>
+          <p>CPF: ${cpf}</p>
+          <p>Tipo: ${tipoUsu}</p>
+          <button onclick="editarUsuario('${id}')">Editar</button>
+          <button onclick="excluirUsuario('${id}')">Excluir</button>
+        </div>
+      `,
     )
     .join('');
-}
+};
 
-window.excluirUsuario = async (id) => {
+const excluirUsuario = async (id) => {
   if (!confirm('Deseja realmente excluir este usuário?')) return;
 
   const resposta = await fetch(`/user/${id}`, { method: 'DELETE' });
@@ -27,16 +30,19 @@ window.excluirUsuario = async (id) => {
 
   if (!resposta.ok)
     return alert(resultado.message || 'Erro ao excluir usuário.');
-  if (resultado.propriaConta) return (window.location.href = '/');
+
+  if (resultado.propriaConta) {
+    window.location.href = '/';
+    return;
+  }
 
   alert(resultado.message || 'Usuário excluído com sucesso.');
-  carregarUsuarios();
+  await carregarUsuarios();
 };
 
-const formEditar = document.querySelector('#formEditar');
-
-window.editarUsuario = async (id) => {
-  const usuarios = await (await fetch('/user')).json();
+const editarUsuario = async (id) => {
+  const resposta = await fetch('/user');
+  const usuarios = await resposta.json();
   const usuario = usuarios.find((user) => String(user.id) === String(id));
 
   if (!usuario) return alert('Usuário não encontrado.');
@@ -83,5 +89,8 @@ document.querySelector('#cancelarEdicao').addEventListener('click', () => {
   formEditar.hidden = true;
   formEditar.reset();
 });
+
+window.editarUsuario = editarUsuario;
+window.excluirUsuario = excluirUsuario;
 
 carregarUsuarios();
