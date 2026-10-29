@@ -23,3 +23,13 @@
 
 - Prettier
 - Eslint
+
+
+
+Adicione um .env.sample: este arquivo deve conter as variáveis ​​de ambiente do .env, apenas com valores ilustrativos;
+
+Os casos de uso não podem ser validadores de dados, isso compete ao controlador
+
+Defina o padrão, se usará o controlador ou manipulador de solicitações
+
+Falta try-catch na camada de repositório

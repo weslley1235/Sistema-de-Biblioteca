@@ -7,6 +7,7 @@ const loginUser = async (event) => {
   const email = document.querySelector('#emailLogin').value;
   const password = document.querySelector('#senhaLogin').value;
 
+
   try {
     const response = await fetch('/login', {
       method: 'POST',
@@ -25,3 +26,5 @@ const loginUser = async (event) => {
 };
 
 loginForm.addEventListener('submit', loginUser);
+
+
