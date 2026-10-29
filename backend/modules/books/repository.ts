@@ -1,14 +1,9 @@
-import type { QueryResult, QueryResultRow} from 'pg';
+import type { QueryResult, QueryResultRow } from 'pg';
 
-import database from '../../database/db.js';
+import database from '../../../database/db.js';
 import type { BookInput } from './validator.js';
-
-export type Book = {
-  id: string;
-  title: string;
-  autor: string;
-  ano: number;
-};
+import { Book, BookProps } from './entities';
+import { Response } from '../../shared/index.js';
 
 const BOOK_COLUMNS = 'id, title, autor, ano';
 
@@ -42,9 +37,9 @@ async function listInactive(): Promise<Book[]> {
   return result.rows;
 }
 
-  async function save(book: Book | Book[]): Promise<void> {
+async function save(book: Book | Book[]): Promise<void> {
   const books = Array.isArray(book) ? book : [book];
-  
+
   for (const { id, title, autor, ano } of books) {
     await query(
       'Erro ao salvar livro',
@@ -54,14 +49,50 @@ async function listInactive(): Promise<Book[]> {
   }
 }
 
-async function findById(id: string): Promise<Book | undefined> {
-  const result = await query<Book>(
-    'Erro ao buscar livro por id',
-    `SELECT ${BOOK_COLUMNS} FROM livros WHERE id = $1`,
-    [id],
-  );
+async function findById(id: string): Promise<Response<Book>> {
+  try {
+    const result = await query<BookProps>(
+      'Erro ao buscar livro por id',
+      `SELECT ${BOOK_COLUMNS} FROM livros WHERE id = $1`,
+      [id],
+    );
 
-  return result.rows[0];
+    if (result.rows.length === 0) {
+      return {
+        isFail: true,
+        error: {
+          message: 'Registro não encontrado',
+        },
+      };
+    }
+
+    const book = new Book(result.rows[0]);
+
+    const validate = book.validate();
+    if (validate.isFail)
+      return {
+        isFail: true,
+        error: {
+          message: validate.error?.message ?? '',
+        },
+      };
+
+    return {
+      isFail: false,
+      success: {
+        value: book,
+      },
+    };
+  } catch (error: any) {
+    return {
+      isFail: true,
+      error: {
+        message:
+          error.response.data.mensagem ?? error.mensagem ?? 'Erro na query',
+        metadata: error,
+      },
+    };
+  }
 }
 
 async function findByTitle(title: string): Promise<Book | undefined> {
@@ -74,7 +105,9 @@ async function findByTitle(title: string): Promise<Book | undefined> {
   return result.rows[0];
 }
 
-async function update(id: string, { title, autor, ano }: BookInput,
+async function update(
+  id: string,
+  { title, autor, ano }: BookInput,
 ): Promise<boolean> {
   const result = await query(
     'Erro ao atualizar livro',
@@ -112,7 +145,7 @@ async function destroy(id: string, definitive = false): Promise<boolean> {
     [id],
   );
 
-  return (result.rowCount ?? 0) > 0 ;
+  return (result.rowCount ?? 0) > 0;
 }
 
 async function reactivate(id: string): Promise<boolean> {
@@ -125,5 +158,13 @@ async function reactivate(id: string): Promise<boolean> {
   return (result.rowCount ?? 0) > 0;
 }
 
-export { list, listInactive, save, findById, findByTitle, update, destroy, reactivate };
-
+export {
+  list,
+  listInactive,
+  save,
+  findById,
+  findByTitle,
+  update,
+  destroy,
+  reactivate,
+};

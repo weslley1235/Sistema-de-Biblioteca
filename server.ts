@@ -1,30 +1,36 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import {fastifyStatic,fastifyCookie,fastifySession,path,fileURLToPath} from './backend/config.js';
+import {
+  fastifyStatic,
+  fastifyCookie,
+  fastifySession,
+  path,
+  fileURLToPath,
+} from './backend/config.js';
 import server from './backend/fastify.js';
 
 import userRoutes from './backend/user/routes.js';
 import loanRoutes from './backend/emprestimo/routes.js';
 
-import { requestController } from './backend/books/controller.js';
-import { destroyController } from './backend/books/destroyController.js';
-import { updateController } from './backend/books/updateController.js';
-import { listBooksController } from './backend/books/listController.js';
-import { findBookController } from './backend/books/findBookController.js';
+import { requestController } from './backend/modules/books/controller.js';
+import { destroyController } from './backend/modules/books/destroyController.js';
+import { updateController } from './backend/modules/books/updateController.js';
+import { listBooksController } from './backend/modules/books/listController.js';
+import { findBookController } from './backend/modules/books/findBookController.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3333);
 
-type FindRoute = { Params: {id: string } };
+type FindRoute = { Params: { id: string } };
 type ListRoute = { Querystring: { inactive?: string } };
-type UpdateRoute = { 
+type UpdateRoute = {
   Params: { id: string };
   Querystring: { reactivate?: string };
-}
+};
 
 type DestroyRoute = {
   Params: { id: string };
   Querystring: { definitive?: string };
-}
+};
 
 // Configurações
 
@@ -47,7 +53,7 @@ server.register(fastifyStatic, {
 
 // Verificar login
 
-async function verificarLogin(request: FastifyRequest, reply: FastifyReply ) {
+async function verificarLogin(request: FastifyRequest, reply: FastifyReply) {
   if (!request.session.get('usuario')) {
     return reply.redirect('/');
   }
@@ -81,7 +87,7 @@ server.get<ListRoute>('/livro', protegida, listBooksController);
 server.get<FindRoute>('/livro/:id', protegida, findBookController);
 server.put<UpdateRoute>('/livro/:id', protegida, updateController);
 server.delete<DestroyRoute>('/livro/:id', protegida, destroyController);
- 
+
 // Logout
 
 server.get('/logout', async (request, reply) => {
@@ -94,9 +100,7 @@ server.get('/logout', async (request, reply) => {
 try {
   server.listen({ host: '0.0.0.0', port: PORT });
   console.log(`Servidor rodando na porta ${PORT}`);
-  
 } catch (error) {
   server.log.error(error);
   process.exit(1);
 }
- 
