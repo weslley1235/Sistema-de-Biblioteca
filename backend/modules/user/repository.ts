@@ -1,6 +1,6 @@
 import type { QueryResult, QueryResultRow } from 'pg';
 
-import database from '../../database/db.js';
+import database from '../../../database/db.js';
 import { unknown } from 'zod';
 
 export type User = {

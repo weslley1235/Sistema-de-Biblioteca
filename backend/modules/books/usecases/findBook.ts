@@ -4,9 +4,7 @@ import { findById } from '../repository.js';
 
 type FindBookResponse = BookProps;
 
-export async function findBook(
-  id: string,
-): Promise<Response<FindBookResponse>> {
+export async function findBook(id: string ): Promise<Response<BookProps>> {
   const find = await findById(id);
 
   if (find.isFail) {
