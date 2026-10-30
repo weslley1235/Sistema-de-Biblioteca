@@ -8,8 +8,8 @@ import {
 } from './backend/config.js';
 import server from './backend/fastify.js';
 
-import userRoutes from './backend/user/routes.js';
-import loanRoutes from './backend/emprestimo/routes.js';
+import userRoutes from './backend/modules/user/routes.js';
+import loanRoutes from './backend/modules/emprestimo/routes.js';
 
 import { requestController } from './backend/modules/books/controller.js';
 import { destroyController } from './backend/modules/books/destroyController.js';

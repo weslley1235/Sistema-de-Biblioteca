@@ -21,16 +21,43 @@ export class Book implements IEntity {
   }
 
   public validate(): Response<void> {
-    if (typeof this.ano == 'number') {
+    if (typeof this.ano !== 'number') {
       return {
         isFail: true,
         error: {
-          message: 'Ano precisa ser um número',
+          message: 'Ano precisa ser um número válido',
         },
       };
     }
+    if (typeof this.title !== 'string' || this.title.trim() === '') {
+      return {
+        isFail: true,
+        error: { message: 'Título precisa ser uma string válida' },
+      };
+    }
 
-    // validar as outras props
+    if (typeof this.autor !== 'string' || this.autor.trim() === '') {
+      return {
+        isFail: true,
+        error: { message: 'Autor precisa ser uma string válida' },
+      };
+    }
+
+    if (typeof this.ano !== 'number' || !Number.isInteger(this.ano)) {
+      return {
+        isFail: true,
+        error: { message: 'Ano precisa ser um número inteiro' },
+      };
+    }
+
+    if (this.ano < 1900 || this.ano > new Date().getFullYear()) {
+      return {
+        isFail: true,
+        error: {
+          message: `Ano precisa estar entre 1900 e ${new Date().getFullYear()}`,
+        },
+      };
+    }
 
     return {
       isFail: false,

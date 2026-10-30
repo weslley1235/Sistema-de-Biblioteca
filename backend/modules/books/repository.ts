@@ -1,9 +1,16 @@
 import type { QueryResult, QueryResultRow } from 'pg';
 
 import database from '../../../database/db.js';
+import type { Response } from '../../shared/index.js';
+import type { BookProps } from './entities/index.js';
 import type { BookInput } from './validator.js';
-import { Book, BookProps } from './entities';
-import { Response } from '../../shared/index.js';
+
+export type Book = {
+  id: string;
+  title: string;
+  autor: string;
+  ano: number;
+};
 
 const BOOK_COLUMNS = 'id, title, autor, ano';
 
@@ -49,50 +56,26 @@ async function save(book: Book | Book[]): Promise<void> {
   }
 }
 
-async function findById(id: string): Promise<Response<Book>> {
-  try {
-    const result = await query<BookProps>(
-      'Erro ao buscar livro por id',
-      `SELECT ${BOOK_COLUMNS} FROM livros WHERE id = $1`,
-      [id],
-    );
+async function findById(id: string): Promise<Response<BookProps>> {
+  const result = await query<BookProps>(
+    'Erro ao buscar livro por id',
+    `SELECT ${BOOK_COLUMNS} FROM livros WHERE id = $1`,
+    [id],
+  );
 
-    if (result.rows.length === 0) {
-      return {
-        isFail: true,
-        error: {
-          message: 'Registro não encontrado',
-        },
-      };
-    }
+  const book = result.rows[0];
 
-    const book = new Book(result.rows[0]);
-
-    const validate = book.validate();
-    if (validate.isFail)
-      return {
-        isFail: true,
-        error: {
-          message: validate.error?.message ?? '',
-        },
-      };
-
-    return {
-      isFail: false,
-      success: {
-        value: book,
-      },
-    };
-  } catch (error: any) {
+  if (!book) {
     return {
       isFail: true,
-      error: {
-        message:
-          error.response.data.mensagem ?? error.mensagem ?? 'Erro na query',
-        metadata: error,
-      },
+      error: { message: 'Registro não encontrado' },
     };
   }
+
+  return {
+    isFail: false,
+    success: { value: book },
+  };
 }
 
 async function findByTitle(title: string): Promise<Book | undefined> {
@@ -105,10 +88,7 @@ async function findByTitle(title: string): Promise<Book | undefined> {
   return result.rows[0];
 }
 
-async function update(
-  id: string,
-  { title, autor, ano }: BookInput,
-): Promise<boolean> {
+async function update(id: string,{ title, autor, ano }: BookInput): Promise<boolean> {
   const result = await query(
     'Erro ao atualizar livro',
     `UPDATE livros
