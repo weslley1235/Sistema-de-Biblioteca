@@ -1,29 +1,32 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import { listBooks, listInactiveBooks } from './usecases/index.js';
+import {
+  FindBookUsecase,
+  listBooks,
+  listInactiveBooks,
+} from './usecases/index.js';
 
 type ListBooksRequest = FastifyRequest<{
   Querystring: { inactive?: string };
-}>
+}>;
 
-export async function listBooksController(
-  request: ListBooksRequest,
-  reply: FastifyReply
-) {
-  try {
-    let livros;
+type FindBookRequest = FastifyRequest<{
+  Params: { id: string };
+}>;
 
-    if (request.query.inactive === 'true') {
-      livros = await listInactiveBooks();
-    } else {
-      livros = await listBooks();
+export class BookController {
+  // list
+  public async detail(request: FindBookRequest, reply: FastifyReply) {
+    const livro = await new FindBookUsecase().execute(request.params?.id ?? '');
+
+    if (livro.isFail) {
+      return reply.code(404).send({
+        mensagem: 'Livro não encontrado',
+      });
     }
-    return reply.send(livros);
-  
-  } catch (erro) {
-    request.log.error(erro);
-    return reply.code(500).send({
-      mensagem: 'Erro ao listar livros',
-    });
+
+    return reply.send(livro.success?.value);
   }
+
+  // update
 }

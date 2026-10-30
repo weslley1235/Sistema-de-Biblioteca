@@ -1,23 +1,29 @@
 import { Response } from '../../../shared/index.js';
 import { BookProps } from '../entities/book.entity.js';
-import { findById } from '../repository.js';
+import { BookRepository } from '../repositories/book.repository.js';
 
 type FindBookResponse = BookProps;
 
-export async function findBook(id: string ): Promise<Response<BookProps>> {
-  const find = await findById(id);
+interface IUsecase<Input, Output> {
+  execute(input: Input): Promise<Response<Output>>;
+}
 
-  if (find.isFail) {
+export class FindBookUsecase implements IUsecase<string, FindBookResponse> {
+  public async execute(input: string): Promise<Response<BookProps>> {
+    const find = await new BookRepository().findById(input);
+
+    if (find.isFail) {
+      return {
+        isFail: true,
+        error: {
+          message: find.error?.message ?? '',
+        },
+      };
+    }
+
     return {
-      isFail: true,
-      error: {
-        message: find.error?.message ?? '',
-      },
+      isFail: false,
+      success: find.success,
     };
   }
-
-  return {
-    isFail: false,
-    success: find.success,
-  };
 }
