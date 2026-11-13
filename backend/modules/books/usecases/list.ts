@@ -1,10 +1,15 @@
-import { list, listInactive } from '../repository.js';
+import type { Response } from '../../../shared/index.js';
 import type { Book } from '../repository.js'
+import { BookRepository } from '../repositories/book.repository.js';
 
-export async function listBooks(): Promise<Book[]> {
-  return await list();
+export class ListBooksUsecases { 
+  public async execute(): Promise<Response<Array<Book>>> {
+    return await new BookRepository().list();
+  }
 }
 
-export async function listInactiveBooks(): Promise<Book[]> {
-  return await listInactive();
+export class ListInactiveBookUsecase {
+  public async execute(): Promise<Response<Array<Book>>> {
+    return await new BookRepository().listInactive();
+  }
 }

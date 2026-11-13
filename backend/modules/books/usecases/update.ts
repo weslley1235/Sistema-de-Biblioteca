@@ -1,19 +1,22 @@
-import { update as updateBook } from '../repository.js';
-import type { BookInput } from '../validator.js'
-import type { UseCaseResult } from './types.js';
+import { Book } from '../entities/index.js';
+import { BookRepository } from '../repositories/book.repository.js';
+import type { BookInput } from '../validator.js';
+import { bookFailure, fromRepository } from './types.js';
+import type { BookResponse } from './types.js';
 
-export async function update(id: string, dados: BookInput): Promise<UseCaseResult> {
-  const updated = await updateBook(id, dados);
+type UpdateBookInput = { id: string; data: BookInput };
 
-  if (!updated) {
-    return {
-      status: 404,
-      message: 'Livro não encontrado',
-    };
+export class UpdateBookUsecase {
+  public async execute({ id, data }: UpdateBookInput): Promise<BookResponse> {
+    const book = new Book({ id, ...data });
+    const validation = book.validate();
+
+    if (validation.isFail) {
+      return bookFailure(400, validation.error?.message ?? 'Livro inválido');
+    }
+
+    const updated = await new BookRepository().update(book);
+
+    return fromRepository(updated, 'Livro não encontrado');
   }
-
-  return {
-    status: 200,
-    message: 'Livro atualizado com sucesso',
-  };
 }

@@ -110,6 +110,7 @@ async function destroy(id: string, definitive = false): Promise<boolean> {
       [id],
     );
 
+
     const result = await query(
       'Erro ao excluir livro',
       'DELETE FROM livros WHERE id = $1',
@@ -138,13 +139,4 @@ async function reactivate(id: string): Promise<boolean> {
   return (result.rowCount ?? 0) > 0;
 }
 
-export {
-  list,
-  listInactive,
-  save,
-  findById,
-  findByTitle,
-  update,
-  destroy,
-  reactivate,
-};
+export {list,listInactive,save,findById,findByTitle,update,destroy,reactivate};

@@ -1,60 +1,60 @@
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 
-import { findByEmail, findByCpf, save } from '../repository.js';
-import type { NewUser } from '../repository.js';
+import type { Response } from '../../../shared/index.js';
+import { User as UserEntity } from '../entities/index.js';
+import { UserRepository, USER_NOT_FOUND } from '../repositories/index.js';
 import type { UserInput } from '../validator.js';
+import { entityToPublicUser } from './publicUser.js';
 import type { UserResult } from './types.js';
 
-function createUser(data: UserInput, hashedPassword: string): NewUser {
-  return {
-    id: uuidv4(),
-    nome: data.nome,
-    cpf: data.cpf,
-    email: data.email,
-    tel: data.tel,
-    tipoUsu: data.tipoUsu,
-    senha: hashedPassword,
-  };
+function alreadyExists(result: Response<UserEntity>): boolean {
+  if (!result.isFail) return true;
+  if (result.error?.message === USER_NOT_FOUND) return false;
+
+  throw new Error(result.error?.message ?? 'Erro ao consultar usuário');
 }
 
 export async function register(data: UserInput): Promise<UserResult> {
   try {
-    if (await findByEmail(data.email)) {
-      return {
-        status: 409,
-        message: 'Esse email já está cadastrado',
-      };
+    const repository = new UserRepository();
+
+    if (alreadyExists(await repository.findByEmail(data.email))) {
+      return { status: 409, message: 'Esse email já está cadastrado' };
     }
 
-    if (await findByCpf(data.cpf)) {
-      return {
-        status: 409,
-        message: 'Esse CPF já está cadastrado',
-      };
+    if (alreadyExists(await repository.findByCpf(data.cpf))) {
+      return { status: 409, message: 'Esse CPF já está cadastrado' };
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-    const user = createUser(data, hashedPassword);
+    const user = new UserEntity({
+      id: uuidv4(),
+      nome: data.nome,
+      email: data.email,
+      cpf: data.cpf,
+      tel: data.tel,
+      tipoUsu: data.tipoUsu,
+    });
 
-    await save(user);
+    const validation = user.validate();
+
+    if (validation.isFail) {
+      return {
+        status: 400,
+        message: validation.error?.message ?? 'Usuáirio inválido',
+      };
+    }
 
     return {
       status: 201,
-      message: 'Usuario cadastrado com sucesso',
-      user: {
-        id: user.id,
-        nome: user.nome,
-        email: user.email,
-        cpf: user.cpf,
-        tel: user.tel,
-        tipoUsu: user.tipoUsu,
-      },
+      message: 'Usuário cadastrado com sucesso',
+      user: entityToPublicUser(user),
     };
   } catch (error) {
     return {
       status: 500,
-      message: error instanceof Error ? error.message : 'Erro ao cadastrar usuário',
+      message:
+        error instanceof Error ? error.message : 'Erro ao cadastrar usuário',
     };
   }
 }

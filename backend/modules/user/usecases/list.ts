@@ -1,4 +1,4 @@
-import { list as listUsers } from '../repository.js';
+import { UserRepository } from '../repositories/index.js';
 
 export type ListedUser = {
   id: string;
@@ -7,17 +7,21 @@ export type ListedUser = {
   tel: string;
   tipoUsu: string;
   cpf: string;
-}
+};
 
 export async function list(): Promise<ListedUser[]> {
-  const users = await listUsers();
+  const result = await new UserRepository().list();
 
-  return users.map(({ id, nome, email, tel, cpf, tipousu }) => ({
+  if (result.isFail || !result.success) {
+    throw new Error(result.error?.message ?? 'Erro ao listar usuários');
+  }
+
+  return result.success.value.map(({ id, nome, email, tel, cpf, tipoUsu }) => ({
     id,
     nome,
     email,
     tel,
-    tipoUsu: tipousu,
+    tipoUsu,
     cpf: `${cpf.slice(0, 3)}${'*'.repeat(Math.max(0, cpf.length - 5))}${cpf.slice(-2)}`,
   }));
 }

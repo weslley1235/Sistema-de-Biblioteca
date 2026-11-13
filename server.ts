@@ -11,11 +11,7 @@ import server from './backend/fastify.js';
 import userRoutes from './backend/modules/user/routes.js';
 import loanRoutes from './backend/modules/emprestimo/routes.js';
 
-import { requestController } from './backend/modules/books/controller.js';
-import { destroyController } from './backend/modules/books/destroyController.js';
-import { updateController } from './backend/modules/books/updateController.js';
-import { listBooksController } from './backend/modules/books/listController.js';
-import { findBookController } from './backend/modules/books/findBookController.js';
+import { BookController } from './backend/modules/books/listController.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3333);
@@ -31,6 +27,8 @@ type DestroyRoute = {
   Params: { id: string };
   Querystring: { definitive?: string };
 };
+
+const bookController = new BookController();
 
 // Configurações
 
@@ -82,11 +80,11 @@ server.register(loanRoutes);
 
 // Livros
 
-server.post('/livro', protegida, requestController);
-server.get<ListRoute>('/livro', protegida, listBooksController);
-server.get<FindRoute>('/livro/:id', protegida, findBookController);
-server.put<UpdateRoute>('/livro/:id', protegida, updateController);
-server.delete<DestroyRoute>('/livro/:id', protegida, destroyController);
+server.post('/livro', protegida, (request, reply) => bookController.register(request, reply));
+server.get<ListRoute>('/livro', protegida, (request, reply) => bookController.list(request, reply));
+server.get<FindRoute>('/livro/:id', protegida, (request, reply) => bookController.detail(request, reply));
+server.put<UpdateRoute>('/livro/:id', protegida, (request, reply) => bookController.update(request, reply));
+server.delete<DestroyRoute>('/livro/:id', protegida, (request, reply) => bookController.destroy(request, reply));
 
 // Logout
 
@@ -98,7 +96,7 @@ server.get('/logout', async (request, reply) => {
 // Iniciar servidor
 
 try {
-  server.listen({ host: '0.0.0.0', port: PORT });
+  await server.listen({ host: '0.0.0.0', port: PORT });
   console.log(`Servidor rodando na porta ${PORT}`);
 } catch (error) {
   server.log.error(error);

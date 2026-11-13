@@ -7,6 +7,9 @@ import { Response } from '../../../shared';
 import { Book } from '../entities';
 import { IBookRepository } from './books.repository.interface';
 
+export const BOOK_NOT_FOUND = 'Livro não encontrado';
+export const BOOK_RECORD_NOT_FOUND = 'Registro não encontrado';
+
 export class BookRepository implements IBookRepository {
   private readonly BOOK_COLUMNS = 'id, title, autor, ano';
 
@@ -22,58 +25,59 @@ export class BookRepository implements IBookRepository {
     }
   }
 
-  public async list(): Promise<Response<Array<Book>>> {
-    const result = await this.query<BookProps>(
-      'Erro ao listar livros',
-      `SELECT ${this.BOOK_COLUMNS} FROM livros WHERE ativo = TRUE ORDER BY title`,
-    );
+  private async listByStatus(
+    active: boolean,
+    errorMessage: string,
+  ): Promise<Response<Array<Book>>> {
+    try {
+      const result = await this.query<BookProps>(
+        errorMessage,
+        `SELECT ${this.BOOK_COLUMNS} FROM livros WHERE ativo = ${active ? 'TRUE' : 'FALSE'} ORDER BY title`,
+      );
 
-    if (result.rowCount === 0) {
+      const books = result.rows
+        .map((book) => new Book(book))
+        .filter((book) => !book.validate().isFail);
+
+      return {
+        isFail: false,
+        success: { value: books },
+      };
+    } catch (error: any) {
       return {
         isFail: true,
-        error: {
-          message: 'Registros não encontrados',
-        },
+        error: { message: error.message ?? errorMessage },
       };
     }
+  }
 
-    const books = result.rows
-      .map((book) => new Book(book))
-      .filter((book) => book.validate().isFail);
+  private async changeOne(
+    errorMessage: string,
+    sql: string,
+    params: unknown[],
+  ): Promise<Response<void>> {
+    try {
+      const result = await this.query(errorMessage, sql, params);
 
-    return {
-      isFail: false,
-      success: {
-        value: books,
-      },
-    };
+      if ((result.rowCount ?? 0) === 0) {
+        return { isFail: true, error: { message: BOOK_NOT_FOUND } };
+      }
+
+      return { isFail: false };
+    } catch (error: any) {
+      return {
+        isFail: true,
+        error: { message: error.message ?? errorMessage },
+      };
+    }
+  }
+
+  public async list(): Promise<Response<Array<Book>>> {
+    return this.listByStatus(true, 'Erro ao listar livros');
   }
 
   public async listInactive(): Promise<Response<Array<Book>>> {
-    const result = await this.query<BookProps>(
-      'Erro ao listar livros inativos',
-      `SELECT ${this.BOOK_COLUMNS} FROM livros WHERE ativo = FALSE ORDER BY title`,
-    );
-
-    if (result.rowCount === 0) {
-      return {
-        isFail: true,
-        error: {
-          message: 'Registros não encontrados',
-        },
-      };
-    }
-
-    const books = result.rows
-      .map((book) => new Book(book))
-      .filter((book) => book.validate().isFail);
-
-    return {
-      isFail: false,
-      success: {
-        value: books,
-      },
-    };
+    return this.listByStatus(false, 'Erro ao listar livros inativos');
   }
 
   public async save(book: Book): Promise<Response<void>> {
@@ -133,7 +137,7 @@ export class BookRepository implements IBookRepository {
       if (!book) {
         return {
           isFail: true,
-          error: { message: 'Registro não encontrado' },
+          error: { message: BOOK_RECORD_NOT_FOUND },
         };
       }
 
@@ -173,7 +177,7 @@ export class BookRepository implements IBookRepository {
       if (!book) {
         return {
           isFail: true,
-          error: { message: 'Registro não encontrado' },
+          error: { message: BOOK_RECORD_NOT_FOUND },
         };
       }
 
@@ -203,96 +207,50 @@ export class BookRepository implements IBookRepository {
   }
 
   public async update(book: Book): Promise<Response<void>> {
-    try {
-      await this.query(
-        'Erro ao atualizar livro',
-        `UPDATE livros
-           SET title = COALESCE($1, title),
-               autor = COALESCE($2, autor),
-               ano = COALESCE($3, ano)
-           WHERE id = $4`,
-        [book.title, book.autor, book.ano, book.id],
-      );
-
-      return {
-        isFail: false,
-      };
-    } catch (error: any) {
-      return {
-        isFail: true,
-        error: {
-          message: error.message ?? 'Houve um erro ao encontrar o livro',
-        },
-      };
-    }
+    return this.changeOne(
+      'Erro ao atualizar livro',
+      `UPDATE livros
+        SET title = COALESCE ($1, title),
+            autor = COALESCE ($2, autor),
+            ano = COALESCE ($3, ano )
+            WHERE id = $4`,
+      [book.title, book.autor, book.ano, book.id],
+    );
   }
 
   public async disable(id: string): Promise<Response<void>> {
-    try {
-      await this.query(
-        'Erro ao inativar livro',
-        'UPDATE livros SET ativo = FALSE WHERE id = $1',
-        [id],
-      );
+    return this.changeOne(
+      'Erro ao inativar livro ',
+      'UPDATE livros SET ativo = FALSE WHERE id = $1',
+      [id],
+    );
+  }
 
-      return {
-        isFail: false,
-      };
-    } catch (error: any) {
-      return {
-        isFail: true,
-        error: {
-          message: error.message ?? 'Houve um erro ao encontrar o livro',
-        },
-      };
-    }
+  public async reactivate(id: string): Promise<Response<void>> {
+    return this.changeOne(
+      'Erro ao reativar livro',
+      'UPDATE livros SET ativo = TRUE WHERE id = $1 AND ativo = FALSE',
+      [id],
+    );
   }
 
   public async destroy(id: string): Promise<Response<void>> {
     try {
-      await Promise.all([
-        this.query(
-          'Erro ao excluir empréstimos do livro',
-          'DELETE FROM emprestimos WHERE livro_id = $1',
-          [id],
-        ),
-        this.query(
-          'Erro ao excluir livro',
-          'DELETE FROM livros WHERE id = $1',
-          [id],
-        ),
-      ]);
-
-      return {
-        isFail: false,
-      };
-    } catch (error: any) {
-      return {
-        isFail: true,
-        error: {
-          message: error.message ?? 'Houve um erro ao encontrar o livro',
-        },
-      };
-    }
-  }
-
-  public async reactivate(id: string): Promise<Response<void>> {
-    try {
       await this.query(
-        'Erro ao reativar livro',
-        'UPDATE livros SET ativo = TRUE WHERE id = $1 AND ativo = FALSE',
+        'Erro ao excluir empréstimo de livro',
+        'DELETE FROM emprestimos WHERE livro_id = $1',
         [id],
       );
 
-      return {
-        isFail: false,
-      };
+      return await this.changeOne(
+        'Erro ao excluir livro',
+        'DELETE FROM livros WHERE id = $1',
+        [id],
+      );
     } catch (error: any) {
       return {
         isFail: true,
-        error: {
-          message: error.message ?? 'Houve um erro ao encontrar o livro',
-        },
+        error: { message: error.message ?? 'Erro ao excluir livro' },
       };
     }
   }

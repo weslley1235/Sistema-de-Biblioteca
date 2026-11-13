@@ -6,6 +6,7 @@ const userSchema = z.object({
   cpf: z.string().regex(/^\d{11}$/, 'O CPF deve conter 11 dígitos'),
   tel: z.string().regex(/^\d{11}$/, 'O Telefone deve conter 11 dígitos'),
   tipoUsu: z.string().min(1, 'Tipo de usuario obrigatorio'),
+  //cip: z.string().min(1,'Carteira de identidade profissional invaida'),
   password: z.string().min(1, 'Senha obrigatorio'),
 });
 
@@ -18,9 +19,9 @@ const userUpdateSchema = userSchema
   .pick({ nome: true, email: true, tel: true })
   .extend({ cpf: userSchema.shape.cpf.optional() });
 
-  export type UserInput = z.infer<typeof userSchema>;
-  export type UserLoginInput = z.infer<typeof userLoginSchema>;
-  export type userUpdateInput = z.infer<typeof userUpdateSchema>;
+export type UserInput = z.infer<typeof userSchema>;
+export type UserLoginInput = z.infer<typeof userLoginSchema>;
+export type userUpdateInput = z.infer<typeof userUpdateSchema>;
 
 export function userValidation(data: unknown) {
   return userSchema.safeParse(data);
