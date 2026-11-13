@@ -1,9 +1,14 @@
+// Refactory to class
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ZodError } from 'zod';
 import type { publicUser } from './usecases/types.js';
 
 import { register, login, destroy, list, update } from './usecases/index.js';
-import {userValidation,userLoginValidation,userUpdateValidation} from './validator.js';
+import {
+  userValidation,
+  userLoginValidation,
+  userUpdateValidation,
+} from './validator.js';
 
 type IdParams = FastifyRequest<{
   Params: { id: string };

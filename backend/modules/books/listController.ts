@@ -4,8 +4,7 @@ import { bookValidation } from './validator.js';
 import {
   DestroyBookUsecase,
   FindBookUsecase,
-  ListBooksUsecases,
-  ListInactiveBookUsecase,
+  ListBooksFactory,
   ReactivateBookUsecase,
   RegisterBookUsecase,
   UpdateBookUsecase,
@@ -33,10 +32,9 @@ type DestroyBookRequest = FastifyRequest<{
 export class BookController {
   public async list(request: ListBooksRequest, reply: FastifyReply) {
     try {
-      const usecase =
-        request.query.inactive === 'true'
-          ? new ListInactiveBookUsecase()
-          : new ListBooksUsecases();
+      const usecase = ListBooksFactory.factory(
+        request.query.inactive === 'true',
+      );
 
       const result = await usecase.execute();
 

@@ -1,3 +1,4 @@
+// Refactory to class
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 import { loanValidation } from './validator.js';
