@@ -1,13 +1,10 @@
-
 const lista = document.querySelector('#listaLivrosInativos');
 
-async function carregarLivros() {
+const carregarLivros = async () => {
   try {
     const resposta = await fetch('/livro?inactive=true');
 
-    if (!resposta.ok) {
-      throw new Error('Erro ao carregar livros');
-    }
+    if (!resposta.ok) throw new Error();
 
     const livros = await resposta.json();
     lista.innerHTML = '';
@@ -29,17 +26,11 @@ async function carregarLivros() {
             Inativo
           </span>
         </div>
-
         <p><strong>Autor:</strong> ${livro.autor}</p>
         <p><strong>Ano:</strong> ${livro.ano}</p>
-
         <div class="botoes">
-          <button onclick="reativar('${livro.id}')" class="btn-atualizar">
-            Reativar
-          </button>
-          <button onclick="excluir('${livro.id}')" class="btn-excluir">
-            Excluir
-          </button>
+          <button onclick="reativar('${livro.id}')" class="btn-atualizar">Reativar</button>
+          <button onclick="excluir('${livro.id}')" class="btn-excluir">Excluir</button>
         </div>
       `;
 
@@ -48,43 +39,37 @@ async function carregarLivros() {
   } catch {
     lista.textContent = 'Erro ao carregar livros inativos.';
   }
-}
+};
 
-async function reativar(id) {
+const reativar = async (id) => {
   try {
     const resposta = await fetch(`/livro/${id}?reactivate=true`, {
       method: 'PUT',
     });
 
-    if (!resposta.ok) {
-      throw new Error('Erro ao reativar livro');
-    }
+    if (!resposta.ok) throw new Error();
 
     await carregarLivros();
   } catch {
     alert('Não foi possível reativar o livro.');
   }
-}
+};
 
-async function excluir(id) {
-  if (!confirm('Excluir o livro e seu histórico de empréstimos?')) {
-    return;
-  }
+const excluir = async (id) => {
+  if (!confirm('Excluir o livro e seu histórico de empréstimos?')) return;
 
   try {
     const resposta = await fetch(`/livro/${id}?definitive=true`, {
       method: 'DELETE',
     });
 
-    if (!resposta.ok) {
-      throw new Error('Erro ao excluir livro');
-    }
+    if (!resposta.ok) throw new Error();
 
     await carregarLivros();
   } catch {
     alert('Não foi possível excluir o livro.');
   }
-}
+};
 
 window.reativar = reativar;
 window.excluir = excluir;
