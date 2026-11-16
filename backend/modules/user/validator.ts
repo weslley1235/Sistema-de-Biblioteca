@@ -7,7 +7,7 @@ const userSchema = z.object({
   tel: z.string().regex(/^\d{11}$/, 'O Telefone deve conter 11 dígitos'),
   tipoUsu: z.string().min(1, 'Tipo de usuario obrigatorio'),
   //cip: z.string().min(1,'Carteira de identidade profissional invaida'),
-  password: z.string().min(1, 'Senha obrigatorio'),
+  password: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres'),
 });
 
 const userLoginSchema = z.object({

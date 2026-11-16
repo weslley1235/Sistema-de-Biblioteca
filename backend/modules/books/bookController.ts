@@ -32,10 +32,10 @@ type DestroyBookRequest = FastifyRequest<{
 export class BookController {
   public async list(request: ListBooksRequest, reply: FastifyReply) {
     try {
-      const usecase = ListBooksFactory.factory(
+        const usecase = ListBooksFactory.factory(
         request.query.inactive === 'true',
       );
-
+         
       const result = await usecase.execute();
 
       if (result.isFail || !result.success) {

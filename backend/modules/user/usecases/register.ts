@@ -41,7 +41,17 @@ export async function register(data: UserInput): Promise<UserResult> {
     if (validation.isFail) {
       return {
         status: 400,
-        message: validation.error?.message ?? 'Usuáirio inválido',
+        message: validation.error?.message ?? 'Usuário inválido',
+      };
+    }
+
+    const passwordHash = await bcrypt.hash(data.password, 10);
+    const saved = await repository.save(user, passwordHash);
+
+    if (saved.isFail) {
+      return {
+        status: 500,
+        message: saved.error?.message ?? 'Erro ao cadastrar usuário',
       };
     }
 

@@ -11,7 +11,7 @@ import server from './backend/fastify.js';
 import userRoutes from './backend/modules/user/routes.js';
 import loanRoutes from './backend/modules/emprestimo/routes.js';
 
-import { BookController } from './backend/modules/books/listController.js';
+import { BookController } from './backend/modules/books/bookController.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3333);

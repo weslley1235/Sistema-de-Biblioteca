@@ -8,8 +8,8 @@ export type LoanListItem = {
   nomeLivro: string;
   autor: string;
   ano: number;
-  dataEmprestimo: Date;
-  dataDevolucao: Date | null;
+  dataEmprestimo: string;
+  dataDevolucao: string | null;
   devolvido: boolean;
 };
 

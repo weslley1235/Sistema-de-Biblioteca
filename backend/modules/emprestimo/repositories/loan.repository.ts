@@ -4,10 +4,7 @@ import database from '../../../../database/db.js';
 import type { Response } from '../../../shared/index.js';
 import type { Loan } from '../entities/index.js';
 import { LOAN_NOT_FOUND } from './loan.repository.interface.js';
-import type {
-  ILoanRepository,
-  LoanListItem,
-} from './loan.repository.interface.js';
+import type {ILoanRepository,LoanListItem} from './loan.repository.interface.js';
 
 export class LoanRepository implements ILoanRepository {
   private async query<T extends QueryResultRow = QueryResultRow>(

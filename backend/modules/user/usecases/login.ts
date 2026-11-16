@@ -27,7 +27,7 @@ export async function login(
 
   return {
     status: 200,
-    message: 'Login realizadocom sucesso',
+    message: 'Login realizado com sucesso',
     user: entityToPublicUser(user),
   };
 }

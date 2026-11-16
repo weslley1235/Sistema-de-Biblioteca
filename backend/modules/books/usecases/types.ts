@@ -6,7 +6,6 @@ export type UseCaseResult = {
 import type { Response } from '../../../shared/index.js';
 import { BOOK_NOT_FOUND } from '../repositories/book.repository.js';
 
-// O usecase informa o status HTTP no metadata do erro
 export type BookFailure = { status: number };
 export type BookResponse = Response<void, BookFailure>;
 
