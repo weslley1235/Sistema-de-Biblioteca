@@ -2,12 +2,8 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ZodError } from 'zod';
 import type { publicUser } from './usecases/types.js';
 
-import { register, login, destroy, list, update } from './usecases/index.js';
-import {
-  userValidation,
-  userLoginValidation,
-  userUpdateValidation,
-} from './validator.js';
+import {RegisterUserUsecase,LoginUserUsecase,DestroyUserUsecase,ListUsersUsecase,UpdateUserUsecase} from './usecases/index.js';
+import {userValidation,userLoginValidation,userUpdateValidation} from './validator.js';
 
 type IdParams = FastifyRequest<{
   Params: { id: string };
@@ -44,7 +40,8 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const result = await register(validation.data);
+      const registerUserUsecase = new RegisterUserUsecase();
+      const result = await registerUserUsecase.execute(validation.data);
 
       if (result.status !== 201 || !result.user) {
         return reply.code(result.status).send(result);
@@ -52,7 +49,10 @@ export class UserController {
 
       await this.startSession(request, result.user);
 
-      return reply.code(201).send({ message: result.message });
+      return reply.code(201).send({
+        message: result.message,
+        matricula: result.matricula,
+      });
     } catch (error) {
       return this.sendServerError(
         request,
@@ -71,8 +71,10 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const { email, password } = validation.data;
-      const result = await login(email, password);
+      const { email, password, matricula } = validation.data;
+
+      const loginUserUsecase = new LoginUserUsecase();
+      const result = await loginUserUsecase.execute(email, password, matricula);
 
       if (result.status !== 200 || !result.user) {
         return reply.code(result.status).send(result);
@@ -99,7 +101,11 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const result = await update(request.params.id, validation.data);
+      const updateUserUsecase = new UpdateUserUsecase();
+      const result = await updateUserUsecase.execute(
+        request.params.id,
+        validation.data,
+      );
 
       if (result.status !== 200) {
         return reply.code(result.status).send(result);
@@ -118,7 +124,9 @@ export class UserController {
 
   public async list(request: FastifyRequest, reply: FastifyReply) {
     try {
-      return reply.send(await list());
+      const listUsersUsecase = new ListUsersUsecase();
+
+      return reply.send(await listUsersUsecase.execute());
     } catch (error) {
       return this.sendServerError(
         request,
@@ -137,7 +145,10 @@ export class UserController {
         return reply.code(401).send({ message: 'Usuário não autenticado' });
       }
 
-      return reply.send({ nome: usuario.nome });
+      return reply.send({
+        nome: usuario.nome,
+        tipoUsu: usuario.tipoUsu,
+      });
     } catch (error) {
       return this.sendServerError(
         request,
@@ -153,7 +164,8 @@ export class UserController {
       const { id } = request.params;
       const usuario = request.session.get('usuario');
 
-      const result = await destroy(id);
+      const destroyUserUsecase = new DestroyUserUsecase();
+      const result = await destroyUserUsecase.execute(id);
 
       if (result.status !== 200) {
         return reply.code(result.status).send(result);

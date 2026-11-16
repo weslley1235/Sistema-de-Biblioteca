@@ -14,4 +14,5 @@ export type UseCaseResult = {
 
 export type UserResult = UseCaseResult & {
   user?: publicUser;
+  matricula?: string;
 };

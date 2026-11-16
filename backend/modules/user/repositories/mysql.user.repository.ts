@@ -17,6 +17,7 @@ type UserRow = RowDataPacket & {
   tel: string;
   tipousu: string;
   senha: string;
+  matricula: string | null
 };
 
 type SearchColumn = 'id' | 'email' | 'cpf';
@@ -89,14 +90,15 @@ export class MysqlUserRepository implements IUserRepository {
       cpf: row.cpf,
       tel: row.tel,
       tipoUsu: row.tipousu,
+      matricula:row.matricula ?? undefined,
     });
   }
 
   public async save(user: User, passwordHash: string): Promise<Response<void>> {
     return this.attempt('Houve um erro ao salvar o usuário', async () => {
       await mysqlDatabase.query(
-        `INSERT INTO usuarios (id, nome, email, cpf, tel, tipousu, senha)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO usuarios (id, nome, email, cpf, tel, tipousu, senha, matricula)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           user.id,
           user.nome,
@@ -105,6 +107,7 @@ export class MysqlUserRepository implements IUserRepository {
           user.tel,
           user.tipoUsu,
           passwordHash,
+          user.matricula ?? null,
         ],
       );
 

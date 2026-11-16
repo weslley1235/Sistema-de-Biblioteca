@@ -5,14 +5,15 @@ const userSchema = z.object({
   email: z.string().email('Email invalido'),
   cpf: z.string().regex(/^\d{11}$/, 'O CPF deve conter 11 dígitos'),
   tel: z.string().regex(/^\d{11}$/, 'O Telefone deve conter 11 dígitos'),
-  tipoUsu: z.string().min(1, 'Tipo de usuario obrigatorio'),
-  //cip: z.string().min(1,'Carteira de identidade profissional invaida'),
+  tipoUsu: z.enum(['administracao', 'Professor', 'Aluno'], {error: 'Tipo de usuário inválido'}),
   password: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres'),
 });
 
 const userLoginSchema = z.object({
   email: z.string().email('Email ou senha invalidos!'),
   password: z.string().min(8, 'Email ou senha invalidos!'),
+  matricula: z.string().trim().max(15).optional(),
+
 });
 
 const userUpdateSchema = userSchema

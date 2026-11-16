@@ -7,70 +7,29 @@
     <link rel="stylesheet" href="/css/style.css" />
   </head>
 
-  <body>
-    <div class="cartao">
-      <div class="cartao-conteudo">
-        <!-- FRENTE: CADASTRO -->
-        <div class="cartao-frente">
-          <h1>Cadastrar Usuário</h1>
-          <form id="formulario">
-            <label>Nome completo:</label>
-            <input type="text" id="nome" required />
+ <body>
+  <div class="cartao">
+    <div class="cartao-conteudo">
+      <div class="cartao-frente">
+        <h1>Entrar no sistema</h1>
 
-            <label>E-mail:</label>
-            <input type="email" id="email" required />
+        <form id="formLogin">
+          <label>E-mail:</label>
+          <input type="email" id="emailLogin" required />
 
-            <label>Senha:</label>
-            <input type="password" id="senha" required />
+          <label>Senha:</label>
+          <input type="password" id="senhaLogin" required />
 
-            <label>CPF:</label>
-            <input type="text" id="cpf" required />
+          <label>Matrícula (somente administração):</label>
+          <input type="text" id="matriculaLogin" maxlength="15" />
 
-            <label>Telefone:</label>
-            <input type="text" id="tel" maxlength="11" inputmode="numeric" required />
-            
-            <label>Tipo de usuário:</label>
-            <select id="tipoUsu" required>
-              <option value="">Selecione</option>
-              <option value="Aluno">Aluno</option>
-              <option value="Professor">Professor</option>
-              <option value="administracao">Administração</option>
-            </select>
+          <button type="submit">Entrar</button>
+        </form>
 
-            <button type="submit">Cadastrar usuário</button>
-          </form>
-
-          <p id="mensagem"></p>
-
-          <p>Já possui cadastro?</p>
-
-          <button type="button" id="entrarSistema">Entrar no sistema</button>
-        </div>
-
-        <!-- VERSO: LOGIN -->
-
-        <div class="cartao-verso">
-          <h1>Entrar no sistema</h1>
-
-          <form id="formLogin">
-            <label>E-mail:</label>
-            <input type="email" id="emailLogin" required />
-
-            <label>Senha:</label>
-            <input type="password" id="senhaLogin" required />
-
-            <button type="submit">Entrar</button>
-          </form>
-
-          <p id="mensagemLogin"></p>
-
-          <button type="button" id="voltarCadastro">
-            Voltar para cadastro
-          </button>
-        </div>
+        <p id="mensagemLogin"></p>
       </div>
     </div>
-    <script src="/js/cadastro_usu.js"></script>
-    <script src="/js/login.js"></script>
-  </body>
+  </div>
+  <script src="/js/login.js"></script>
+</body>
 </html>

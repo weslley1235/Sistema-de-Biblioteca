@@ -8,6 +8,7 @@ export type UserProps = {
   cpf: string;
   tel: string;
   tipoUsu: string;
+  matricula?: string;
 };
 
 function isFilledText(value: unknown): value is string {
@@ -21,6 +22,7 @@ export class User implements IEntity {
   cpf: string;
   tel: string;
   tipoUsu: string;
+  matricula?: string
 
   constructor(props: UserProps) {
     this.id = props.id;
@@ -29,7 +31,9 @@ export class User implements IEntity {
     this.cpf = props.cpf;
     this.tel = props.tel;
     this.tipoUsu = props.tipoUsu;
+    this.matricula = props.matricula;
   }
+
   public validate(): Response<void> {
     if (!isFilledText(this.id)) {
       return { isFail: true, error: { message: 'ID precisa ser uma string válida' }};
@@ -53,6 +57,12 @@ export class User implements IEntity {
     if (!isFilledText(this.tipoUsu)) {
       return { isFail: true, error: { message: 'Tipo de usuário obrigatório' }};
     }
+
+    if (this.tipoUsu === 'administracao') {
+      if (!isFilledText(this.matricula) || !/^[A-Za-z0-9]{1,15}$/.test(this.matricula)) {
+        return { isFail: true, error: { message: 'Matrícula inválida' } };
+  }
+}
     
     return { isFail: false };
   }

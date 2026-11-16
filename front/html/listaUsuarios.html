@@ -9,28 +9,42 @@
   <body>
     <h1>Usuários cadastrados</h1>
 
-    <form id="formEditar" hidden>
-      <h2>Editar usuário</h2>
+    <form id="formNovo">
+      <h2>Novo usuário</h2>
 
       <label>Nome:</label>
-      <input name="nome" placeholder="Nome" required />
+      <input name="nome" required />
 
-      <label>Email:</label>
-      <input name="email" type="email" placeholder="E-mail" required />
+      <label>E-mail:</label>
+      <input name="email" type="email" required />
 
-      <label>Telefone:</label>
-      <input name="tel" placeholder="Telefone" required />
+      <label>Senha:</label>
+      <input name="password" type="password" minlength="8" required />
 
       <label>CPF:</label>
-      <input name="cpf" placeholder="CPF completo (opcional)" />
+      <input name="cpf" maxlength="11" required />
 
-      <button type="submit">Salvar alterações</button>
-      <button type="button" id="cancelarEdicao" style="display: block; margin-top: 15px">Cancelar</button>
+      <label>Telefone:</label>
+      <input name="tel" maxlength="11" required />
+
+      <label>Tipo:</label>
+      <select name="tipoUsu" required>
+        <option value="Aluno">Aluno</option>
+        <option value="Professor">Professor</option>
+        <option value="administracao">Administração</option>
+      </select>
+
+      <button type="submit">Cadastrar</button>
     </form>
 
     <div id="listaUsuarios"></div>
 
-    <button style = "display: block; margin-top: 25px;" onclick="window.location.href =  '/index'">Voltar</button>
+    <button
+      style="display: block; margin-top: 25px"
+      onclick="window.location.href = '/index'"
+    >
+      Voltar
+    </button>
 
     <script src="../js/listaUsuarios.js"></script>
   </body>

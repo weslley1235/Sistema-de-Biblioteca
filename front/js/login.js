@@ -6,6 +6,7 @@ const loginUser = async (event) => {
 
   const email = document.querySelector('#emailLogin').value;
   const password = document.querySelector('#senhaLogin').value;
+  const matricula = document.querySelector('#matriculaLogin').value;
 
 
   try {
@@ -13,7 +14,7 @@ const loginUser = async (event) => {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password,matricula }),
     });
 
     const result = await response.json();

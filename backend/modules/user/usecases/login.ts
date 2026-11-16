@@ -1,33 +1,42 @@
 import bcrypt from 'bcrypt';
 
-import { UserRepository } from '../repositories/index.js';
-import { USER_NOT_FOUND } from '../repositories/index.js';
-import { entityToPublicUser } from './publicUser.js';
+import { ADMIN } from '../../../shared/authentication.js';
+import { UserRepository, USER_NOT_FOUND } from '../repositories/index.js';
+import { PublicUser } from './publicUser.js';
 import type { UserResult } from './types.js';
 
-export async function login(
-  email: string,
-  password: string,
-): Promise<UserResult> {
-  const found = await new UserRepository().findCredentialsByEmail(email);
+const INVALID = { status: 401, message: 'Email ou senha inválidos!' };
 
-  if (found.isFail || !found.success) {
-    if (found.error?.message === USER_NOT_FOUND) {
-      return { status: 401, message: 'Email ou senha inválidos!' };
+export class LoginUserUsecase {
+  public async execute(
+    email: string,
+    password: string,
+    matricula?: string,
+  ): Promise<UserResult> {
+    const found = await new UserRepository().findCredentialsByEmail(email);
+
+    if (found.isFail || !found.success) {
+      if (found.error?.message === USER_NOT_FOUND) {
+        return INVALID;
+      }
+
+      throw new Error(found.error?.message ?? 'Erro ao buscar usuário');
     }
 
-    throw new Error(found.error?.message ?? 'Erro ao buscar usuário');
+    const { user, passwordHash } = found.success.value;
+
+    if (!(await bcrypt.compare(password, passwordHash))) {
+      return INVALID;
+    }
+
+    if (user.tipoUsu === ADMIN && user.matricula !== matricula?.trim()) {
+      return INVALID;
+    }
+
+    return {
+      status: 200,
+      message: 'Login realizado com sucesso',
+      user: PublicUser.execute(user),
+    };
   }
-
-  const { user, passwordHash } = found.success.value;
-
-  if (!(await bcrypt.compare(password, passwordHash))) {
-    return { status: 401, message: 'Email ou senha inválidos!' };
-  }
-
-  return {
-    status: 200,
-    message: 'Login realizado com sucesso',
-    user: entityToPublicUser(user),
-  };
 }
