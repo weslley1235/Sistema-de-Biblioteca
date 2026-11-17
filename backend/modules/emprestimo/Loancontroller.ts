@@ -1,7 +1,11 @@
+
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import { MysqlUserRepository } from '../user/repositories';
-import { LoanRepository } from './repositories/index';
+import type { IUserRepository } from '../user/repositories';
+import type { ILoanRepository } from './repositories';
+import type { IBookRepository } from '../books/repositories';
+
+
 import { loanValidation } from './validator';
 import { LendBookUsecase } from './usecases/createLoan';
 import { ListLoansUsecase } from './usecases/listLoans';
@@ -12,6 +16,12 @@ type ReturnLoanRequest = FastifyRequest<{
 }>;
 
 export class LoanController {
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly loanRepository: ILoanRepository,
+    private readonly bookRepository: IBookRepository,
+  ) {}
+
   public async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const validation = loanValidation(request.body);
@@ -22,9 +32,11 @@ export class LoanController {
         });
       }
 
-      const lendBookUsecase = new LendBookUsecase( 
-        new MysqlUserRepository(),
-        new LoanRepository());
+      const lendBookUsecase = new LendBookUsecase(
+        this.userRepository,
+        this.loanRepository,
+        this.bookRepository,
+      );
 
       const result = await lendBookUsecase.execute(validation.data);
 
@@ -45,8 +57,8 @@ export class LoanController {
   public async list(request: FastifyRequest, reply: FastifyReply) {
     try {
       const listLoansUsecase = new ListLoansUsecase(
-        new LoanRepository(),
-      )
+        this.loanRepository,
+      );
 
       const result = await listLoansUsecase.execute();
 
@@ -67,7 +79,7 @@ export class LoanController {
   public async return(request: ReturnLoanRequest, reply: FastifyReply) {
     try {
       const returnLoanUsecase = new ReturnLoanUsecase(
-        new LoanRepository(),
+        this.loanRepository,
       );
 
       const result = await returnLoanUsecase.execute(request.params.id);

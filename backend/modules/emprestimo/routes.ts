@@ -1,17 +1,31 @@
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+
+import type { FastifyInstance } from 'fastify';
+
 import { LoanController } from './Loancontroller';
+
+import { MysqlUserRepository } from '../user/repositories';
+import { LoanRepository } from './repositories';
+import { PostBookRepository } from '../books/repositories';
 
 import {
   requireLoginPage,
-  requireAdminPage,
   requireLoginApi,
-  requireAdminApi,
 } from '../../shared/authentication';
 
-type IdRoute = { Params: { id: string } };
+type IdRoute = {
+  Params: { id: string };
+};
 
 export default async function loanRoutes(server: FastifyInstance) {
-  const loanController = new LoanController();
+  const userRepository = new MysqlUserRepository();
+  const loanRepository = new LoanRepository();
+  const bookRepository = new PostBookRepository();
+
+  const loanController = new LoanController(
+    userRepository,
+    loanRepository,
+    bookRepository,
+  );
 
   server.get(
     '/livros-emprestados',
@@ -33,19 +47,19 @@ export default async function loanRoutes(server: FastifyInstance) {
 
   server.post(
     '/emprestimo',
-    { preHandler: requireLoginPage },
+    { preHandler: requireLoginApi },
     loanController.create,
   );
 
   server.get(
     '/emprestimo',
-    { preHandler: requireLoginPage },
+    { preHandler: requireLoginApi },
     loanController.list,
   );
 
   server.put<IdRoute>(
     '/emprestimo/:id',
-    { preHandler: requireLoginPage },
+    { preHandler: requireLoginApi },
     loanController.return,
   );
 }

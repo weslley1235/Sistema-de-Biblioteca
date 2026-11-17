@@ -1,19 +1,23 @@
+
 import { v4 as uuidv4 } from 'uuid';
 
 import { FindBookUsecase } from '../../books/usecases/index';
 import { USER_NOT_FOUND } from '../../user/repositories/index';
 import { Loan } from '../entities/index';
 import { loanFailure } from './types';
+
+import type { IBookRepository } from '../../books/repositories/index';
 import type { IUserRepository } from '../../user/repositories/index';
 import type { ILoanRepository } from '../repositories/index';
 import type { LoanInput } from '../validator';
 import type { LoanResponse } from './types';
 
-
-
 export class LendBookUsecase {
-constructor(private readonly userRepository: IUserRepository,
-            private readonly loanRepository: ILoanRepository) {}
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly loanRepository: ILoanRepository,
+    private readonly bookRepository: IBookRepository,
+  ) {}
 
   public async execute(data: LoanInput): Promise<LoanResponse> {
     const { livroId, cpf, tel } = data;
@@ -34,7 +38,8 @@ constructor(private readonly userRepository: IUserRepository,
       return loanFailure(400, 'CPF ou telefone inválido');
     }
 
-    const bookResult = await new FindBookUsecase().execute(livroId);
+    const findBook = new FindBookUsecase(this.bookRepository);
+    const bookResult = await findBook.execute(livroId);
 
     if (bookResult.isFail || !bookResult.success) {
       return loanFailure(404, 'Livro não encontrado');

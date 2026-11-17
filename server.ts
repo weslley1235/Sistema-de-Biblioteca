@@ -1,4 +1,4 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import { PostBookRepository } from './backend/modules/books/repositories/book.repository';
 import {
   fastifyStatic,
   fastifyCookie,
@@ -35,7 +35,8 @@ type DestroyRoute = {
   Querystring: { definitive?: string };
 };
 
-const bookController = new BookController();
+const bookRepository = new PostBookRepository();
+const bookController = new BookController(bookRepository);
 
 // Configurações
 

@@ -1,20 +1,31 @@
-import { BookRepository } from '../repositories/book.repository';
+import type { IBookRepository } from '../repositories/books.repository.interface';
+
 import { fromRepository } from './types';
 import type { BookResponse } from './types';
 
-type DestroyBookInput = { id: string; definitive: boolean };
+type DestroyBookInput = {
+  id: string;
+  definitive: boolean;
+};
 
 export class DestroyBookUsecase {
+  constructor(private readonly repository: IBookRepository) {}
+
   public async execute({
     id,
     definitive,
   }: DestroyBookInput): Promise<BookResponse> {
-    const repository = new BookRepository();
+    let result;
 
-    const result = definitive
-      ? await repository.destroy(id)
-      : await repository.disable(id);
+    if (definitive) {
+      result = await this.repository.destroy(id);
+    } else {
+      result = await this.repository.disable(id);
+    }
 
-    return fromRepository(result, 'Livro não encontrado ou já inativo');
+    return fromRepository(
+      result,
+      'Livro não encontrado ou já inativo',
+    );
   }
 }

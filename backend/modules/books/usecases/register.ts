@@ -1,16 +1,18 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { Book } from '../entities/index';
-import {BookRepository,BOOK_RECORD_NOT_FOUND} from '../repositories/book.repository';
+import type {IBookRepository} from '../repositories/books.repository.interface';
+import { BOOK_RECORD_NOT_FOUND } from '../repositories/book.repository';
 import { bookFailure } from './types';
 import type { BookInput } from '../validator';
 import type { BookResponse } from './types';
 
 export class RegisterBookUsecase {
-  public async execute(data: BookInput): Promise<BookResponse> {
-    const repository = new BookRepository();
+    constructor(private readonly repository: IBookRepository) {}
 
-    const existing = await repository.findByTitle(data.title);
+  public async execute(data: BookInput): Promise<BookResponse> {
+
+    const existing = await this.repository.findByTitle(data.title);
 
     if (!existing.isFail) {
       return bookFailure(409, 'Esse livro já tem cadastro');
@@ -30,7 +32,7 @@ export class RegisterBookUsecase {
       return bookFailure(400, validation.error?.message ?? 'Livro inválido');
     }
 
-    const saved = await repository.save(book);
+    const saved = await this.repository.save(book);
 
     if (saved.isFail) {
       return bookFailure(

@@ -11,7 +11,7 @@ import { IBookRepository } from './books.repository.interface';
 export const BOOK_NOT_FOUND = 'Livro não encontrado';
 export const BOOK_RECORD_NOT_FOUND = 'Registro não encontrado';
 
-export class BookRepository implements IBookRepository {
+export class PostBookRepository implements IBookRepository {
   private readonly BOOK_COLUMNS = 'id, title, autor, ano';
 
   private async query<T extends QueryResultRow = QueryResultRow>(

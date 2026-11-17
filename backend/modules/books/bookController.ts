@@ -1,7 +1,16 @@
+
+import type { IBookRepository } from './repositories/books.repository.interface';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 import { bookValidation } from './validator';
-import {DestroyBookUsecase,FindBookUsecase,ListBooksFactory,ReactivateBookUsecase,RegisterBookUsecase,UpdateBookUsecase,} from './usecases/index';
+import {
+DestroyBookUsecase,
+  FindBookUsecase,
+  ListBooksFactory,
+  ReactivateBookUsecase,
+  RegisterBookUsecase,
+  UpdateBookUsecase,
+} from './usecases/index';
 import type { BookResponse } from './usecases/types';
 
 type ListBooksRequest = FastifyRequest<{
@@ -23,10 +32,13 @@ type DestroyBookRequest = FastifyRequest<{
 }>;
 
 export class BookController {
+  constructor(private readonly repository: IBookRepository) {}
+
   public async list(request: ListBooksRequest, reply: FastifyReply) {
     try {
       const usecase = ListBooksFactory.factory(
         request.query.inactive === 'true',
+        this.repository,
       );
 
       const result = await usecase.execute();
@@ -46,13 +58,20 @@ export class BookController {
   }
 
   public async detail(request: FindBookRequest, reply: FastifyReply) {
-    const livro = await new FindBookUsecase().execute(request.params?.id ?? '');
+    try {
+      const usecase = new FindBookUsecase(this.repository);
+      const livro = await usecase.execute(request.params.id);
 
-    if (livro.isFail) {
-      return reply.code(404).send({ mensagem: 'Livro não encontrado' });
+      if (livro.isFail) {
+        return reply.code(404).send({ mensagem: 'Livro não encontrado' });
+      }
+
+      return reply.send(livro.success?.value);
+    } catch (erro) {
+      request.log.error(erro);
+
+      return reply.code(500).send({ mensagem: 'Erro ao buscar livro' });
     }
-
-    return reply.send(livro.success?.value);
   }
 
   public async update(request: UpdateBookRequest, reply: FastifyReply) {
@@ -60,7 +79,8 @@ export class BookController {
       const { id } = request.params;
 
       if (request.query.reactivate === 'true') {
-        const reactivated = await new ReactivateBookUsecase().execute(id);
+        const usecase = new ReactivateBookUsecase(this.repository);
+        const reactivated = await usecase.execute(id);
 
         if (reactivated.isFail) {
           return this.sendFailure(reply, reactivated);
@@ -77,7 +97,9 @@ export class BookController {
         });
       }
 
-      const updated = await new UpdateBookUsecase().execute({
+      const usecase = new UpdateBookUsecase(this.repository);
+
+      const updated = await usecase.execute({
         id,
         data: validation.data,
       });
@@ -98,7 +120,9 @@ export class BookController {
     try {
       const definitive = request.query.definitive === 'true';
 
-      const result = await new DestroyBookUsecase().execute({
+      const usecase = new DestroyBookUsecase(this.repository);
+
+      const result = await usecase.execute({
         id: request.params.id,
         definitive,
       });
@@ -129,7 +153,8 @@ export class BookController {
         });
       }
 
-      const result = await new RegisterBookUsecase().execute(validation.data);
+      const usecase = new RegisterBookUsecase(this.repository);
+      const result = await usecase.execute(validation.data);
 
       if (result.isFail) {
         return this.sendFailure(reply, result);

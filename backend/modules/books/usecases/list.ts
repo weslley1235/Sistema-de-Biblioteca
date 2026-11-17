@@ -1,23 +1,29 @@
 import type { Response } from '../../../shared/index';
 import type { Book } from '../repository';
-import { BookRepository } from '../repositories/book.repository';
+import type { IBookRepository } from '../repositories/books.repository.interface';
 
-class ListBooksUsecases {
+export class ListBooksUsecases {
+    constructor(private readonly repository: IBookRepository) {}
+
   public async execute(): Promise<Response<Array<Book>>> {
-    return await new BookRepository().list();
+    return await this.repository.list();
   }
 }
 
-class ListInactiveBookUsecase {
+export class ListInactiveBookUsecase {
+    constructor(private readonly repository: IBookRepository) {}
+
   public async execute(): Promise<Response<Array<Book>>> {
-    return await new BookRepository().listInactive();
+    return await this.repository.listInactive();
   }
 }
 
 export class ListBooksFactory {
-  public static factory(inactive: boolean) {
-    if (inactive) return new ListInactiveBookUsecase();
+  public static factory(inactive: boolean,repository: IBookRepository) {
+    if (inactive) {
+      return new ListInactiveBookUsecase(repository);
+    }
 
-    return new ListBooksUsecases();
+    return new ListBooksUsecases(repository);
   }
 }
