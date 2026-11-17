@@ -15,9 +15,8 @@ type ReturnLoanRequest = FastifyRequest<{
 
 export class LoanController {
   constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly loanRepository: ILoanRepository,
-    private readonly bookRepository: IBookRepository,
+    private provider: DatabaseProveders = process.env
+      .DATABASE_PROVIDER as DatabaseProveders,
   ) {}
 
   public async create(request: FastifyRequest, reply: FastifyReply) {
@@ -30,9 +29,7 @@ export class LoanController {
         });
       }
 
-      const lendBookUsecase = LendBookFactory.factory(
-        process.env.DATABASE_PROVIDER as DatabaseProveders,
-      );
+      const lendBookUsecase = LendBookFactory.factory(this.provider);
 
       const result = await lendBookUsecase.execute(validation.data);
 
