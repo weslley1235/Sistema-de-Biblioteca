@@ -1,12 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { Book } from '../entities/index';
-import {
-  BookRepository,
-  BOOK_RECORD_NOT_FOUND,
-} from '../repositories/book.repository';
-import type { BookInput } from '../validator';
+import {BookRepository,BOOK_RECORD_NOT_FOUND} from '../repositories/book.repository';
 import { bookFailure } from './types';
+import type { BookInput } from '../validator';
 import type { BookResponse } from './types';
 
 export class RegisterBookUsecase {

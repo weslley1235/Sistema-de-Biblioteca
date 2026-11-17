@@ -1,11 +1,13 @@
-import { LoanRepository } from '../repositories/index';
-import type { LoanListItem } from '../repositories/index';
+import type { ILoanRepository, LoanListItem } from '../repositories/index';
 import { loanFailure } from './types';
 import type { LoanResponse } from './types';
 
+
 export class ListLoansUsecase {
+  constructor (private readonly repository: ILoanRepository){}
+  
   public async execute(): Promise<LoanResponse<Array<LoanListItem>>> {
-    const result = await new LoanRepository().list();
+    const result = await this.repository.list();
 
     if (result.isFail || !result.success) {
       return loanFailure(

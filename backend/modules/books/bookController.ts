@@ -1,14 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 import { bookValidation } from './validator';
-import {
-  DestroyBookUsecase,
-  FindBookUsecase,
-  ListBooksFactory,
-  ReactivateBookUsecase,
-  RegisterBookUsecase,
-  UpdateBookUsecase,
-} from './usecases/index';
+import {DestroyBookUsecase,FindBookUsecase,ListBooksFactory,ReactivateBookUsecase,RegisterBookUsecase,UpdateBookUsecase,} from './usecases/index';
 import type { BookResponse } from './usecases/types';
 
 type ListBooksRequest = FastifyRequest<{

@@ -1,4 +1,4 @@
-import { IUserRepository } from '../repositories';
+import type { IUserRepository } from '../repositories';
 
 export type ListedUser = {
   id: string;

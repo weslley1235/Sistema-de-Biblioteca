@@ -1,5 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
+import { MysqlUserRepository } from '../user/repositories';
+import { LoanRepository } from './repositories/index';
 import { loanValidation } from './validator';
 import { LendBookUsecase } from './usecases/createLoan';
 import { ListLoansUsecase } from './usecases/listLoans';
@@ -20,7 +22,11 @@ export class LoanController {
         });
       }
 
-      const result = await new LendBookUsecase().execute(validation.data);
+      const lendBookUsecase = new LendBookUsecase( 
+        new MysqlUserRepository(),
+        new LoanRepository());
+
+      const result = await lendBookUsecase.execute(validation.data);
 
       if (result.isFail) {
         return reply.code(result.error?.metadata?.status ?? 500).send({
@@ -38,7 +44,11 @@ export class LoanController {
 
   public async list(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const result = await new ListLoansUsecase().execute();
+      const listLoansUsecase = new ListLoansUsecase(
+        new LoanRepository(),
+      )
+
+      const result = await listLoansUsecase.execute();
 
       if (result.isFail || !result.success) {
         request.log.error(result.error);
@@ -56,7 +66,11 @@ export class LoanController {
 
   public async return(request: ReturnLoanRequest, reply: FastifyReply) {
     try {
-      const result = await new ReturnLoanUsecase().execute(request.params.id);
+      const returnLoanUsecase = new ReturnLoanUsecase(
+        new LoanRepository(),
+      );
+
+      const result = await returnLoanUsecase.execute(request.params.id);
 
       if (result.isFail) {
         return reply.code(result.error?.metadata?.status ?? 500).send({

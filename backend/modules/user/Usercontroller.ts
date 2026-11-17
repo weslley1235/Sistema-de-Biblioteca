@@ -2,18 +2,8 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ZodError } from 'zod';
 import type { publicUser } from './usecases/types';
 
-import {
-  RegisterUserUsecase,
-  LoginUserUsecase,
-  DestroyUserUsecase,
-  ListUsersUsecase,
-  UpdateUserUsecase,
-} from './usecases/index';
-import {
-  userValidation,
-  userLoginValidation,
-  userUpdateValidation,
-} from './validator';
+import {RegisterUserUsecase,LoginUserUsecase,DestroyUserUsecase,ListUsersUsecase,UpdateUserUsecase} from './usecases/index';
+import {userValidation,userLoginValidation,userUpdateValidation} from './validator';
 import { MysqlUserRepository } from './repositories';
 
 type IdParams = FastifyRequest<{
@@ -51,7 +41,7 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const registerUserUsecase = new RegisterUserUsecase();
+      const registerUserUsecase = new RegisterUserUsecase(new MysqlUserRepository);
       const result = await registerUserUsecase.execute(validation.data);
 
       if (result.status !== 201 || !result.user) {
@@ -84,7 +74,7 @@ export class UserController {
 
       const { email, password, matricula } = validation.data;
 
-      const loginUserUsecase = new LoginUserUsecase();
+      const loginUserUsecase = new LoginUserUsecase(new MysqlUserRepository);
       const result = await loginUserUsecase.execute(email, password, matricula);
 
       if (result.status !== 200 || !result.user) {
@@ -112,7 +102,7 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const updateUserUsecase = new UpdateUserUsecase();
+      const updateUserUsecase = new UpdateUserUsecase(new MysqlUserRepository);
       const result = await updateUserUsecase.execute(
         request.params.id,
         validation.data,
@@ -175,7 +165,7 @@ export class UserController {
       const { id } = request.params;
       const usuario = request.session.get('usuario');
 
-      const destroyUserUsecase = new DestroyUserUsecase();
+      const destroyUserUsecase = new DestroyUserUsecase(new MysqlUserRepository);
       const result = await destroyUserUsecase.execute(id);
 
       if (result.status !== 200) {

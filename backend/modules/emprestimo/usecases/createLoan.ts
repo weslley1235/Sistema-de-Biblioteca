@@ -1,18 +1,24 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { FindBookUsecase } from '../../books/usecases/index';
-import { UserRepository, USER_NOT_FOUND } from '../../user/repositories/index';
+import { USER_NOT_FOUND } from '../../user/repositories/index';
 import { Loan } from '../entities/index';
-import { LoanRepository } from '../repositories/index';
-import type { LoanInput } from '../validator';
 import { loanFailure } from './types';
+import type { IUserRepository } from '../../user/repositories/index';
+import type { ILoanRepository } from '../repositories/index';
+import type { LoanInput } from '../validator';
 import type { LoanResponse } from './types';
 
+
+
 export class LendBookUsecase {
+constructor(private readonly userRepository: IUserRepository,
+            private readonly loanRepository: ILoanRepository) {}
+
   public async execute(data: LoanInput): Promise<LoanResponse> {
     const { livroId, cpf, tel } = data;
 
-    const found = await new UserRepository().findByCpf(cpf);
+    const found = await this.userRepository.findByCpf(cpf);
 
     if (found.isFail || !found.success) {
       if (found.error?.message === USER_NOT_FOUND) {
@@ -35,9 +41,8 @@ export class LendBookUsecase {
     }
 
     const book = bookResult.success.value;
-    const repository = new LoanRepository();
 
-    const active = await repository.hasActiveLoan(livroId);
+    const active = await this.loanRepository.hasActiveLoan(livroId);
 
     if (active.isFail) {
       return loanFailure(
@@ -71,7 +76,7 @@ export class LendBookUsecase {
       );
     }
 
-    const saved = await repository.save(loan);
+    const saved = await this.loanRepository.save(loan);
 
     if (saved.isFail) {
       return loanFailure(

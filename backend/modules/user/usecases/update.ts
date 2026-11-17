@@ -1,11 +1,14 @@
 import type { Response } from '../../../shared/index';
 import { User as UserEntity } from '../entities/index';
-import { UserRepository, USER_NOT_FOUND } from '../repositories/index';
+import { USER_NOT_FOUND } from '../repositories/index';
+import type { IUserRepository } from '../repositories/index';
 import type { userUpdateInput } from '../validator';
 import { PublicUser } from './publicUser';
 import type { UserResult } from './types';
 
 export class UpdateUserUsecase {
+  constructor(private readonly repository: IUserRepository){}
+
   private takenByOther(result: Response<UserEntity>, id: string): boolean {
     if (!result.isFail) return result.success?.value.id !== id;
 
@@ -15,9 +18,8 @@ export class UpdateUserUsecase {
   }
 
   public async execute(id: string, data: userUpdateInput): Promise<UserResult> {
-    const repository = new UserRepository();
+    const current = await  this.repository.findById(id);
 
-    const current = await repository.findById(id);
 
     if (current.isFail || !current.success) {
       if (current.error?.message === USER_NOT_FOUND) {
@@ -30,11 +32,11 @@ export class UpdateUserUsecase {
     const currentUser = current.success.value;
     const cpf = data.cpf || currentUser.cpf;
 
-    if (this.takenByOther(await repository.findByEmail(data.email), id)) {
+    if (this.takenByOther(await this.repository.findByEmail(data.email), id)) {
       return { status: 409, message: 'E-mail já cadastrado' };
     }
 
-    if (this.takenByOther(await repository.findByCpf(cpf), id)) {
+    if (this.takenByOther(await this.repository.findByCpf(cpf), id)) {
       return { status: 409, message: 'CPF já cadastrado' };
     }
 
@@ -57,7 +59,7 @@ export class UpdateUserUsecase {
       };
     }
 
-    const updated = await repository.update(user);
+    const updated = await this.repository.update(user);
 
     if (updated.isFail) {
       return {

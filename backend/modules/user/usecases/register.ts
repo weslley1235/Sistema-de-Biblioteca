@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt';
 
 import type { Response } from '../../../shared/index';
 import { User as UserEntity } from '../entities/index';
-import { UserRepository, USER_NOT_FOUND } from '../repositories/index';
+import { IUserRepository } from '../repositories/index';
+import { USER_NOT_FOUND } from '../repositories/index';
 import type { UserInput } from '../validator';
 import { PublicUser } from './publicUser';
 import type { UserResult } from './types';
@@ -11,6 +12,8 @@ import { generateMatricula } from '../../../shared/matricula';
 import { ADMIN } from '../../../shared/authentication';
 
 export class RegisterUserUsecase {
+constructor(private readonly repository: IUserRepository){}
+
   private alreadyExists(result: Response<UserEntity>): boolean {
     if (!result.isFail) return true;
 
@@ -21,13 +24,12 @@ export class RegisterUserUsecase {
 
   public async execute(data: UserInput): Promise<UserResult> {
     try {
-      const repository = new UserRepository();
 
-      if (this.alreadyExists(await repository.findByEmail(data.email))) {
+      if (this.alreadyExists(await this.repository.findByEmail(data.email))) {
         return { status: 409, message: 'Esse email já está cadastrado' };
       }
 
-      if (this.alreadyExists(await repository.findByCpf(data.cpf))) {
+      if (this.alreadyExists(await this.repository.findByCpf(data.cpf))) {
         return { status: 409, message: 'Esse CPF já está cadastrado' };
       }
 
@@ -57,7 +59,7 @@ export class RegisterUserUsecase {
       }
 
       const passwordHash = await bcrypt.hash(data.password, 10);
-      const saved = await repository.save(user, passwordHash);
+      const saved = await this.repository.save(user, passwordHash);
 
       if (saved.isFail) {
         return {

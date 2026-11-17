@@ -4,10 +4,7 @@ import database from '../../../../database/db';
 import type { Response } from '../../../shared/index';
 import { User } from '../entities/index';
 import { USER_NOT_FOUND } from './user.repository.interface.js';
-import type {
-  IUserRepository,
-  UserCredentials,
-} from './user.repository.interface';
+import type {IUserRepository,UserCredentials} from './user.repository.interface';
 
 type UserRow = {
   id: string;

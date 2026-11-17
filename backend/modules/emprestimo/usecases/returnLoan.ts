@@ -1,10 +1,13 @@
-import { LoanRepository, LOAN_NOT_FOUND } from '../repositories/index';
+import { LOAN_NOT_FOUND } from '../repositories/index';
+import type { ILoanRepository } from '../repositories/index'
 import { loanFailure } from './types';
 import type { LoanResponse } from './types';
 
 export class ReturnLoanUsecase {
+  constructor(private readonly repository: ILoanRepository) {}
+
   public async execute(id: string): Promise<LoanResponse> {
-    const result = await new LoanRepository().returnLoan(id);
+    const result = await this.repository.returnLoan(id);
 
     if (result.isFail) {
       if (result.error?.message === LOAN_NOT_FOUND) {
