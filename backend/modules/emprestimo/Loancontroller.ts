@@ -1,13 +1,11 @@
-
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
 import type { IUserRepository } from '../user/repositories';
 import type { ILoanRepository } from './repositories';
 import type { IBookRepository } from '../books/repositories';
 
-
 import { loanValidation } from './validator';
-import { LendBookUsecase } from './usecases/createLoan';
+import { DatabaseProveders, LendBookFactory } from './usecases/createLoan';
 import { ListLoansUsecase } from './usecases/listLoans';
 import { ReturnLoanUsecase } from './usecases/returnLoan';
 
@@ -32,10 +30,8 @@ export class LoanController {
         });
       }
 
-      const lendBookUsecase = new LendBookUsecase(
-        this.userRepository,
-        this.loanRepository,
-        this.bookRepository,
+      const lendBookUsecase = LendBookFactory.factory(
+        process.env.DATABASE_PROVIDER as DatabaseProveders,
       );
 
       const result = await lendBookUsecase.execute(validation.data);
@@ -56,9 +52,7 @@ export class LoanController {
 
   public async list(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const listLoansUsecase = new ListLoansUsecase(
-        this.loanRepository,
-      );
+      const listLoansUsecase = new ListLoansUsecase(this.loanRepository);
 
       const result = await listLoansUsecase.execute();
 
@@ -78,9 +72,7 @@ export class LoanController {
 
   public async return(request: ReturnLoanRequest, reply: FastifyReply) {
     try {
-      const returnLoanUsecase = new ReturnLoanUsecase(
-        this.loanRepository,
-      );
+      const returnLoanUsecase = new ReturnLoanUsecase(this.loanRepository);
 
       const result = await returnLoanUsecase.execute(request.params.id);
 

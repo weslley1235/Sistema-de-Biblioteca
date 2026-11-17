@@ -1,18 +1,28 @@
-
 import { v4 as uuidv4 } from 'uuid';
 
 import { FindBookUsecase } from '../../books/usecases/index';
-import { USER_NOT_FOUND } from '../../user/repositories/index';
+import {
+  MysqlUserRepository,
+  PostgresqlUserRepository,
+  USER_NOT_FOUND,
+} from '../../user/repositories/index';
 import { Loan } from '../entities/index';
 import { loanFailure } from './types';
 
-import type { IBookRepository } from '../../books/repositories/index';
+import {
+  PostBookRepository,
+  type IBookRepository,
+} from '../../books/repositories/index';
 import type { IUserRepository } from '../../user/repositories/index';
-import type { ILoanRepository } from '../repositories/index';
+import {
+  MysqlLoanRepository,
+  type ILoanRepository,
+  PostgresqlLoanRepository,
+} from '../repositories/index';
 import type { LoanInput } from '../validator';
 import type { LoanResponse } from './types';
 
-export class LendBookUsecase {
+class LendBookUsecase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly loanRepository: ILoanRepository,
@@ -91,5 +101,38 @@ export class LendBookUsecase {
     }
 
     return { isFail: false };
+  }
+}
+
+// shared
+export type DatabaseProveders = 'postgresql' | 'mysql';
+type Repositories = {
+  user: IUserRepository;
+  loan: ILoanRepository;
+  book: IBookRepository;
+};
+const databaseStategy: Record<DatabaseProveders, Repositories> = {
+  postgresql: {
+    user: new PostgresqlUserRepository(),
+    loan: new PostgresqlLoanRepository(),
+    book: new PostBookRepository(),
+  },
+  mysql: {
+    book: {} as IBookRepository,
+    loan: new MysqlLoanRepository(),
+    user: new MysqlUserRepository(),
+  },
+};
+// shared
+
+export class LendBookFactory {
+  public static factory(provider: DatabaseProveders) {
+    const repositoryProvider = databaseStategy[provider];
+
+    return new LendBookUsecase(
+      repositoryProvider.user,
+      repositoryProvider.loan,
+      repositoryProvider.book,
+    );
   }
 }
