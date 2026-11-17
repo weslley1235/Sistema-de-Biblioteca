@@ -1,6 +1,6 @@
-import { LoanRepository, LOAN_NOT_FOUND } from '../repositories/index.js';
-import { loanFailure } from './types.js';
-import type { LoanResponse } from './types.js';
+import { LoanRepository, LOAN_NOT_FOUND } from '../repositories/index';
+import { loanFailure } from './types';
+import type { LoanResponse } from './types';
 
 export class ReturnLoanUsecase {
   public async execute(id: string): Promise<LoanResponse> {

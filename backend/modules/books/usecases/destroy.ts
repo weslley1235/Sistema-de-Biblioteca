@@ -1,11 +1,14 @@
-import { BookRepository } from '../repositories/book.repository.js';
-import { fromRepository } from './types.js';
-import type { BookResponse } from './types.js';
+import { BookRepository } from '../repositories/book.repository';
+import { fromRepository } from './types';
+import type { BookResponse } from './types';
 
 type DestroyBookInput = { id: string; definitive: boolean };
 
 export class DestroyBookUsecase {
-  public async execute({ id, definitive }: DestroyBookInput): Promise<BookResponse> {
+  public async execute({
+    id,
+    definitive,
+  }: DestroyBookInput): Promise<BookResponse> {
     const repository = new BookRepository();
 
     const result = definitive

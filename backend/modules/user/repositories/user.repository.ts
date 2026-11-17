@@ -1,10 +1,13 @@
 import type { QueryResult, QueryResultRow } from 'pg';
 
-import database from '../../../../database/db.js';
-import type { Response } from '../../../shared/index.js';
-import { User } from '../entities/index.js';
-import { USER_NOT_FOUND} from './user.repository.interface.js'
-import type {IUserRepository,UserCredentials} from './user.repository.interface.js';
+import database from '../../../../database/db';
+import type { Response } from '../../../shared/index';
+import { User } from '../entities/index';
+import { USER_NOT_FOUND } from './user.repository.interface.js';
+import type {
+  IUserRepository,
+  UserCredentials,
+} from './user.repository.interface';
 
 type UserRow = {
   id: string;
@@ -77,7 +80,15 @@ export class UserRepository implements IUserRepository {
         'Erro ao salvar usuário',
         `INSERT INTO usuarios (id, nome, email, cpf, tel, tipousu, senha)
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [user.id,user.nome,user.email,user.cpf,user.tel,user.tipoUsu,passwordHash],
+        [
+          user.id,
+          user.nome,
+          user.email,
+          user.cpf,
+          user.tel,
+          user.tipoUsu,
+          passwordHash,
+        ],
       );
 
       return { isFail: false };
@@ -193,5 +204,4 @@ export class UserRepository implements IUserRepository {
       return this.fail(error, 'Houve um erro ao verificar os empréstimos');
     }
   }
-
 }

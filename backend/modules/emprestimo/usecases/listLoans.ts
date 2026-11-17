@@ -1,7 +1,7 @@
-import { LoanRepository } from '../repositories/index.js';
-import type { LoanListItem } from '../repositories/index.js';
-import { loanFailure } from './types.js';
-import type { LoanResponse } from './types.js';
+import { LoanRepository } from '../repositories/index';
+import type { LoanListItem } from '../repositories/index';
+import { loanFailure } from './types';
+import type { LoanResponse } from './types';
 
 export class ListLoansUsecase {
   public async execute(): Promise<LoanResponse<Array<LoanListItem>>> {

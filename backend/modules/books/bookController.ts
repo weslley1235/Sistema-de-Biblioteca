@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import { bookValidation } from './validator.js';
+import { bookValidation } from './validator';
 import {
   DestroyBookUsecase,
   FindBookUsecase,
@@ -8,8 +8,8 @@ import {
   ReactivateBookUsecase,
   RegisterBookUsecase,
   UpdateBookUsecase,
-} from './usecases/index.js';
-import type { BookResponse } from './usecases/types.js';
+} from './usecases/index';
+import type { BookResponse } from './usecases/types';
 
 type ListBooksRequest = FastifyRequest<{
   Querystring: { inactive?: string };
@@ -32,10 +32,10 @@ type DestroyBookRequest = FastifyRequest<{
 export class BookController {
   public async list(request: ListBooksRequest, reply: FastifyReply) {
     try {
-        const usecase = ListBooksFactory.factory(
+      const usecase = ListBooksFactory.factory(
         request.query.inactive === 'true',
       );
-         
+
       const result = await usecase.execute();
 
       if (result.isFail || !result.success) {

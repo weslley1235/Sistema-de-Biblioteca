@@ -1,13 +1,13 @@
 import type { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 
-import mysqlDatabase from '../../../../database/mysql.js';
-import type { Response } from '../../../shared/index.js';
-import { User } from '../entities/index.js';
-import { USER_NOT_FOUND } from './user.repository.interface.js';
+import mysqlDatabase from '../../../../database/mysql';
+import type { Response } from '../../../shared/index';
+import { User } from '../entities/index';
+import { USER_NOT_FOUND } from './user.repository.interface';
 import type {
   IUserRepository,
   UserCredentials,
-} from './user.repository.interface.js';
+} from './user.repository.interface';
 
 type UserRow = RowDataPacket & {
   id: string;
@@ -17,7 +17,7 @@ type UserRow = RowDataPacket & {
   tel: string;
   tipousu: string;
   senha: string;
-  matricula: string | null
+  matricula: string | null;
 };
 
 type SearchColumn = 'id' | 'email' | 'cpf';
@@ -90,7 +90,7 @@ export class MysqlUserRepository implements IUserRepository {
       cpf: row.cpf,
       tel: row.tel,
       tipoUsu: row.tipousu,
-      matricula:row.matricula ?? undefined,
+      matricula: row.matricula ?? undefined,
     });
   }
 
@@ -176,7 +176,7 @@ export class MysqlUserRepository implements IUserRepository {
     );
   }
 
-    public async hasLoans(id: string): Promise<Response<boolean>> {
+  public async hasLoans(id: string): Promise<Response<boolean>> {
     return this.attempt(
       'Houve um erro ao verificar os empréstimos',
       async () => {

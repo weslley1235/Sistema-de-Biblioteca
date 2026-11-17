@@ -1,8 +1,8 @@
-import { Book } from '../entities/index.js';
-import { BookRepository } from '../repositories/book.repository.js';
-import type { BookInput } from '../validator.js';
-import { bookFailure, fromRepository } from './types.js';
-import type { BookResponse } from './types.js';
+import { Book } from '../entities/index';
+import { BookRepository } from '../repositories/book.repository';
+import type { BookInput } from '../validator';
+import { bookFailure, fromRepository } from './types';
+import type { BookResponse } from './types';
 
 type UpdateBookInput = { id: string; data: BookInput };
 

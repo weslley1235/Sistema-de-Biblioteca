@@ -1,6 +1,6 @@
-import { Response } from '../../../shared/index.js';
-import { BookProps } from '../entities/book.entity.js';
-import { BookRepository } from '../repositories/book.repository.js';
+import { Response } from '../../../shared/index';
+import { BookProps } from '../entities/book.entity';
+import { BookRepository } from '../repositories/book.repository';
 
 type FindBookResponse = BookProps;
 

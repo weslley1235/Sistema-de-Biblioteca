@@ -1,9 +1,9 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import { loanValidation } from './validator.js';
-import { LendBookUsecase } from './usecases/createLoan.js';
-import { ListLoansUsecase } from './usecases/listLoans.js';
-import { ReturnLoanUsecase } from './usecases/returnLoan.js';
+import { loanValidation } from './validator';
+import { LendBookUsecase } from './usecases/createLoan';
+import { ListLoansUsecase } from './usecases/listLoans';
+import { ReturnLoanUsecase } from './usecases/returnLoan';
 
 type ReturnLoanRequest = FastifyRequest<{
   Params: { id: string };

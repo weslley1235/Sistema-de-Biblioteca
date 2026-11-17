@@ -1,5 +1,5 @@
 import { unknown } from 'zod';
-import type { IEntity, Response } from '../../../shared/index.js';
+import type { IEntity, Response } from '../../../shared/index';
 
 export type UserProps = {
   id: string;
@@ -22,7 +22,7 @@ export class User implements IEntity {
   cpf: string;
   tel: string;
   tipoUsu: string;
-  matricula?: string
+  matricula?: string;
 
   constructor(props: UserProps) {
     this.id = props.id;
@@ -36,10 +36,16 @@ export class User implements IEntity {
 
   public validate(): Response<void> {
     if (!isFilledText(this.id)) {
-      return { isFail: true, error: { message: 'ID precisa ser uma string válida' }};
+      return {
+        isFail: true,
+        error: { message: 'ID precisa ser uma string válida' },
+      };
     }
     if (!isFilledText(this.nome)) {
-      return { isFail: true, error: { message: 'Nome precisa ser uma string válida' }};
+      return {
+        isFail: true,
+        error: { message: 'Nome precisa ser uma string válida' },
+      };
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
@@ -47,23 +53,35 @@ export class User implements IEntity {
     }
 
     if (!/^\d{11}$/.test(this.cpf)) {
-      return { isFail: true,error: { message: 'O CPF deve conter 11 dígitos' }};
+      return {
+        isFail: true,
+        error: { message: 'O CPF deve conter 11 dígitos' },
+      };
     }
 
     if (!/^\d{11}$/.test(this.tel)) {
-      return { isFail: true, error: { message: 'O telefone deve conter 11 dígitos' }};
+      return {
+        isFail: true,
+        error: { message: 'O telefone deve conter 11 dígitos' },
+      };
     }
 
     if (!isFilledText(this.tipoUsu)) {
-      return { isFail: true, error: { message: 'Tipo de usuário obrigatório' }};
+      return {
+        isFail: true,
+        error: { message: 'Tipo de usuário obrigatório' },
+      };
     }
 
     if (this.tipoUsu === 'administracao') {
-      if (!isFilledText(this.matricula) || !/^[A-Za-z0-9]{1,15}$/.test(this.matricula)) {
+      if (
+        !isFilledText(this.matricula) ||
+        !/^[A-Za-z0-9]{1,15}$/.test(this.matricula)
+      ) {
         return { isFail: true, error: { message: 'Matrícula inválida' } };
-  }
-}
-    
+      }
+    }
+
     return { isFail: false };
   }
 }

@@ -1,4 +1,4 @@
-import { UserRepository } from '../repositories/index.js';
+import { UserRepository } from '../repositories';
 
 export type ListedUser = {
   id: string;

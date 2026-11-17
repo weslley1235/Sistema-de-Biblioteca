@@ -1,5 +1,5 @@
-import { UserRepository, USER_NOT_FOUND } from '../repositories/index.js';
-import type { UseCaseResult } from './types.js';
+import { UserRepository, USER_NOT_FOUND } from '../repositories/index';
+import type { UseCaseResult } from './types';
 
 export class DestroyUserUsecase {
   public async execute(id: string): Promise<UseCaseResult> {
@@ -10,9 +10,10 @@ export class DestroyUserUsecase {
 
       if (found.isFail) {
         if (found.error?.message === USER_NOT_FOUND) {
-          return { 
-            status: 404, 
-            message: 'Usuario nao encontrado' };
+          return {
+            status: 404,
+            message: 'Usuario nao encontrado',
+          };
         }
 
         throw new Error(found.error?.message ?? 'Erro ao buscar usuário');
@@ -29,7 +30,8 @@ export class DestroyUserUsecase {
       if (loans.success?.value) {
         return {
           status: 409,
-          message: 'Este usuário possui empréstimos registrados e não pode ser excluído',
+          message:
+            'Este usuário possui empréstimos registrados e não pode ser excluído',
         };
       }
 
@@ -39,9 +41,10 @@ export class DestroyUserUsecase {
         throw new Error(destroyed.error?.message ?? 'Erro ao excluir usuário');
       }
 
-      return { 
-        status: 200, 
-        message: 'Usuario excluido com sucesso' };
+      return {
+        status: 200,
+        message: 'Usuario excluido com sucesso',
+      };
     } catch (error) {
       return {
         status: 500,

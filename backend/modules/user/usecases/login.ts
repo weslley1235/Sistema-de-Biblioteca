@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
 
-import { ADMIN } from '../../../shared/authentication.js';
-import { UserRepository, USER_NOT_FOUND } from '../repositories/index.js';
-import { PublicUser } from './publicUser.js';
-import type { UserResult } from './types.js';
+import { ADMIN } from '../../../shared/authentication';
+import { UserRepository, USER_NOT_FOUND } from '../repositories/index';
+import { PublicUser } from './publicUser';
+import type { UserResult } from './types';
 
 const INVALID = { status: 401, message: 'Email ou senha inválidos!' };
 

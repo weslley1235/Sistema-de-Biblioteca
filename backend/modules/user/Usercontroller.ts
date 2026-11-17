@@ -1,9 +1,19 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ZodError } from 'zod';
-import type { publicUser } from './usecases/types.js';
+import type { publicUser } from './usecases/types';
 
-import {RegisterUserUsecase,LoginUserUsecase,DestroyUserUsecase,ListUsersUsecase,UpdateUserUsecase} from './usecases/index.js';
-import {userValidation,userLoginValidation,userUpdateValidation} from './validator.js';
+import {
+  RegisterUserUsecase,
+  LoginUserUsecase,
+  DestroyUserUsecase,
+  ListUsersUsecase,
+  UpdateUserUsecase,
+} from './usecases/index';
+import {
+  userValidation,
+  userLoginValidation,
+  userUpdateValidation,
+} from './validator';
 
 type IdParams = FastifyRequest<{
   Params: { id: string };

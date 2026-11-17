@@ -1,5 +1,5 @@
-import type { Response } from '../../../shared/index.js';
-import type { Loan } from '../entities/index.js';
+import type { Response } from '../../../shared/index';
+import type { Loan } from '../entities/index';
 
 export type LoanListItem = {
   id: string;

@@ -1,10 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { Book } from '../entities/index.js';
-import {BookRepository,BOOK_RECORD_NOT_FOUND} from '../repositories/book.repository.js';
-import type { BookInput } from '../validator.js';
-import { bookFailure } from './types.js';
-import type { BookResponse } from './types.js';
+import { Book } from '../entities/index';
+import {
+  BookRepository,
+  BOOK_RECORD_NOT_FOUND,
+} from '../repositories/book.repository';
+import type { BookInput } from '../validator';
+import { bookFailure } from './types';
+import type { BookResponse } from './types';
 
 export class RegisterBookUsecase {
   public async execute(data: BookInput): Promise<BookResponse> {

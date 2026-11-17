@@ -1,9 +1,9 @@
-import type { Response } from '../../../shared/index.js';
-import { User as UserEntity } from '../entities/index.js';
-import { UserRepository, USER_NOT_FOUND } from '../repositories/index.js';
-import type { userUpdateInput } from '../validator.js';
-import { PublicUser } from './publicUser.js';
-import type { UserResult } from './types.js';
+import type { Response } from '../../../shared/index';
+import { User as UserEntity } from '../entities/index';
+import { UserRepository, USER_NOT_FOUND } from '../repositories/index';
+import type { userUpdateInput } from '../validator';
+import { PublicUser } from './publicUser';
+import type { UserResult } from './types';
 
 export class UpdateUserUsecase {
   private takenByOther(result: Response<UserEntity>, id: string): boolean {

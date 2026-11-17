@@ -1,12 +1,24 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import {fastifyStatic,fastifyCookie,fastifySession,path,fileURLToPath} from './backend/config.js';
-import {ADMIN,requireLoginPage,requireAdminPage,requireLoginApi,requireAdminApi} from './backend/shared/authentication.js';
-import server from './backend/fastify.js';
+import {
+  fastifyStatic,
+  fastifyCookie,
+  fastifySession,
+  path,
+  fileURLToPath,
+} from './backend/config';
+import {
+  ADMIN,
+  requireLoginPage,
+  requireAdminPage,
+  requireLoginApi,
+  requireAdminApi,
+} from './backend/shared/authentication';
+import server from './backend/fastify';
 
-import userRoutes from './backend/modules/user/routes.js';
-import loanRoutes from './backend/modules/emprestimo/routes.js';
+import userRoutes from './backend/modules/user/routes';
+import loanRoutes from './backend/modules/emprestimo/routes';
 
-import { BookController } from './backend/modules/books/bookController.js';
+import { BookController } from './backend/modules/books/bookController';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3333);
@@ -45,15 +57,27 @@ server.register(fastifyStatic, {
 });
 
 // Página pública
-server.get('/', (request, reply) => { return reply.sendFile('html/cadastro_usu.html')});
+server.get('/', (request, reply) => {
+  return reply.sendFile('html/cadastro_usu.html');
+});
 
 // Página para usuários logados
-server.get('/index', {preHandler: requireLoginPage},(request, reply) => {return reply.sendFile('html/index.html')});
+server.get('/index', { preHandler: requireLoginPage }, (request, reply) => {
+  return reply.sendFile('html/index.html');
+});
 
 // Páginas exclusivas da administração
-server.get('/usuarios', {preHandler: requireAdminPage},(request, reply) => {return reply.sendFile('html/listaUsuarios.html')});
+server.get('/usuarios', { preHandler: requireAdminPage }, (request, reply) => {
+  return reply.sendFile('html/listaUsuarios.html');
+});
 
-server.get('/livros-inativos', {preHandler: requireAdminPage}, (request, reply) => {return reply.sendFile('html/livros_inativos.html')});
+server.get(
+  '/livros-inativos',
+  { preHandler: requireAdminPage },
+  (request, reply) => {
+    return reply.sendFile('html/livros_inativos.html');
+  },
+);
 
 // Usuários e empréstimos
 
@@ -62,11 +86,29 @@ server.register(loanRoutes);
 
 // Livros
 
-server.post('/livro', {preHandler: requireAdminApi}, (request, reply) => bookController.register(request, reply));
-server.get<ListRoute>('/livro', {preHandler: requireAdminApi}, (request, reply) => bookController.list(request, reply));
-server.get<FindRoute>('/livro/:id', {preHandler: requireAdminApi}, (request, reply) => bookController.detail(request, reply));
-server.put<UpdateRoute>('/livro/:id', {preHandler: requireAdminApi}, (request, reply) => bookController.update(request, reply));
-server.delete<DestroyRoute>('/livro/:id', {preHandler: requireAdminApi}, (request, reply) => bookController.destroy(request, reply));
+server.post('/livro', { preHandler: requireAdminApi }, (request, reply) =>
+  bookController.register(request, reply),
+);
+server.get<ListRoute>(
+  '/livro',
+  { preHandler: requireAdminApi },
+  (request, reply) => bookController.list(request, reply),
+);
+server.get<FindRoute>(
+  '/livro/:id',
+  { preHandler: requireAdminApi },
+  (request, reply) => bookController.detail(request, reply),
+);
+server.put<UpdateRoute>(
+  '/livro/:id',
+  { preHandler: requireAdminApi },
+  (request, reply) => bookController.update(request, reply),
+);
+server.delete<DestroyRoute>(
+  '/livro/:id',
+  { preHandler: requireAdminApi },
+  (request, reply) => bookController.destroy(request, reply),
+);
 
 // Logout
 

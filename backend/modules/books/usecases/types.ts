@@ -3,8 +3,8 @@ export type UseCaseResult = {
   message: string;
 };
 
-import type { Response } from '../../../shared/index.js';
-import { BOOK_NOT_FOUND } from '../repositories/book.repository.js';
+import type { Response } from '../../../shared/index';
+import { BOOK_NOT_FOUND } from '../repositories/book.repository';
 
 export type BookFailure = { status: number };
 export type BookResponse = Response<void, BookFailure>;

@@ -1,14 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 
-import type { Response } from '../../../shared/index.js';
-import { User as UserEntity } from '../entities/index.js';
-import { UserRepository, USER_NOT_FOUND } from '../repositories/index.js';
-import type { UserInput } from '../validator.js';
-import { PublicUser } from './publicUser.js';
-import type { UserResult } from './types.js';
-import { generateMatricula } from '../../../shared/matricula.js';
-import { ADMIN } from '../../../shared/authentication.js';
+import type { Response } from '../../../shared/index';
+import { User as UserEntity } from '../entities/index';
+import { UserRepository, USER_NOT_FOUND } from '../repositories/index';
+import type { UserInput } from '../validator';
+import { PublicUser } from './publicUser';
+import type { UserResult } from './types';
+import { generateMatricula } from '../../../shared/matricula';
+import { ADMIN } from '../../../shared/authentication';
 
 export class RegisterUserUsecase {
   private alreadyExists(result: Response<UserEntity>): boolean {

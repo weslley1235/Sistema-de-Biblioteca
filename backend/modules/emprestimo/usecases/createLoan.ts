@@ -1,12 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { FindBookUsecase } from '../../books/usecases/index.js';
-import {UserRepository,USER_NOT_FOUND} from '../../user/repositories/index.js';
-import { Loan } from '../entities/index.js';
-import { LoanRepository } from '../repositories/index.js';
-import type { LoanInput } from '../validator.js';
-import { loanFailure } from './types.js';
-import type { LoanResponse } from './types.js';
+import { FindBookUsecase } from '../../books/usecases/index';
+import { UserRepository, USER_NOT_FOUND } from '../../user/repositories/index';
+import { Loan } from '../entities/index';
+import { LoanRepository } from '../repositories/index';
+import type { LoanInput } from '../validator';
+import { loanFailure } from './types';
+import type { LoanResponse } from './types';
 
 export class LendBookUsecase {
   public async execute(data: LoanInput): Promise<LoanResponse> {

@@ -1,6 +1,6 @@
-import { BookRepository } from '../repositories/book.repository.js';
-import { fromRepository } from './types.js';
-import type { BookResponse } from './types.js';
+import { BookRepository } from '../repositories/book.repository';
+import { fromRepository } from './types';
+import type { BookResponse } from './types';
 
 export class ReactivateBookUsecase {
   public async execute(id: string): Promise<BookResponse> {

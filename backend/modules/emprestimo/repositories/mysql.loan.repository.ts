@@ -1,13 +1,13 @@
 import type { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 
-import mysqlDatabase from '../../../../database/mysql.js';
-import type { Response } from '../../../shared/index.js';
-import type { Loan } from '../entities/index.js';
-import { LOAN_NOT_FOUND } from './loan.repository.interface.js';
+import mysqlDatabase from '../../../../database/mysql';
+import type { Response } from '../../../shared/index';
+import type { Loan } from '../entities/index';
+import { LOAN_NOT_FOUND } from './loan.repository.interface';
 import type {
   ILoanRepository,
   LoanListItem,
-} from './loan.repository.interface.js';
+} from './loan.repository.interface';
 
 type LoanRow = RowDataPacket &
   Omit<LoanListItem, 'devolvido'> & { devolvido: number };

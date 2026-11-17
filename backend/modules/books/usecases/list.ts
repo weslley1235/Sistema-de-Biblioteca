@@ -1,6 +1,6 @@
-import type { Response } from '../../../shared/index.js';
-import type { Book } from '../repository.js';
-import { BookRepository } from '../repositories/book.repository.js';
+import type { Response } from '../../../shared/index';
+import type { Book } from '../repository';
+import { BookRepository } from '../repositories/book.repository';
 
 class ListBooksUsecases {
   public async execute(): Promise<Response<Array<Book>>> {
