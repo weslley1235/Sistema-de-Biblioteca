@@ -1,16 +1,12 @@
-
 import type { FastifyInstance } from 'fastify';
 
 import { LoanController } from './Loancontroller';
 
 import { MysqlUserRepository } from '../user/repositories';
-import { LoanRepository } from './repositories';
+import { MysqlLoanRepository } from './repositories';
 import { PostBookRepository } from '../books/repositories';
 
-import {
-  requireLoginPage,
-  requireLoginApi,
-} from '../../shared/authentication';
+import { requireLoginPage, requireLoginApi } from '../../shared/authentication';
 
 type IdRoute = {
   Params: { id: string };
@@ -18,7 +14,7 @@ type IdRoute = {
 
 export default async function loanRoutes(server: FastifyInstance) {
   const userRepository = new MysqlUserRepository();
-  const loanRepository = new LoanRepository();
+  const loanRepository = new MysqlLoanRepository();
   const bookRepository = new PostBookRepository();
 
   const loanController = new LoanController(
