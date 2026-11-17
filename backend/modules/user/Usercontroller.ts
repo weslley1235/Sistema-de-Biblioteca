@@ -14,6 +14,7 @@ import {
   userLoginValidation,
   userUpdateValidation,
 } from './validator';
+import { MysqlUserRepository } from './repositories';
 
 type IdParams = FastifyRequest<{
   Params: { id: string };
@@ -134,7 +135,7 @@ export class UserController {
 
   public async list(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const listUsersUsecase = new ListUsersUsecase();
+      const listUsersUsecase = new ListUsersUsecase(new MysqlUserRepository());
 
       return reply.send(await listUsersUsecase.execute());
     } catch (error) {

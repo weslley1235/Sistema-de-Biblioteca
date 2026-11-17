@@ -1,4 +1,4 @@
-import { UserRepository } from '../repositories';
+import { IUserRepository } from '../repositories';
 
 export type ListedUser = {
   id: string;
@@ -10,8 +10,10 @@ export type ListedUser = {
 };
 
 export class ListUsersUsecase {
+  constructor(private readonly repository: IUserRepository) {}
+
   public async execute(): Promise<ListedUser[]> {
-    const result = await new UserRepository().list();
+    const result = await this.repository.list();
 
     if (result.isFail || !result.success) {
       throw new Error(result.error?.message ?? 'Erro ao listar usuários');
