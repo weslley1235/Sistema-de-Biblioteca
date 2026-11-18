@@ -1,25 +1,33 @@
-import type { Response } from '../../../shared/index';
-import { User as UserEntity } from '../entities/index';
-import { USER_NOT_FOUND } from '../repositories/index';
-import type { IUserRepository } from '../repositories/index';
-import type { userUpdateInput } from '../validator';
-import { PublicUser } from './publicUser';
-import type { UserResult } from './types';
+import {
+  databaseStrategy,
+  type DatabaseProvider,
+  type Response,
+} from '../../../shared/index.js';
 
-export class UpdateUserUsecase {
-  constructor(private readonly repository: IUserRepository){}
+import { User as UserEntity } from '../entities/index.js';
+import { USER_NOT_FOUND } from '../repositories/index.js';
+import { PublicUser } from './publicUser.js';
+import type { UserResult } from './types.js';
+import type { IUserRepository } from '../repositories/index.js';
+import type { UserUpdateInput } from '../validator.js';
 
-  private takenByOther(result: Response<UserEntity>, id: string): boolean {
-    if (!result.isFail) return result.success?.value.id !== id;
-
-    if (result.error?.message === USER_NOT_FOUND) return false;
-
-    throw new Error(result.error?.message ?? 'Erro ao consultar usuário');
+const takenByOther = (result: Response<UserEntity>, id: string): boolean => {
+  if (!result.isFail) {
+    return result.success?.value.id !== id;
   }
 
-  public async execute(id: string, data: userUpdateInput): Promise<UserResult> {
-    const current = await  this.repository.findById(id);
+  if (result.error?.message === USER_NOT_FOUND) {
+    return false;
+  }
 
+  throw new Error(result.error?.message ?? 'Erro ao consultar usuário');
+};
+
+export class UpdateUserUsecase {
+  constructor(private readonly userRepository: IUserRepository) {}
+
+  public async execute(id: string, data: UserUpdateInput): Promise<UserResult> {
+    const current = await this.userRepository.findById(id);
 
     if (current.isFail || !current.success) {
       if (current.error?.message === USER_NOT_FOUND) {
@@ -32,11 +40,11 @@ export class UpdateUserUsecase {
     const currentUser = current.success.value;
     const cpf = data.cpf || currentUser.cpf;
 
-    if (this.takenByOther(await this.repository.findByEmail(data.email), id)) {
+    if (takenByOther(await this.userRepository.findByEmail(data.email), id)) {
       return { status: 409, message: 'E-mail já cadastrado' };
     }
 
-    if (this.takenByOther(await this.repository.findByCpf(cpf), id)) {
+    if (takenByOther(await this.userRepository.findByCpf(cpf), id)) {
       return { status: 409, message: 'CPF já cadastrado' };
     }
 
@@ -59,7 +67,7 @@ export class UpdateUserUsecase {
       };
     }
 
-    const updated = await this.repository.update(user);
+    const updated = await this.userRepository.update(user);
 
     if (updated.isFail) {
       return {
@@ -73,5 +81,11 @@ export class UpdateUserUsecase {
       message: 'Usuário atualizado com sucesso',
       user: PublicUser.execute(user),
     };
+  }
+}
+
+export class UpdateUserFactory {
+  public static factory(provider: DatabaseProvider) {
+    return new UpdateUserUsecase(databaseStrategy[provider]().user);
   }
 }

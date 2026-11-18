@@ -1,5 +1,6 @@
-import type { Response } from '../../../shared/index';
-import type { Loan } from '../entities/index';
+
+import type { Response } from '../../../shared/index.js';
+import type { Loan } from '../entities/index.js';
 
 export type LoanListItem = {
   id: string;
@@ -18,6 +19,8 @@ export const LOAN_NOT_FOUND = 'Empréstimo não encontrado';
 export interface ILoanRepository {
   save(loan: Loan): Promise<Response<void>>;
   list(): Promise<Response<Array<LoanListItem>>>;
+  listByUser(userId: string): Promise<Response<Array<LoanListItem>>>;
+  listActiveBookIds(): Promise<Response<Array<string>>>;
   hasActiveLoan(bookId: string): Promise<Response<boolean>>;
   returnLoan(id: string): Promise<Response<void>>;
 }

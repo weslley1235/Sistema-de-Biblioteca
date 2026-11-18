@@ -1,4 +1,5 @@
-import type { IUserRepository } from '../repositories';
+import {databaseStrategy,type DatabaseProvider} from '../../../shared/index.js';
+import type { IUserRepository } from '../repositories/index.js';
 
 export type ListedUser = {
   id: string;
@@ -10,10 +11,10 @@ export type ListedUser = {
 };
 
 export class ListUsersUsecase {
-  constructor(private readonly repository: IUserRepository) {}
+  constructor(private readonly userRepository: IUserRepository) {}
 
   public async execute(): Promise<ListedUser[]> {
-    const result = await this.repository.list();
+    const result = await this.userRepository.list();
 
     if (result.isFail || !result.success) {
       throw new Error(result.error?.message ?? 'Erro ao listar usuários');
@@ -29,5 +30,11 @@ export class ListUsersUsecase {
         cpf: `${cpf.slice(0, 3)}${'*'.repeat(Math.max(0, cpf.length - 5))}${cpf.slice(-2)}`,
       }),
     );
+  }
+}
+
+export class ListUsersFactory {
+  public static factory(provider: DatabaseProvider) {
+    return new ListUsersUsecase(databaseStrategy[provider]().user);
   }
 }

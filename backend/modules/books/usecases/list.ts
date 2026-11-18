@@ -1,29 +1,31 @@
-import type { Response } from '../../../shared/index';
-import type { Book } from '../repository';
-import type { IBookRepository } from '../repositories/books.repository.interface';
+import {databaseStrategy,type DatabaseProvider,type Response} from '../../../shared/index.js';
+import type { Book } from '../entities/index.js';
+import type { IBookRepository } from '../repositories/index.js';
 
 export class ListBooksUsecases {
-    constructor(private readonly repository: IBookRepository) {}
+  constructor(private readonly bookRepository: IBookRepository) {}
 
   public async execute(): Promise<Response<Array<Book>>> {
-    return await this.repository.list();
+    return await this.bookRepository.list();
   }
 }
 
 export class ListInactiveBookUsecase {
-    constructor(private readonly repository: IBookRepository) {}
+  constructor(private readonly bookRepository: IBookRepository) {}
 
   public async execute(): Promise<Response<Array<Book>>> {
-    return await this.repository.listInactive();
+    return await this.bookRepository.listInactive();
   }
 }
 
 export class ListBooksFactory {
-  public static factory(inactive: boolean,repository: IBookRepository) {
-    if (inactive) {
-      return new ListInactiveBookUsecase(repository);
-    }
+  public static factory(provider: DatabaseProvider) {
+    return new ListBooksUsecases(databaseStrategy[provider]().book);
+  }
+}
 
-    return new ListBooksUsecases(repository);
+export class ListInactiveBooksFactory {
+  public static factory(provider: DatabaseProvider) {
+    return new ListInactiveBookUsecase(databaseStrategy[provider]().book);
   }
 }

@@ -1,4 +1,4 @@
-import type { Response } from '../../../shared/index';
+import type { Response } from '../../../shared/index.js';
 
 export type LoanFailure = { status: number };
 export type LoanResponse<T = void> = Response<T, LoanFailure>;

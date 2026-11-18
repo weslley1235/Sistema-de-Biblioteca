@@ -1,5 +1,5 @@
-import type { User } from '../entities/index';
-import type { publicUser } from './types';
+import type { User } from '../entities/index.js';
+import type { publicUser } from './types.js';
 
 export class PublicUser {
   public static execute(user: User): publicUser {

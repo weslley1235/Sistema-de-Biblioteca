@@ -1,31 +1,24 @@
-import type { IBookRepository } from '../repositories/books.repository.interface';
+import { databaseStrategy, type DatabaseProvider } from '../../../shared/index.js';
+import { fromRepository } from './types.js';
+import type { BookResponse } from './types.js';
+import type { IBookRepository } from '../repositories/index.js';
 
-import { fromRepository } from './types';
-import type { BookResponse } from './types';
-
-type DestroyBookInput = {
-  id: string;
-  definitive: boolean;
-};
+type DestroyBookInput = { id: string; definitive: boolean };
 
 export class DestroyBookUsecase {
-  constructor(private readonly repository: IBookRepository) {}
+  constructor(private readonly bookRepository: IBookRepository) {}
 
-  public async execute({
-    id,
-    definitive,
-  }: DestroyBookInput): Promise<BookResponse> {
-    let result;
+  public async execute({ id, definitive }: DestroyBookInput): Promise<BookResponse> {
+    const result = definitive
+      ? await this.bookRepository.destroy(id)
+      : await this.bookRepository.disable(id);
 
-    if (definitive) {
-      result = await this.repository.destroy(id);
-    } else {
-      result = await this.repository.disable(id);
-    }
+    return fromRepository(result, 'Livro não encontrado ou já inativo');
+  }
+}
 
-    return fromRepository(
-      result,
-      'Livro não encontrado ou já inativo',
-    );
+export class DestroyBookFactory {
+  public static factory(provider: DatabaseProvider) {
+    return new DestroyBookUsecase(databaseStrategy[provider]().book);
   }
 }

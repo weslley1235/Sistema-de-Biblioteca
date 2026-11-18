@@ -1,13 +1,11 @@
+
 import type { QueryResult, QueryResultRow } from 'pg';
 
 import database from '../../../../database/db';
-import type { Response } from '../../../shared/index';
-import type { Loan } from '../entities/index';
-import { LOAN_NOT_FOUND } from './loan.repository.interface';
-import type {
-  ILoanRepository,
-  LoanListItem,
-} from './loan.repository.interface';
+import { LOAN_NOT_FOUND } from './loan.repository.interface.js';
+import type { Response } from '../../../shared/index.js';
+import type { Loan } from '../entities/index.js';
+import type {ILoanRepository,LoanListItem} from './loan.repository.interface.js';
 
 export class LoanRepository implements ILoanRepository {
   private async query<T extends QueryResultRow = QueryResultRow>(
@@ -77,6 +75,51 @@ export class LoanRepository implements ILoanRepository {
       return { isFail: false, success: { value: result.rows } };
     } catch (error) {
       return this.fail(error, 'Houve um erro ao listar os empréstimos');
+    }
+  }
+
+  public async listByUser(
+    userId: string,
+  ): Promise<Response<Array<LoanListItem>>> {
+    try {
+      const result = await this.query<LoanListItem>(
+        'Erro ao listar empréstimos do usuário',
+        `SELECT
+           id,
+           livro_id AS "livroId",
+           (SELECT nome FROM usuarios WHERE usuarios.id = emprestimos.usuario_id) AS nome,
+           nome_livro AS "nomeLivro",
+           autor,
+           ano,
+           data_emprestimo AS "dataEmprestimo",
+           data_devolucao AS "dataDevolucao",
+           devolvido
+         FROM emprestimos
+         WHERE usuario_id = $1
+         ORDER BY data_emprestimo DESC`,
+        [userId],
+      );
+
+      return { isFail: false, success: { value: result.rows } };
+    } catch (error) {
+      return this.fail(error, 'Houve um erro ao listar os empréstimos do usuário');
+    }
+  }
+
+  public async listActiveBookIds(): Promise<Response<Array<string>>> {
+    try {
+      const result = await this.query<{ livro_id: string }>(
+        'Erro ao listar livros emprestados',
+        `SELECT DISTINCT livro_id
+         FROM emprestimos
+         WHERE devolvido = FALSE`,
+      );
+
+      const value = result.rows.map((row) => row.livro_id);
+
+      return { isFail: false, success: { value } };
+    } catch (error) {
+      return this.fail(error, 'Houve um erro ao listar livros emprestados');
     }
   }
 

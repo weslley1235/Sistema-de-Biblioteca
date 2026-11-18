@@ -1,35 +1,31 @@
-import { Book } from '../entities';
-import type { IBookRepository } from '../repositories/books.repository.interface';
+import { databaseStrategy, type DatabaseProvider } from '../../../shared/index.js';
+import { Book } from '../entities/index.js';
+import { bookFailure, fromRepository } from './types.js';
+import type { IBookRepository } from '../repositories/index.js';
+import type { BookInput } from '../validator.js';
+import type { BookResponse } from './types.js';
 
-import { bookFailure, fromRepository } from './types';
-import type { BookInput } from '../validator';
-import type { BookResponse } from './types';
-
-type UpdateBookInput = {
-  id: string;
-  data: BookInput;
-};
+type UpdateBookInput = { id: string; data: BookInput };
 
 export class UpdateBookUsecase {
-  constructor(private readonly repository: IBookRepository) {}
+  constructor(private readonly bookRepository: IBookRepository) {}
 
-  public async execute({
-    id,
-    data,
-  }: UpdateBookInput): Promise<BookResponse> {
+  public async execute({ id, data }: UpdateBookInput): Promise<BookResponse> {
     const book = new Book({ id, ...data });
-
     const validation = book.validate();
 
     if (validation.isFail) {
-      return bookFailure(
-        400,
-        validation.error?.message ?? 'Livro inválido',
-      );
+      return bookFailure(400, validation.error?.message ?? 'Livro inválido');
     }
 
-    const updated = await this.repository.update(book);
+    const updated = await this.bookRepository.update(book);
 
     return fromRepository(updated, 'Livro não encontrado');
+  }
+}
+
+export class UpdateBookFactory {
+  public static factory(provider: DatabaseProvider) {
+    return new UpdateBookUsecase(databaseStrategy[provider]().book);
   }
 }

@@ -22,7 +22,7 @@ const userUpdateSchema = userSchema
 
 export type UserInput = z.infer<typeof userSchema>;
 export type UserLoginInput = z.infer<typeof userLoginSchema>;
-export type userUpdateInput = z.infer<typeof userUpdateSchema>;
+export type UserUpdateInput = z.infer<typeof userUpdateSchema>;
 
 export function userValidation(data: unknown) {
   return userSchema.safeParse(data);

@@ -1,25 +1,24 @@
-import { IUserRepository, USER_NOT_FOUND } from '../repositories/index';
-import type { UseCaseResult } from './types';
+import {databaseStrategy,type DatabaseProvider} from '../../../shared/index.js';
+import { USER_NOT_FOUND } from '../repositories/index.js';
+import type { IUserRepository } from '../repositories/index.js';
+import type { UseCaseResult } from './types.js';
 
 export class DestroyUserUsecase {
-  constructor(private readonly repository: IUserRepository){}
+  constructor(private readonly userRepository: IUserRepository) {}
 
   public async execute(id: string): Promise<UseCaseResult> {
     try {
-      const found = await this.repository.findById(id);
+      const found = await this.userRepository.findById(id);
 
       if (found.isFail) {
         if (found.error?.message === USER_NOT_FOUND) {
-          return {
-            status: 404,
-            message: 'Usuario nao encontrado',
-          };
+          return { status: 404, message: 'Usuario nao encontrado' };
         }
 
         throw new Error(found.error?.message ?? 'Erro ao buscar usuário');
       }
 
-      const loans = await this.repository.hasLoans(id);
+      const loans = await this.userRepository.hasLoans(id);
 
       if (loans.isFail) {
         throw new Error(
@@ -35,16 +34,13 @@ export class DestroyUserUsecase {
         };
       }
 
-      const destroyed = await this.repository.destroy(id);
+      const destroyed = await this.userRepository.destroy(id);
 
       if (destroyed.isFail) {
         throw new Error(destroyed.error?.message ?? 'Erro ao excluir usuário');
       }
 
-      return {
-        status: 200,
-        message: 'Usuario excluido com sucesso',
-      };
+      return { status: 200, message: 'Usuario excluido com sucesso' };
     } catch (error) {
       return {
         status: 500,
@@ -52,5 +48,11 @@ export class DestroyUserUsecase {
           error instanceof Error ? error.message : 'Erro ao excluir usuário',
       };
     }
+  }
+}
+
+export class DestroyUserFactory {
+  public static factory(provider: DatabaseProvider) {
+    return new DestroyUserUsecase(databaseStrategy[provider]().user);
   }
 }

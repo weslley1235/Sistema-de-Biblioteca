@@ -1,43 +1,40 @@
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 
-import type { Response } from '../../../shared/index';
-import { User as UserEntity } from '../entities/index';
-import { IUserRepository } from '../repositories/index';
-import { USER_NOT_FOUND } from '../repositories/index';
-import type { UserInput } from '../validator';
-import { PublicUser } from './publicUser';
-import type { UserResult } from './types';
-import { generateMatricula } from '../../../shared/matricula';
-import { ADMIN } from '../../../shared/authentication';
+import { ADMIN } from '../../../shared/authentication.js';
+import { generateMatricula } from '../../../shared/matricula.js';
+import {databaseStrategy,type DatabaseProvider,type Response} from '../../../shared/index.js';
+import { User as UserEntity } from '../entities/index.js';
+import { USER_NOT_FOUND } from '../repositories/index.js';
+import { PublicUser } from './publicUser.js';
+import type { UserResult } from './types.js';
+import type { UserInput } from '../validator.js';
+import type { IUserRepository } from '../repositories/index.js';
+
+
+function alreadyExists(result: Response<UserEntity>): boolean {
+  if (!result.isFail) return true;
+  if (result.error?.message === USER_NOT_FOUND) return false;
+
+  throw new Error(result.error?.message ?? 'Erro ao consultar usuário');
+}
 
 export class RegisterUserUsecase {
-constructor(private readonly repository: IUserRepository){}
-
-  private alreadyExists(result: Response<UserEntity>): boolean {
-    if (!result.isFail) return true;
-
-    if (result.error?.message === USER_NOT_FOUND) return false;
-
-    throw new Error(result.error?.message ?? 'Erro ao consultar usuário');
-  }
+  constructor(private readonly userRepository: IUserRepository) {}
 
   public async execute(data: UserInput): Promise<UserResult> {
     try {
-
-      if (this.alreadyExists(await this.repository.findByEmail(data.email))) {
+      if (alreadyExists(await this.userRepository.findByEmail(data.email))) {
         return { status: 409, message: 'Esse email já está cadastrado' };
       }
 
-      if (this.alreadyExists(await this.repository.findByCpf(data.cpf))) {
+      if (alreadyExists(await this.userRepository.findByCpf(data.cpf))) {
         return { status: 409, message: 'Esse CPF já está cadastrado' };
       }
 
-      let matricula: string | undefined;
-
-      if (data.tipoUsu === ADMIN) {
-        matricula = generateMatricula();
-      }
+      // só administração recebe matrícula, gerada pelo sistema
+      const matricula =
+        data.tipoUsu === ADMIN ? generateMatricula() : undefined;
 
       const user = new UserEntity({
         id: uuidv4(),
@@ -59,7 +56,7 @@ constructor(private readonly repository: IUserRepository){}
       }
 
       const passwordHash = await bcrypt.hash(data.password, 10);
-      const saved = await this.repository.save(user, passwordHash);
+      const saved = await this.userRepository.save(user, passwordHash);
 
       if (saved.isFail) {
         return {
@@ -81,5 +78,11 @@ constructor(private readonly repository: IUserRepository){}
           error instanceof Error ? error.message : 'Erro ao cadastrar usuário',
       };
     }
+  }
+}
+
+export class RegisterUserFactory {
+  public static factory(provider: DatabaseProvider) {
+    return new RegisterUserUsecase(databaseStrategy[provider]().user);
   }
 }

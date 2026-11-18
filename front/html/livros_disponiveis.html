@@ -12,49 +12,53 @@
     <div id="listaLivros"></div>
 
     <script>
-      async function carregarLivros() {
+      const carregarLivros = async () => {
         const respostaLivros = await fetch('/livro');
-
         const livros = await respostaLivros.json();
 
         const respostaEmprestimo = await fetch('/emprestimo');
-
-        const emprestimo = await respostaEmprestimo.json();
+        let emprestimos = await respostaEmprestimo.json();
 
         const lista = document.getElementById('listaLivros');
+
+        if (!Array.isArray(emprestimos)) {
+          emprestimos = [];
+        }
 
         lista.innerHTML = '';
 
         livros.forEach((livro) => {
-          const livroEmprestado = emprestimo.find((item) => {
-            return item.livroId == livro.id && item.devolvido == false;
+          const livroEmprestado = emprestimos.find((item) => {
+            return item.livroId === livro.id && item.devolvido === false;
           });
 
           if (!livroEmprestado) {
             const div = document.createElement('div');
 
             div.innerHTML = `
-          <h3>Nome: ${livro.title}</h3>
+              <h3>Nome: ${livro.title}</h3>
 
-          <p>Autor: ${livro.autor}</p>
+              <p>Autor: ${livro.autor}</p>
 
-          <p>Ano: ${livro.ano}</p>
+              <p>Ano: ${livro.ano}</p>
 
-          <button onclick="window.location.href='/novo-emprestimo?livroId=${livro.id}'">
-              Emprestar
-          </button>
+              <button onclick="window.location.href='/novo-emprestimo?livroId=${livro.id}'">
+                Emprestar
+              </button>
 
-          <button onclick="excluirLivro('${livro.id}')"> Excluir livro </button>
+              <button onclick="excluirLivro('${livro.id}')">
+                Excluir livro
+              </button>
 
-          <hr>
-      `;
+              <hr>
+            `;
 
             lista.appendChild(div);
           }
         });
-      }
+      };
 
-      async function excluirLivro(id) {
+      const excluirLivro = async (id) => {
         const confirmar = confirm('Deseja realmente excluir este livro?');
 
         if (!confirmar) return;
@@ -70,7 +74,7 @@
         if (resposta.ok) {
           carregarLivros();
         }
-      }
+      };
 
       carregarLivros();
     </script>

@@ -1,16 +1,19 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ZodError } from 'zod';
-import type { publicUser } from './usecases/types';
+import type { publicUser } from './usecases/types.js';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import {RegisterUserUsecase,LoginUserUsecase,DestroyUserUsecase,ListUsersUsecase,UpdateUserUsecase} from './usecases/index';
-import {userValidation,userLoginValidation,userUpdateValidation} from './validator';
-import { MysqlUserRepository } from './repositories';
+
+import {getDatabaseProvider, type DatabaseProvider } from '../../shared/index.js';
+import {DestroyUserFactory,ListUsersFactory,LoginUserFactory,RegisterUserFactory,UpdateUserFactory} from './usecases/index.js';
+import {userValidation,userLoginValidation,userUpdateValidation} from './validator.js';
 
 type IdParams = FastifyRequest<{
   Params: { id: string };
 }>;
 
 export class UserController {
+  constructor(private readonly provider: DatabaseProvider = getDatabaseProvider()) {}
+
   private sendInvalidData(reply: FastifyReply, error: ZodError) {
     return reply.code(400).send({
       message: error.issues[0].message,
@@ -41,26 +44,19 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const registerUserUsecase = new RegisterUserUsecase(new MysqlUserRepository);
+      const registerUserUsecase = RegisterUserFactory.factory(this.provider);
       const result = await registerUserUsecase.execute(validation.data);
 
       if (result.status !== 201 || !result.user) {
         return reply.code(result.status).send(result);
       }
 
-      await this.startSession(request, result.user);
-
       return reply.code(201).send({
         message: result.message,
         matricula: result.matricula,
       });
     } catch (error) {
-      return this.sendServerError(
-        request,
-        reply,
-        error,
-        'Erro ao cadastrar usuário',
-      );
+      return this.sendServerError(request, reply, error, 'Erro ao cadastrar usuário');
     }
   }
 
@@ -74,7 +70,7 @@ export class UserController {
 
       const { email, password, matricula } = validation.data;
 
-      const loginUserUsecase = new LoginUserUsecase(new MysqlUserRepository);
+      const loginUserUsecase = LoginUserFactory.factory(this.provider);
       const result = await loginUserUsecase.execute(email, password, matricula);
 
       if (result.status !== 200 || !result.user) {
@@ -83,14 +79,12 @@ export class UserController {
 
       await this.startSession(request, result.user);
 
-      return reply.send({ message: result.message });
+      return reply.send({
+        message: result.message,
+        tipoUsu: result.user.tipoUsu,
+      });
     } catch (error) {
-      return this.sendServerError(
-        request,
-        reply,
-        error,
-        'Erro ao realizar login',
-      );
+      return this.sendServerError(request, reply, error, 'Erro ao realizar login');
     }
   }
 
@@ -102,11 +96,8 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const updateUserUsecase = new UpdateUserUsecase(new MysqlUserRepository);
-      const result = await updateUserUsecase.execute(
-        request.params.id,
-        validation.data,
-      );
+      const updateUserUsecase = UpdateUserFactory.factory(this.provider);
+      const result = await updateUserUsecase.execute(request.params.id, validation.data);
 
       if (result.status !== 200) {
         return reply.code(result.status).send(result);
@@ -114,27 +105,17 @@ export class UserController {
 
       return reply.send({ message: result.message });
     } catch (error) {
-      return this.sendServerError(
-        request,
-        reply,
-        error,
-        'Erro ao atualizar usuário',
-      );
+      return this.sendServerError(request, reply, error, 'Erro ao atualizar usuário');
     }
   }
 
   public async list(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const listUsersUsecase = new ListUsersUsecase(new MysqlUserRepository());
+      const listUsersUsecase = ListUsersFactory.factory(this.provider);
 
       return reply.send(await listUsersUsecase.execute());
     } catch (error) {
-      return this.sendServerError(
-        request,
-        reply,
-        error,
-        'Erro ao listar usuários',
-      );
+      return this.sendServerError(request, reply, error, 'Erro ao listar usuários');
     }
   }
 
@@ -146,17 +127,17 @@ export class UserController {
         return reply.code(401).send({ message: 'Usuário não autenticado' });
       }
 
+      const cpf = usuario.cpf;
+
       return reply.send({
         nome: usuario.nome,
+        email: usuario.email,
+        tel: usuario.tel,
         tipoUsu: usuario.tipoUsu,
+        cpf: `${cpf.slice(0, 3)}${'*'.repeat(Math.max(0, cpf.length - 5))}${cpf.slice(-2)}`,
       });
     } catch (error) {
-      return this.sendServerError(
-        request,
-        reply,
-        error,
-        'Erro ao buscar usuário logado',
-      );
+      return this.sendServerError(request, reply, error, 'Erro ao buscar usuário logado');
     }
   }
 
@@ -165,7 +146,7 @@ export class UserController {
       const { id } = request.params;
       const usuario = request.session.get('usuario');
 
-      const destroyUserUsecase = new DestroyUserUsecase(new MysqlUserRepository);
+      const destroyUserUsecase = DestroyUserFactory.factory(this.provider);
       const result = await destroyUserUsecase.execute(id);
 
       if (result.status !== 200) {
@@ -180,12 +161,7 @@ export class UserController {
 
       return reply.send({ ...result, propriaConta: true });
     } catch (error) {
-      return this.sendServerError(
-        request,
-        reply,
-        error,
-        'Erro ao excluir usuário',
-      );
+      return this.sendServerError(request, reply, error, 'Erro ao excluir usuário');
     }
   }
 }

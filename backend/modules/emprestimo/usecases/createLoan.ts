@@ -1,55 +1,41 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { FindBookUsecase } from '../../books/usecases/index';
-import {
-  MysqlUserRepository,
-  PostgresqlUserRepository,
-  USER_NOT_FOUND,
-} from '../../user/repositories/index';
-import { Loan } from '../entities/index';
-import { loanFailure } from './types';
+import { ADMIN } from '../../../shared/authentication.js';
+import { databaseStrategy, type DatabaseProvider } from '../../../shared/index.js';
+import { FindBookUsecase } from '../../books/usecases/index.js';
+import { USER_NOT_FOUND } from '../../user/repositories/index.js';
+import { Loan } from '../entities/index.js';
+import { loanFailure } from './types.js';
+import type { IBookRepository } from '../../books/repositories/index.js';
+import type { User } from '../../user/entities/index.js';
+import type { IUserRepository } from '../../user/repositories/index.js';
+import type { ILoanRepository } from '../repositories/index.js';
+import type { LoanInput } from '../validator.js';
+import type { LoanResponse } from './types.js';
 
-import {
-  PostBookRepository,
-  type IBookRepository,
-} from '../../books/repositories/index';
-import type { IUserRepository } from '../../user/repositories/index';
-import {
-  MysqlLoanRepository,
-  type ILoanRepository,
-  PostgresqlLoanRepository,
-} from '../repositories/index';
-import type { LoanInput } from '../validator';
-import type { LoanResponse } from './types';
+export type LoanActor = { id: string; tipoUsu: string };
 
-class LendBookUsecase {
+export class LendBookUsecase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly loanRepository: ILoanRepository,
     private readonly bookRepository: IBookRepository,
   ) {}
 
-  public async execute(data: LoanInput): Promise<LoanResponse> {
-    const { livroId, cpf, tel } = data;
+  public async execute(data: LoanInput, actor: LoanActor): Promise<LoanResponse> {
+    const borrower = await this.findBorrower(data, actor);
 
-    const found = await this.userRepository.findByCpf(cpf);
-
-    if (found.isFail || !found.success) {
-      if (found.error?.message === USER_NOT_FOUND) {
-        return loanFailure(400, 'CPF ou telefone inválido');
-      }
-
-      return loanFailure(500, found.error?.message ?? 'Erro ao buscar usuário');
+    if (borrower.isFail || !borrower.success) {
+      return loanFailure(
+        borrower.error?.metadata?.status ?? 500,
+        borrower.error?.message ?? 'Erro ao identificar o usuário',
+      );
     }
 
-    const user = found.success.value;
-
-    if (user.tel !== tel) {
-      return loanFailure(400, 'CPF ou telefone inválido');
-    }
+    const user = borrower.success.value;
 
     const findBook = new FindBookUsecase(this.bookRepository);
-    const bookResult = await findBook.execute(livroId);
+    const bookResult = await findBook.execute(data.livroId);
 
     if (bookResult.isFail || !bookResult.success) {
       return loanFailure(404, 'Livro não encontrado');
@@ -57,7 +43,7 @@ class LendBookUsecase {
 
     const book = bookResult.success.value;
 
-    const active = await this.loanRepository.hasActiveLoan(livroId);
+    const active = await this.loanRepository.hasActiveLoan(data.livroId);
 
     if (active.isFail) {
       return loanFailure(
@@ -72,7 +58,7 @@ class LendBookUsecase {
 
     const loan = new Loan({
       id: uuidv4(),
-      livroId,
+      livroId: data.livroId,
       usuarioId: user.id,
       nomeLivro: book.title,
       autor: book.autor,
@@ -102,32 +88,46 @@ class LendBookUsecase {
 
     return { isFail: false };
   }
+
+  private async findBorrower(
+    data: LoanInput,
+    actor: LoanActor,
+  ): Promise<LoanResponse<User>> {
+    if (actor.tipoUsu !== ADMIN) {
+      const own = await this.userRepository.findById(actor.id);
+
+      if (own.isFail || !own.success) {
+        return own.error?.message === USER_NOT_FOUND
+          ? loanFailure<User>(401, 'Usuário não encontrado')
+          : loanFailure<User>(500, own.error?.message ?? 'Erro ao buscar usuário');
+      }
+
+      return { isFail: false, success: own.success };
+    }
+
+    if (!data.cpf || !data.tel) {
+      return loanFailure<User>(400, 'Informe o CPF e o telefone do usuário');
+    }
+
+    const found = await this.userRepository.findByCpf(data.cpf);
+
+    if (found.isFail || !found.success) {
+      return found.error?.message === USER_NOT_FOUND
+        ? loanFailure<User>(400, 'CPF ou telefone inválido')
+        : loanFailure<User>(500, found.error?.message ?? 'Erro ao buscar usuário');
+    }
+
+    if (found.success.value.tel !== data.tel) {
+      return loanFailure<User>(400, 'CPF ou telefone inválido');
+    }
+
+    return { isFail: false, success: found.success };
+  }
 }
 
-// shared
-export type DatabaseProveders = 'postgresql' | 'mysql';
-type Repositories = {
-  user: IUserRepository;
-  loan: ILoanRepository;
-  book: IBookRepository;
-};
-const databaseStategy: Record<DatabaseProveders, Repositories> = {
-  postgresql: {
-    user: new PostgresqlUserRepository(),
-    loan: new PostgresqlLoanRepository(),
-    book: new PostBookRepository(),
-  },
-  mysql: {
-    book: {} as IBookRepository,
-    loan: new MysqlLoanRepository(),
-    user: new MysqlUserRepository(),
-  },
-};
-// shared
-
 export class LendBookFactory {
-  public static factory(provider: DatabaseProveders) {
-    const repositoryProvider = databaseStategy[provider];
+  public static factory(provider: DatabaseProvider) {
+    const repositoryProvider = databaseStrategy[provider]();
 
     return new LendBookUsecase(
       repositoryProvider.user,
