@@ -16,7 +16,7 @@ export default async function userRoutes(server: FastifyInstance) {
     userController.currentUser(request, reply),
   );
 
-  server.post('/user', { preHandler: requireAdminApi }, (request, reply) =>
+  server.post('/user', (request, reply) =>
     userController.register(request, reply),
   );
 

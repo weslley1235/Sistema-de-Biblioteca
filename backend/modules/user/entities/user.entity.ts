@@ -1,4 +1,3 @@
-import { unknown } from 'zod';
 import type { IEntity, Response } from '../../../shared/index';
 
 export type UserProps = {
@@ -9,6 +8,10 @@ export type UserProps = {
   tel: string;
   tipoUsu: string;
   matricula?: string;
+  cep: string;
+  state: string;
+  city: string;
+  street: string;
 };
 
 function isFilledText(value: unknown): value is string {
@@ -23,6 +26,10 @@ export class User implements IEntity {
   tel: string;
   tipoUsu: string;
   matricula?: string;
+  cep: string;
+  state: string;
+  city: string;
+  street: string;
 
   constructor(props: UserProps) {
     this.id = props.id;
@@ -32,6 +39,10 @@ export class User implements IEntity {
     this.tel = props.tel;
     this.tipoUsu = props.tipoUsu;
     this.matricula = props.matricula;
+    this.cep = props.cep;
+    this.state = props.state;
+    this.city = props.city;
+    this.street = props.street;
   }
 
   public validate(): Response<void> {
@@ -70,6 +81,34 @@ export class User implements IEntity {
       return {
         isFail: true,
         error: { message: 'Tipo de usuário obrigatório' },
+      };
+    }
+
+    if (!/^\d{8}$/.test(this.cep)) {
+      return {
+        isFail: true,
+        error: { message: 'O CEP deve conter 8 dígitos' },
+      };
+    }
+
+    if (!/^[A-Za-z]{2}$/.test(this.state)) {
+      return {
+        isFail: true,
+        error: { message: 'O estado deve conter 2 letras' },
+      };
+    }
+
+    if (!isFilledText(this.city) || this.city.trim().length < 2) {
+      return {
+        isFail: true,
+        error: { message: 'Cidade inválida' },
+      };
+    }
+
+    if (!isFilledText(this.street) || this.street.trim().length < 2) {
+      return {
+        isFail: true,
+        error: { message: 'Rua inválida' },
       };
     }
 

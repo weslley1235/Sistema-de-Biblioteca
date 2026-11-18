@@ -1,6 +1,7 @@
+
 import { PostBookRepository } from './backend/modules/books/repositories/book.repository';
 import {fastifyStatic,fastifyCookie,fastifySession,path,fileURLToPath} from './backend/config';
-import {ADMIN,requireLoginPage,requireAdminPage,requireLoginApi,requireAdminApi} from './backend/shared/authentication';
+import {ADMIN,requireLoginPage,requireAdminPage,requireLoginApi,requireAdminApi,requireBookListApi} from './backend/shared/authentication';
 import server from './backend/fastify';
 
 import userRoutes from './backend/modules/user/routes';
@@ -13,7 +14,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3333);
 
 type FindRoute = { Params: { id: string } };
+
 type ListRoute = { Querystring: { inactive?: string } };
+
 type UpdateRoute = {
   Params: { id: string };
   Querystring: { reactivate?: string };
@@ -48,7 +51,7 @@ server.register(fastifyStatic, {
 
 server.get('/', (request, reply) => { return reply.sendFile('html/cadastro_usu.html')});
 
-server.get('/index', { preHandler: requireLoginPage }, (request, reply) => {return reply.sendFile('html/index.html')});
+server.get('/index', { preHandler: requireAdminPage }, (request, reply) => {return reply.sendFile('html/index.html')});
 
 server.get('/usuarios', { preHandler: requireAdminPage }, (request, reply) => {return reply.sendFile('html/listaUsuarios.html')});
 
@@ -61,7 +64,7 @@ server.register(loanRoutes);
 
 server.post('/livro', { preHandler: requireAdminApi }, (request, reply) => bookController.register(request, reply));
 
-server.get<ListRoute>('/livro',{ preHandler: requireAdminApi },(request, reply) => bookController.list(request, reply));
+server.get<ListRoute>('/livro',{ preHandler: requireBookListApi },(request, reply) => bookController.list(request, reply));
 
 server.get<FindRoute>('/livro/:id',{ preHandler: requireAdminApi },(request, reply) => bookController.detail(request, reply));
 

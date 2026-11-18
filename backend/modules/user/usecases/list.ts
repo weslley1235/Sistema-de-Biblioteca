@@ -8,6 +8,10 @@ export type ListedUser = {
   tel: string;
   tipoUsu: string;
   cpf: string;
+  cep: string;
+  state: string;
+  city: string;
+  street: string;
 };
 
 export class ListUsersUsecase {
@@ -21,12 +25,16 @@ export class ListUsersUsecase {
     }
 
     return result.success.value.map(
-      ({ id, nome, email, tel, cpf, tipoUsu }) => ({
+      ({ id, nome, email, tel, cpf, tipoUsu, cep, state, city, street }) => ({
         id,
         nome,
         email,
         tel,
         tipoUsu,
+        cep,
+        state,
+        city,
+        street,
         cpf: `${cpf.slice(0, 3)}${'*'.repeat(Math.max(0, cpf.length - 5))}${cpf.slice(-2)}`,
       }),
     );

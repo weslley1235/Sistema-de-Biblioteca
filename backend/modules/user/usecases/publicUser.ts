@@ -10,6 +10,10 @@ export class PublicUser {
       cpf: user.cpf,
       tel: user.tel,
       tipoUsu: user.tipoUsu,
+      cep: user.cep,
+      state: user.state,
+      city: user.city,
+      street: user.street,
     };
   }
 }

@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap');
 
 /* ==========================================================================
@@ -16,7 +17,7 @@
   --linha: #2d2863;
   --destaque: #8b6cff;
   --acento: #ff6f9c;
-  --botao-fim: #3b8bff; /* cor final do degradê dos botões */
+  --botao-fim: #3b8bff;
   --sobre-destaque: #fff;
   --erro: #ff6b8b;
   --sucesso: #3ddc97;
@@ -273,53 +274,157 @@ section.cadastro:hover { border-color: color-mix(in srgb, var(--destaque) 40%, v
 #listaUsuarios > div :is(h3, p) { overflow-wrap: anywhere; }
 #listaUsuarios > div hr { display: none; }
 
-/* CARTÃO DE CADASTRO E LOGIN */
-body:has(#formulario) {
-  max-width: 400px;
+/* ==========================================================================
+   LOGIN E CADASTRO
+   ========================================================================== */
+
+body:has(.pagina-acesso) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
   padding: 30px 16px;
   font-size: 14px;
 }
 
-body:has(#formulario) h1, .cartao-frente h1, .cartao-verso h1 { margin-bottom: 18px; font-size: 1.7rem; }
-body:has(#formulario) h2 { margin-bottom: 8px; font-size: 1.2rem; }
-body:has(#formulario) p { margin-bottom: 5px; }
-body:has(#formulario) > form { margin-bottom: 8px; padding: 14px; }
-body:has(#formulario) label { margin-bottom: 3px; font-size: .8rem; }
-body:has(#formulario) :is(input, select) { margin-bottom: 7px; padding: 7px 9px; font-size: .9rem; }
-body:has(#formulario) button { margin-bottom: 5px; padding: 7px 12px; font-size: .85rem; }
-
-.cartao { width: 100%; perspective: 1000px; animation: entrar .6s backwards; }
-
-.cartao-conteudo {
-  position: relative;
+.pagina-acesso {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  transform-style: preserve-3d;
-  transition: transform .8s cubic-bezier(.4, .2, .2, 1);
+  animation: entrar .6s backwards;
 }
 
-.cartao.virado .cartao-conteudo { transform: rotateY(180deg); }
-
-.cartao-frente, .cartao-verso {
+.cartao-acesso {
   width: 100%;
-  padding: 24px;
+  max-width: 430px;
+  padding: 30px;
   border: 1px solid var(--linha);
-  border-radius: var(--raio);
+  border-radius: 22px;
   background: var(--superficie);
   box-shadow: var(--forte);
-  backface-visibility: hidden;
 }
 
-.cartao-verso { position: absolute; top: 0; left: 0; transform: rotateY(180deg); }
+.marca {
+  margin-bottom: 24px;
+}
 
-.cartao-frente form, .cartao-verso form { margin: 0; }
+.marca h2 {
+  margin: 0;
+  color: var(--tinta);
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.4rem;
+}
 
-#entrarSistema, #voltarCadastro {
-  border-color: var(--destaque);
+.marca p {
+  margin: 2px 0 0;
+  color: var(--tinta-suave);
+  font-size: .85rem;
+}
+
+.abas-acesso {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 26px;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--papel);
+}
+
+.abas-acesso .aba {
+  flex: 1;
+  min-height: 40px;
+  margin: 0;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 999px;
   background: transparent;
-  color: var(--destaque);
+  color: var(--tinta-suave);
+  font-size: .85rem;
+  transition: background var(--rapido), color var(--rapido), box-shadow var(--rapido);
 }
 
-#entrarSistema:hover, #voltarCadastro:hover { background: var(--destaque); color: var(--sobre-destaque); }
+.abas-acesso .aba:hover {
+  transform: none;
+  background: color-mix(in srgb, var(--destaque) 15%, transparent);
+  box-shadow: none;
+}
+
+.abas-acesso .aba.ativa {
+  background: var(--destaque);
+  color: var(--sobre-destaque);
+  box-shadow: 0 4px 12px var(--glow);
+}
+
+.painel-acesso h1 {
+  margin-bottom: 22px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.7rem;
+}
+
+.painel-acesso form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  animation: none;
+}
+
+.painel-acesso label {
+  margin-bottom: 2px;
+  font-size: .85rem;
+}
+
+.painel-acesso input,
+.painel-acesso select {
+  margin-bottom: 12px;
+  padding: 11px 13px;
+  border-radius: 10px;
+  font-size: .9rem;
+}
+
+.painel-acesso form button[type='submit'] {
+  width: 100%;
+  min-height: 44px;
+  margin: 8px 0 12px;
+  border-radius: 10px;
+}
+
+.painel-acesso p {
+  text-align: center;
+}
+
+.painel-acesso [hidden] {
+  display: none;
+}
+
+/* RESPONSIVIDADE DO LOGIN E CADASTRO */
+
+@media (max-width: 480px) {
+  body:has(.pagina-acesso) {
+    padding: 16px 12px;
+  }
+
+  .cartao-acesso {
+    padding: 22px 18px;
+  }
+
+  .painel-acesso h1 {
+    font-size: 1.5rem;
+  }
+
+  .abas-acesso .aba {
+    padding: 9px 7px;
+    font-size: .78rem;
+  }
+}
 
 /* CABEÇALHO E USUÁRIO */
 .cabecalho { display: flex; align-items: center; justify-content: space-between; }
@@ -423,7 +528,7 @@ body:has(#formulario) button { margin-bottom: 5px; padding: 7px 12px; font-size:
 
 /* RESPONSIVIDADE E ACESSIBILIDADE */
 @media (max-width: 800px) {
-  body { padding: 28px 16px 56px; }
+  body:not(:has(.pagina-acesso)) { padding: 28px 16px 56px; }
   main { grid-template-columns: 1fr; }
   section.cadastro { position: static; }
 }

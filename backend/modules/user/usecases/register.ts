@@ -11,7 +11,6 @@ import type { UserResult } from './types.js';
 import type { UserInput } from '../validator.js';
 import type { IUserRepository } from '../repositories/index.js';
 
-
 function alreadyExists(result: Response<UserEntity>): boolean {
   if (!result.isFail) return true;
   if (result.error?.message === USER_NOT_FOUND) return false;
@@ -32,7 +31,6 @@ export class RegisterUserUsecase {
         return { status: 409, message: 'Esse CPF já está cadastrado' };
       }
 
-      // só administração recebe matrícula, gerada pelo sistema
       const matricula =
         data.tipoUsu === ADMIN ? generateMatricula() : undefined;
 
@@ -44,6 +42,10 @@ export class RegisterUserUsecase {
         tel: data.tel,
         tipoUsu: data.tipoUsu,
         matricula,
+        cep: data.cep,
+        state: data.state,
+        city: data.city,
+        street: data.street,
       });
 
       const validation = user.validate();

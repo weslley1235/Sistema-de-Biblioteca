@@ -18,6 +18,10 @@ type UserRow = RowDataPacket & {
   tipousu: string;
   senha: string;
   matricula: string | null;
+  cep: string;
+  state: string;
+  city: string;
+  street: string;
 };
 
 type SearchColumn = 'id' | 'email' | 'cpf';
@@ -91,14 +95,18 @@ export class MysqlUserRepository implements IUserRepository {
       tel: row.tel,
       tipoUsu: row.tipousu,
       matricula: row.matricula ?? undefined,
+      cep: row.cep,
+      state: row.state,
+      city: row.city,
+      street: row.street,
     });
   }
 
   public async save(user: User, passwordHash: string): Promise<Response<void>> {
     return this.attempt('Houve um erro ao salvar o usuário', async () => {
       await mysqlDatabase.query(
-        `INSERT INTO usuarios (id, nome, email, cpf, tel, tipousu, senha, matricula)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO usuarios (id, nome, email, cpf, tel, tipousu, senha, matricula, cep, state, city, street)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           user.id,
           user.nome,
@@ -108,6 +116,10 @@ export class MysqlUserRepository implements IUserRepository {
           user.tipoUsu,
           passwordHash,
           user.matricula ?? null,
+          user.cep,
+          user.state,
+          user.city,
+          user.street
         ],
       );
 
@@ -162,9 +174,19 @@ export class MysqlUserRepository implements IUserRepository {
     return this.changeOne(
       'Houve um erro ao atualizar o usuário',
       `UPDATE usuarios
-       SET nome = ?, email = ?, cpf = ?, tel = ?
+       SET nome = ?, email = ?, cpf = ?, tel = ?, cep = ?, state = ?, city = ?, street = ?
        WHERE id = ?`,
-      [user.nome, user.email, user.cpf, user.tel, user.id],
+      [
+        user.nome,
+        user.email,
+        user.cpf,
+        user.tel,
+        user.cep,
+        user.state,
+        user.city,
+        user.street,
+        user.id,
+      ],
     );
   }
 

@@ -1,3 +1,4 @@
+
 import type { ZodError } from 'zod';
 import type { publicUser } from './usecases/types.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -36,12 +37,24 @@ export class UserController {
     await request.session.save();
   }
 
+  
   public async register(request: FastifyRequest, reply: FastifyReply) {
     try {
       const validation = userValidation(request.body);
 
       if (!validation.success) {
         return this.sendInvalidData(reply, validation.error);
+      }
+
+      const usuario = request.session.get('usuario');
+
+      if (
+        validation.data.tipoUsu === 'administracao' &&
+        usuario?.tipoUsu !== 'administracao'
+      ) {
+        return reply.code(403).send({
+          message: 'Somente um administrador pode cadastrar outro administrador',
+        });
       }
 
       const registerUserUsecase = RegisterUserFactory.factory(this.provider);
@@ -68,10 +81,10 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const { email, password, matricula } = validation.data;
+      const { email, password, matricula, cpf } = validation.data;
 
       const loginUserUsecase = LoginUserFactory.factory(this.provider);
-      const result = await loginUserUsecase.execute(email, password, matricula);
+      const result = await loginUserUsecase.execute(email, password, matricula, cpf);
 
       if (result.status !== 200 || !result.user) {
         return reply.code(result.status).send(result);
@@ -134,6 +147,10 @@ export class UserController {
         email: usuario.email,
         tel: usuario.tel,
         tipoUsu: usuario.tipoUsu,
+        cep: usuario.cep,
+        state: usuario.state,
+        city: usuario.city,
+        street: usuario.street,
         cpf: `${cpf.slice(0, 3)}${'*'.repeat(Math.max(0, cpf.length - 5))}${cpf.slice(-2)}`,
       });
     } catch (error) {

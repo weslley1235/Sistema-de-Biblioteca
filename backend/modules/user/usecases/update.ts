@@ -1,8 +1,4 @@
-import {
-  databaseStrategy,
-  type DatabaseProvider,
-  type Response,
-} from '../../../shared/index.js';
+import {databaseStrategy,type DatabaseProvider,type Response} from '../../../shared/index.js';
 
 import { User as UserEntity } from '../entities/index.js';
 import { USER_NOT_FOUND } from '../repositories/index.js';
@@ -56,6 +52,10 @@ export class UpdateUserUsecase {
       tel: data.tel,
       tipoUsu: currentUser.tipoUsu,
       matricula: currentUser.matricula,
+      cep: data.cep,
+      state: data.state,
+      city: data.city,
+      street: data.street,
     });
 
     const validation = user.validate();
