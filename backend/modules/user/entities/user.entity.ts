@@ -18,6 +18,8 @@ function isFilledText(value: unknown): value is string {
   return typeof value === 'string' && value.trim() !== '';
 }
 
+const lettersRegex = /^[\p{L}\s'-]{2,}$/u;
+
 export class User implements IEntity {
   id: string;
   nome: string;
@@ -52,10 +54,10 @@ export class User implements IEntity {
         error: { message: 'ID precisa ser uma string válida' },
       };
     }
-    if (!isFilledText(this.nome)) {
+    if (!isFilledText(this.nome) || !lettersRegex.test(this.nome.trim())) {
       return {
         isFail: true,
-        error: { message: 'Nome precisa ser uma string válida' },
+        error: { message: 'Nome deve conter apenas letras' },
       };
     }
 

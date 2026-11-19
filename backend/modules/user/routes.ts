@@ -2,10 +2,11 @@ import type { FastifyInstance } from 'fastify';
 
 import { requireAdminApi, requireLoginApi } from '../../shared/authentication';
 import { UserController } from './Usercontroller';
+import { getDatabaseProvider } from '../../shared';
 
 type IdRoute = { Params: { id: string } };
 
-const userController = new UserController();
+const userController = new UserController(getDatabaseProvider());
 
 export default async function userRoutes(server: FastifyInstance) {
   server.post('/login', (request, reply) =>

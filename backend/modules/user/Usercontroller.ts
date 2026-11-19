@@ -1,20 +1,35 @@
-import axios from 'axios';
 import type { ZodError } from 'zod';
 import type { publicUser } from './usecases/types.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-
-import {getDatabaseProvider, type DatabaseProvider } from '../../shared/index.js';
-import {DestroyUserFactory,ListUsersFactory,LoginUserFactory,RegisterUserFactory,UpdateUserFactory} from './usecases/index.js';
-import {userValidation,userLoginValidation,userUpdateValidation} from './validator.js';
+import {
+  Axios,
+  getDatabaseProvider,
+  IHttpRequest,
+  type DatabaseProvider,
+} from '../../shared/index.js';
+import {
+  DestroyUserFactory,
+  ListUsersFactory,
+  LoginUserFactory,
+  RegisterUserFactory,
+  UpdateUserFactory,
+} from './usecases/index.js';
+import {
+  userValidation,
+  userLoginValidation,
+  userUpdateValidation,
+} from './validator.js';
+import { GetAddressFactory } from './usecases/getAddress.js';
 
 type IdParams = FastifyRequest<{
   Params: { id: string };
 }>;
 
 type CepParams = FastifyRequest<{
-  Params: { 
-  cep: string };
+  Params: {
+    cep: string;
+  };
 }>;
 
 type CepResponse = {
@@ -25,7 +40,10 @@ type CepResponse = {
 };
 
 export class UserController {
-  constructor(private readonly provider: DatabaseProvider = getDatabaseProvider()) {}
+  constructor(
+    private readonly provider: DatabaseProvider = getDatabaseProvider(),
+    private readonly httpRequest: IHttpRequest = new Axios(),
+  ) {}
 
   private sendInvalidData(reply: FastifyReply, error: ZodError) {
     return reply.code(400).send({
@@ -49,7 +67,6 @@ export class UserController {
     await request.session.save();
   }
 
-  
   public async register(request: FastifyRequest, reply: FastifyReply) {
     try {
       const validation = userValidation(request.body);
@@ -65,7 +82,8 @@ export class UserController {
         usuario?.tipoUsu !== 'administracao'
       ) {
         return reply.code(403).send({
-          message: 'Somente um administrador pode cadastrar outro administrador',
+          message:
+            'Somente um administrador pode cadastrar outro administrador',
         });
       }
 
@@ -81,33 +99,45 @@ export class UserController {
         matricula: result.matricula,
       });
     } catch (error) {
-      return this.sendServerError(request, reply, error, 'Erro ao cadastrar usuário');
+      return this.sendServerError(
+        request,
+        reply,
+        error,
+        'Erro ao cadastrar usuário',
+      );
     }
   }
 
   public async buscarCep(request: CepParams, reply: FastifyReply) {
-  try {
     const { cep } = request.params;
 
-    if (!/^\d{8}$/.test(cep)) {
+    if (!/^\d{8o}$/.test(cep)) {
       return reply.code(400).send({
         message: 'O CEP deve conter 8 números',
       });
     }
 
-    const resposta = await axios.get<CepResponse>(`https://brasilapi.com.br/api/cep/v1/${cep}`);
+    let getAddressUsecase = GetAddressFactory.factory(
+      'brasil-api',
+      this.httpRequest,
+    );
+    let response = await getAddressUsecase.execute(cep);
 
-    return reply.send(resposta.data);
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return reply.code(404).send({
-        message: 'CEP não encontrado',
-      });
+    if (response.isFail) {
+      getAddressUsecase = GetAddressFactory.factory('viacep', this.httpRequest);
+      response = await getAddressUsecase.execute(cep);
+
+      if (response.isFail) {
+        console.error(response.error?.metadata);
+
+        return reply.code(401).send({
+          message: response.error?.message,
+        });
+      }
     }
 
-    return this.sendServerError(request,reply,error,'Erro ao consultar CEP');
+    return reply.send(response.success?.value);
   }
-}
 
   public async login(request: FastifyRequest, reply: FastifyReply) {
     try {
@@ -120,7 +150,12 @@ export class UserController {
       const { email, password, matricula, cpf } = validation.data;
 
       const loginUserUsecase = LoginUserFactory.factory(this.provider);
-      const result = await loginUserUsecase.execute(email, password, matricula, cpf);
+      const result = await loginUserUsecase.execute(
+        email,
+        password,
+        matricula,
+        cpf,
+      );
 
       if (result.status !== 200 || !result.user) {
         return reply.code(result.status).send(result);
@@ -133,7 +168,12 @@ export class UserController {
         tipoUsu: result.user.tipoUsu,
       });
     } catch (error) {
-      return this.sendServerError(request, reply, error, 'Erro ao realizar login');
+      return this.sendServerError(
+        request,
+        reply,
+        error,
+        'Erro ao realizar login',
+      );
     }
   }
 
@@ -146,7 +186,10 @@ export class UserController {
       }
 
       const updateUserUsecase = UpdateUserFactory.factory(this.provider);
-      const result = await updateUserUsecase.execute(request.params.id, validation.data);
+      const result = await updateUserUsecase.execute(
+        request.params.id,
+        validation.data,
+      );
 
       if (result.status !== 200) {
         return reply.code(result.status).send(result);
@@ -154,7 +197,12 @@ export class UserController {
 
       return reply.send({ message: result.message });
     } catch (error) {
-      return this.sendServerError(request, reply, error, 'Erro ao atualizar usuário');
+      return this.sendServerError(
+        request,
+        reply,
+        error,
+        'Erro ao atualizar usuário',
+      );
     }
   }
 
@@ -164,7 +212,12 @@ export class UserController {
 
       return reply.send(await listUsersUsecase.execute());
     } catch (error) {
-      return this.sendServerError(request, reply, error, 'Erro ao listar usuários');
+      return this.sendServerError(
+        request,
+        reply,
+        error,
+        'Erro ao listar usuários',
+      );
     }
   }
 
@@ -190,7 +243,12 @@ export class UserController {
         cpf: `${cpf.slice(0, 3)}${'*'.repeat(Math.max(0, cpf.length - 5))}${cpf.slice(-2)}`,
       });
     } catch (error) {
-      return this.sendServerError(request, reply, error, 'Erro ao buscar usuário logado');
+      return this.sendServerError(
+        request,
+        reply,
+        error,
+        'Erro ao buscar usuário logado',
+      );
     }
   }
 
@@ -214,7 +272,12 @@ export class UserController {
 
       return reply.send({ ...result, propriaConta: true });
     } catch (error) {
-      return this.sendServerError(request, reply, error, 'Erro ao excluir usuário');
+      return this.sendServerError(
+        request,
+        reply,
+        error,
+        'Erro ao excluir usuário',
+      );
     }
   }
 }

@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
+const lettersRegex = /^[\p{L}\s'-]{2,}$/u;
+
 const userSchema = z.object({
-  nome: z.string().min(1, 'Nome obrigatorio'),
+  nome: z
+    .string()
+    .regex(lettersRegex, 'Nome deve conter apenas letras'),
   email: z.string().email('Email invalido'),
   cpf: z.string().regex(/^\d{11}$/, 'O CPF deve conter 11 dígitos'),
   tel: z.string().regex(/^\d{11}$/, 'O Telefone deve conter 11 dígitos'),
