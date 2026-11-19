@@ -1,8 +1,8 @@
 import type { QueryResult, QueryResultRow } from 'pg';
 
-import database from '../../../../database/db.js';
-import mysqlDatabase from '../../../../database/mysql.js';
-import type { BookProps } from '../entities/index.js';
+import database from '../../../../database/db';
+import mysqlDatabase from '../../../../database/mysql';
+import type { BookProps } from '../entities/index';
 
 import { Response } from '../../../shared';
 import { Book } from '../entities';
@@ -11,7 +11,7 @@ import { IBookRepository } from './books.repository.interface';
 export const BOOK_NOT_FOUND = 'Livro não encontrado';
 export const BOOK_RECORD_NOT_FOUND = 'Registro não encontrado';
 
-export class BookRepository implements IBookRepository {
+export class PostBookRepository implements IBookRepository {
   private readonly BOOK_COLUMNS = 'id, title, autor, ano';
 
   private async query<T extends QueryResultRow = QueryResultRow>(
@@ -237,9 +237,9 @@ export class BookRepository implements IBookRepository {
 
   public async destroy(id: string): Promise<Response<void>> {
     try {
-      await mysqlDatabase.query('DELETE FROM emprestimos WHERE livro_id = ?', 
-        [id]
-      );
+      await mysqlDatabase.query('DELETE FROM emprestimos WHERE livro_id = ?', [
+        id,
+      ]);
 
       return await this.changeOne(
         'Erro ao excluir livro',

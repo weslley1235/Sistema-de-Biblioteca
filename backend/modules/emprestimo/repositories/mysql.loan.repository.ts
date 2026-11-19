@@ -1,13 +1,11 @@
+
 import type { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 
-import mysqlDatabase from '../../../../database/mysql.js';
+import mysqlDatabase from '../../../../database/mysql';
+import { LOAN_NOT_FOUND } from './loan.repository.interface.js';
 import type { Response } from '../../../shared/index.js';
 import type { Loan } from '../entities/index.js';
-import { LOAN_NOT_FOUND } from './loan.repository.interface.js';
-import type {
-  ILoanRepository,
-  LoanListItem,
-} from './loan.repository.interface.js';
+import type {ILoanRepository,LoanListItem} from './loan.repository.interface.js';
 
 type LoanRow = RowDataPacket &
   Omit<LoanListItem, 'devolvido'> & { devolvido: number };
@@ -73,6 +71,51 @@ export class MysqlLoanRepository implements ILoanRepository {
         ...row,
         devolvido: Boolean(row.devolvido),
       }));
+
+      return { isFail: false, success: { value } };
+    });
+  }
+
+  public async listByUser(
+    userId: string,
+  ): Promise<Response<Array<LoanListItem>>> {
+    return this.attempt('Houve um erro ao listar empréstimos do usuário', async () => {
+      const [rows] = await mysqlDatabase.query<LoanRow[]>(
+        `SELECT
+           e.id,
+           e.livro_id AS livroId,
+           u.nome AS nome,
+           e.nome_livro AS nomeLivro,
+           e.autor,
+           e.ano,
+           e.data_emprestimo AS dataEmprestimo,
+           e.data_devolucao AS dataDevolucao,
+           e.devolvido
+         FROM emprestimos e
+         LEFT JOIN usuarios u ON u.id = e.usuario_id
+         WHERE e.usuario_id = ?
+         ORDER BY e.data_emprestimo DESC`,
+        [userId],
+      );
+
+      const value = rows.map((row) => ({
+        ...row,
+        devolvido: Boolean(row.devolvido),
+      }));
+
+      return { isFail: false, success: { value } };
+    });
+  }
+
+  public async listActiveBookIds(): Promise<Response<Array<string>>> {
+    return this.attempt('Houve um erro ao listar livros emprestados', async () => {
+      const [rows] = await mysqlDatabase.query<RowDataPacket[]>(
+        `SELECT DISTINCT livro_id
+         FROM emprestimos
+         WHERE devolvido = FALSE`,
+      );
+
+      const value = rows.map((row) => row.livro_id as string);
 
       return { isFail: false, success: { value } };
     });

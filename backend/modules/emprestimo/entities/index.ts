@@ -1,1 +1,1 @@
-export * from './loan.entity.js';
+export * from './loan.entity';

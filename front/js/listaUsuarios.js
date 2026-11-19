@@ -93,4 +93,32 @@ document.querySelector('#cancelarEdicao').addEventListener('click', () => {
 window.editarUsuario = editarUsuario;
 window.excluirUsuario = excluirUsuario;
 
+const formNovo = document.querySelector('#formNovo');
+
+formNovo.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const dados = Object.fromEntries(new FormData(formNovo));
+
+  const resposta = await fetch('/user', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados),
+  });
+
+  const resultado = await resposta.json();
+
+  if (!resposta.ok)
+    return alert(resultado.message || 'Erro ao cadastrar usuário.');
+
+  alert(
+    resultado.matricula
+      ? `Usuário criado. Matrícula: ${resultado.matricula}\nAnote e entregue à pessoa: ela não será mostrada de novo.`
+      : resultado.message,
+  );
+
+  formNovo.reset();
+  await carregarUsuarios();
+});
+
 carregarUsuarios();

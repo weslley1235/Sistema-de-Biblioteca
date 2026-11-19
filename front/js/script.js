@@ -11,7 +11,11 @@ const carregarLivros = async () => {
   const livros = await respostaLivros.json();
 
   const respostaEmprestimos = await fetch('/emprestimo');
-  const emprestimos = await respostaEmprestimos.json();
+  let emprestimos = await respostaEmprestimos.json();
+
+  if (!Array.isArray(emprestimos)) {
+    emprestimos = [];
+  }
 
   listaLivros.innerHTML = '';
 
@@ -55,7 +59,7 @@ const editarLivro = (id, titleLivro, autorLivro, anoLivro) => {
 };
 
 formLivro.addEventListener('submit', async (evento) => {
-  evento.preventDefault()
+  evento.preventDefault();
 
   const id = formLivro.dataset.id;
   const dados = {

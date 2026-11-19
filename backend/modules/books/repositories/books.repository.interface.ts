@@ -1,5 +1,5 @@
-import { Response } from '../../../shared';
-import { Book } from '../entities';
+import type { Response } from '../../../shared';
+import type { Book } from '../entities';
 
 interface IRepository<Entity> {
   save(prop: Entity): Promise<Response<void>>;
