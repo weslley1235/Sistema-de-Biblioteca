@@ -16,6 +16,10 @@ export default async function userRoutes(server: FastifyInstance) {
     userController.currentUser(request, reply),
   );
 
+  server.get<{ Params: { cep: string } }>('/cep/:cep', (request, reply) =>
+    userController.buscarCep(request, reply),
+  );
+
   server.post('/user', (request, reply) =>
     userController.register(request, reply),
   );

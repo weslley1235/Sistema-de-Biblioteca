@@ -1,4 +1,4 @@
-
+import axios from 'axios';
 import type { ZodError } from 'zod';
 import type { publicUser } from './usecases/types.js';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -11,6 +11,18 @@ import {userValidation,userLoginValidation,userUpdateValidation} from './validat
 type IdParams = FastifyRequest<{
   Params: { id: string };
 }>;
+
+type CepParams = FastifyRequest<{
+  Params: { 
+  cep: string };
+}>;
+
+type CepResponse = {
+  cep: string;
+  state: string;
+  city: string;
+  street: string;
+};
 
 export class UserController {
   constructor(private readonly provider: DatabaseProvider = getDatabaseProvider()) {}
@@ -72,6 +84,30 @@ export class UserController {
       return this.sendServerError(request, reply, error, 'Erro ao cadastrar usuário');
     }
   }
+
+  public async buscarCep(request: CepParams, reply: FastifyReply) {
+  try {
+    const { cep } = request.params;
+
+    if (!/^\d{8}$/.test(cep)) {
+      return reply.code(400).send({
+        message: 'O CEP deve conter 8 números',
+      });
+    }
+
+    const resposta = await axios.get<CepResponse>(`https://brasilapi.com.br/api/cep/v1/${cep}`);
+
+    return reply.send(resposta.data);
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return reply.code(404).send({
+        message: 'CEP não encontrado',
+      });
+    }
+
+    return this.sendServerError(request,reply,error,'Erro ao consultar CEP');
+  }
+}
 
   public async login(request: FastifyRequest, reply: FastifyReply) {
     try {

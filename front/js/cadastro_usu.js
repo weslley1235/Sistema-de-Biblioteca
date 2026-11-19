@@ -2,6 +2,36 @@
 const form = document.querySelector('#formulario');
 const mensagem = document.querySelector('#mensagem');
 
+const cepInput = document.querySelector('#cep');
+const stateInput = document.querySelector('#state');
+const cityInput = document.querySelector('#city');
+const streetInput = document.querySelector('#street');
+
+cepInput.addEventListener('input', async () => {
+  const cep = cepInput.value.replace(/\D/g, '');
+
+  if (cep.length !== 8) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/cep/${cep}`);
+    const resultado = await response.json();
+
+    if (!response.ok) {
+      mensagem.textContent = resultado.message;
+      return;
+    }
+
+    stateInput.value = resultado.state;
+    cityInput.value = resultado.city;
+    streetInput.value = resultado.street;
+
+  } catch {
+    mensagem.textContent = 'Erro ao consultar o CEP';
+  }
+});
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -89,4 +119,3 @@ form.addEventListener('submit', async (event) => {
     mensagem.textContent = 'Não foi possível conectar ao servidor';
   }
 });
-
