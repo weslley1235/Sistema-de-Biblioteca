@@ -18,9 +18,11 @@ export default async function loanRoutes(server: FastifyInstance) {
 
   server.get('/novo-emprestimo',{ preHandler: requireLoginPage },(request, reply) => reply.sendFile('html/novo_emprestimo.html'));
 
-  server.post('/emprestimo',{ preHandler: requireLoginApi },loanController.create);
+ 
+  server.post('/emprestimo',{ preHandler: requireLoginApi },(request, reply) => loanController.create(request, reply));
 
-  server.get('/emprestimo',{ preHandler: requireAdminApi },loanController.list);
+  server.get('/emprestimo',{ preHandler: requireAdminApi },(request, reply) => loanController.list(request, reply));
 
-  server.put<IdRoute>('/emprestimo/:id',{ preHandler: requireAdminApi },loanController.return);
+  server.put<IdRoute>('/emprestimo/:id',{ preHandler: requireAdminApi },(request, reply) => loanController.return(request, reply));
+
 }

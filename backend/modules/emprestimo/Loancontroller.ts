@@ -1,10 +1,20 @@
+import moment from 'moment';
+
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import { getDatabaseProvider,type DatabaseProvider} from '../../shared/index.js';
+import {
+  getDatabaseProvider,
+  type DatabaseProvider,
+} from '../../shared/index.js';
 import { loanValidation } from './validator.js';
 import { LendBookFactory } from './usecases/createLoan.js';
-import { ListActiveBookIdsFactory,ListLoansFactory} from './usecases/listLoans.js';
+import {
+  ListActiveBookIdsFactory,
+  ListLoansFactory,
+} from './usecases/listLoans.js';
 import { ReturnLoanFactory } from './usecases/returnLoan.js';
+
+moment.locale('pt-br');
 
 type ReturnLoanRequest = FastifyRequest<{
   Params: { id: string };
@@ -20,7 +30,9 @@ export class LoanController {
       const usuario = request.session.get('usuario');
 
       if (!usuario) {
-        return reply.code(401).send({ mensagem: 'Usuário não autenticado' });
+        return reply.code(401).send({
+          mensagem: 'Usuário não autenticado',
+        });
       }
 
       const validation = loanValidation(request.body);
@@ -40,11 +52,20 @@ export class LoanController {
         });
       }
 
-      return reply.code(201).send({ mensagem: 'Empréstimo confirmado!' });
+      const dataEmprestimo = moment(validation.data.dataEmprestimo)
+        .locale('pt-br')
+        .format('D [de] MMMM [de] YYYY [às] HH:mm:ss');
+
+      return reply.code(201).send({
+        mensagem: 'Empréstimo confirmado!',
+        dataEmprestimo,
+      });
     } catch (erro) {
       request.log.error(erro);
 
-      return reply.code(500).send({ mensagem: 'Erro ao registrar empréstimo' });
+      return reply.code(500).send({
+        mensagem: 'Erro ao registrar empréstimo',
+      });
     }
   }
 
@@ -53,7 +74,9 @@ export class LoanController {
       const usuario = request.session.get('usuario');
 
       if (!usuario) {
-        return reply.code(401).send({ mensagem: 'Usuário não autenticado' });
+        return reply.code(401).send({
+          mensagem: 'Usuário não autenticado',
+        });
       }
 
       const listLoansUsecase = ListLoansFactory.factory(this.provider);
@@ -62,14 +85,18 @@ export class LoanController {
       if (result.isFail || !result.success) {
         request.log.error(result.error);
 
-        return reply.code(500).send({ mensagem: 'Erro ao listar empréstimos' });
+        return reply.code(500).send({
+          mensagem: 'Erro ao listar empréstimos',
+        });
       }
 
       return reply.send(result.success.value);
     } catch (erro) {
       request.log.error(erro);
 
-      return reply.code(500).send({ mensagem: 'Erro ao listar empréstimos' });
+      return reply.code(500).send({
+        mensagem: 'Erro ao listar empréstimos',
+      });
     }
   }
 
@@ -83,18 +110,18 @@ export class LoanController {
       if (result.isFail || !result.success) {
         request.log.error(result.error);
 
-        return reply
-          .code(500)
-          .send({ mensagem: 'Erro ao listar livros emprestados' });
+        return reply.code(500).send({
+          mensagem: 'Erro ao listar livros emprestados',
+        });
       }
 
       return reply.send(result.success.value);
     } catch (erro) {
       request.log.error(erro);
 
-      return reply
-        .code(500)
-        .send({ mensagem: 'Erro ao listar livros emprestados' });
+      return reply.code(500).send({
+        mensagem: 'Erro ao listar livros emprestados',
+      });
     }
   }
 
@@ -109,11 +136,15 @@ export class LoanController {
         });
       }
 
-      return reply.send({ mensagem: 'Livro devolvido com sucesso!' });
+      return reply.send({
+        mensagem: 'Livro devolvido com sucesso!',
+      });
     } catch (erro) {
       request.log.error(erro);
 
-      return reply.code(500).send({ mensagem: 'Erro ao devolver livro' });
+      return reply.code(500).send({
+        mensagem: 'Erro ao devolver livro',
+      });
     }
   }
 }

@@ -49,6 +49,12 @@ server.register(fastifyStatic, {
   root: path.join(__dirname, 'front'),
 });
 
+server.register(fastifyStatic, {
+  root: path.join(process.cwd(), 'node_modules/moment/min'),
+  prefix: '/moment/',
+  decorateReply: false,
+});
+
 server.get('/', (request, reply) => { return reply.sendFile('html/cadastro_usu.html')});
 
 server.get('/index', { preHandler: requireAdminPage }, (request, reply) => {return reply.sendFile('html/index.html')});

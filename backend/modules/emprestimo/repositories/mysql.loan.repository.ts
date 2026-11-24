@@ -1,11 +1,16 @@
-
+import moment from 'moment';
 import type { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 
 import mysqlDatabase from '../../../../database/mysql';
 import { LOAN_NOT_FOUND } from './loan.repository.interface.js';
 import type { Response } from '../../../shared/index.js';
 import type { Loan } from '../entities/index.js';
-import type {ILoanRepository,LoanListItem} from './loan.repository.interface.js';
+import type {
+  ILoanRepository,
+  LoanListItem,
+} from './loan.repository.interface.js';
+
+moment.locale('pt-br');
 
 type LoanRow = RowDataPacket &
   Omit<LoanListItem, 'devolvido'> & { devolvido: number };
@@ -20,7 +25,9 @@ export class MysqlLoanRepository implements ILoanRepository {
     } catch (error) {
       return {
         isFail: true,
-        error: { message: error instanceof Error ? error.message : fallback },
+        error: {
+          message: error instanceof Error ? error.message : fallback,
+        },
       };
     }
   }
@@ -29,9 +36,9 @@ export class MysqlLoanRepository implements ILoanRepository {
     return this.attempt('Houve um erro ao registrar o empréstimo', async () => {
       await mysqlDatabase.query(
         `INSERT INTO emprestimos (
-          id, livro_id, usuario_id, nome_livro, autor, ano,
-          data_emprestimo, data_devolucao, devolvido
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            id, livro_id, usuario_id, nome_livro, autor, ano,
+            data_emprestimo, data_devolucao, devolvido
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           loan.id,
           loan.livroId,
@@ -39,8 +46,8 @@ export class MysqlLoanRepository implements ILoanRepository {
           loan.nomeLivro,
           loan.autor,
           loan.ano,
-          loan.dataEmprestimo,
-          loan.dataDevolucao,
+          moment(loan.dataEmprestimo).format('YYYY-MM-DD HH:mm:ss'),
+          moment(loan.dataDevolucao).format('YYYY-MM-DD HH:mm:ss'),
           loan.devolvido,
         ],
       );
@@ -53,22 +60,28 @@ export class MysqlLoanRepository implements ILoanRepository {
     return this.attempt('Houve um erro ao listar os empréstimos', async () => {
       const [rows] = await mysqlDatabase.query<LoanRow[]>(
         `SELECT
-           e.id,
-           e.livro_id AS livroId,
-           u.nome AS nome,
-           e.nome_livro AS nomeLivro,
-           e.autor,
-           e.ano,
-           e.data_emprestimo AS dataEmprestimo,
-           e.data_devolucao AS dataDevolucao,
-           e.devolvido
-         FROM emprestimos e
-         LEFT JOIN usuarios u ON u.id = e.usuario_id
-         ORDER BY e.data_emprestimo DESC`,
+            e.id,
+            e.livro_id AS livroId,
+            u.nome AS nome,
+            e.nome_livro AS nomeLivro,
+            e.autor,
+            e.ano,
+            e.data_emprestimo AS dataEmprestimo,
+            e.data_devolucao AS dataDevolucao,
+            e.devolvido
+          FROM emprestimos e
+          LEFT JOIN usuarios u ON u.id = e.usuario_id
+          ORDER BY e.data_emprestimo DESC`,
       );
 
-      const value = rows.map((row) => ({
+      const value: LoanListItem[] = rows.map((row) => ({
         ...row,
+        dataEmprestimo: moment(row.dataEmprestimo).format(
+          'YYYY-MM-DD HH:mm:ss',
+        ),
+        dataDevolucao: row.dataDevolucao
+          ? moment(row.dataDevolucao).format('YYYY-MM-DD HH:mm:ss')
+          : null,
         devolvido: Boolean(row.devolvido),
       }));
 
@@ -79,46 +92,58 @@ export class MysqlLoanRepository implements ILoanRepository {
   public async listByUser(
     userId: string,
   ): Promise<Response<Array<LoanListItem>>> {
-    return this.attempt('Houve um erro ao listar empréstimos do usuário', async () => {
-      const [rows] = await mysqlDatabase.query<LoanRow[]>(
-        `SELECT
-           e.id,
-           e.livro_id AS livroId,
-           u.nome AS nome,
-           e.nome_livro AS nomeLivro,
-           e.autor,
-           e.ano,
-           e.data_emprestimo AS dataEmprestimo,
-           e.data_devolucao AS dataDevolucao,
-           e.devolvido
-         FROM emprestimos e
-         LEFT JOIN usuarios u ON u.id = e.usuario_id
-         WHERE e.usuario_id = ?
-         ORDER BY e.data_emprestimo DESC`,
-        [userId],
-      );
+    return this.attempt(
+      'Houve um erro ao listar empréstimos do usuário',
+      async () => {
+        const [rows] = await mysqlDatabase.query<LoanRow[]>(
+          `SELECT
+            e.id,
+            e.livro_id AS livroId,
+            u.nome AS nome,
+            e.nome_livro AS nomeLivro,
+            e.autor,
+            e.ano,
+            e.data_emprestimo AS dataEmprestimo,
+            e.data_devolucao AS dataDevolucao,
+            e.devolvido
+          FROM emprestimos e
+          LEFT JOIN usuarios u ON u.id = e.usuario_id
+          WHERE e.usuario_id = ?
+          ORDER BY e.data_emprestimo DESC`,
+          [userId],
+        );
 
-      const value = rows.map((row) => ({
-        ...row,
-        devolvido: Boolean(row.devolvido),
-      }));
+        const value: LoanListItem[] = rows.map((row) => ({
+          ...row,
+          dataEmprestimo: moment(row.dataEmprestimo).format(
+            'YYYY-MM-DD HH:mm:ss',
+          ),
+          dataDevolucao: row.dataDevolucao
+            ? moment(row.dataDevolucao).format('YYYY-MM-DD HH:mm:ss')
+            : null,
+          devolvido: Boolean(row.devolvido),
+        }));
 
-      return { isFail: false, success: { value } };
-    });
+        return { isFail: false, success: { value } };
+      },
+    );
   }
 
   public async listActiveBookIds(): Promise<Response<Array<string>>> {
-    return this.attempt('Houve um erro ao listar livros emprestados', async () => {
-      const [rows] = await mysqlDatabase.query<RowDataPacket[]>(
-        `SELECT DISTINCT livro_id
-         FROM emprestimos
-         WHERE devolvido = FALSE`,
-      );
+    return this.attempt(
+      'Houve um erro ao listar livros emprestados',
+      async () => {
+        const [rows] = await mysqlDatabase.query<RowDataPacket[]>(
+          `SELECT DISTINCT livro_id
+           FROM emprestimos
+           WHERE devolvido = FALSE`,
+        );
 
-      const value = rows.map((row) => row.livro_id as string);
+        const value = rows.map((row) => row.livro_id as string);
 
-      return { isFail: false, success: { value } };
-    });
+        return { isFail: false, success: { value } };
+      },
+    );
   }
 
   public async hasActiveLoan(bookId: string): Promise<Response<boolean>> {
@@ -130,7 +155,10 @@ export class MysqlLoanRepository implements ILoanRepository {
         [bookId],
       );
 
-      return { isFail: false, success: { value: rows.length > 0 } };
+      return {
+        isFail: false,
+        success: { value: rows.length > 0 },
+      };
     });
   }
 

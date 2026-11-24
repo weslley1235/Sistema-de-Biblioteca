@@ -2,6 +2,7 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Livros emprestados</title>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
@@ -12,47 +13,83 @@
     <div id="listaEmprestimo"></div>
 
     <script>
+      function formatarData(data) {
+        if (!data) {
+          return 'Data não informada';
+        }
+
+        const dataConvertida = new Date(data.replace(' ', 'T'));
+
+        if (Number.isNaN(dataConvertida.getTime())) {
+          return 'Data inválida';
+        }
+
+        return dataConvertida.toLocaleString('pt-BR', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        });
+      }
+
       async function carregarEmprestimo() {
         const resposta = await fetch('/emprestimo');
-        const emprestimo = await resposta.json();
+
+        if (!resposta.ok) {
+          alert('Erro ao carregar os empréstimos');
+          return;
+        }
+
+        const emprestimos = await resposta.json();
         const lista = document.getElementById('listaEmprestimo');
 
         lista.innerHTML = '';
 
-        for (const item of emprestimo) {
+        for (const item of emprestimos) {
           if (item.devolvido) {
             continue;
           }
 
           const respostaLivro = await fetch(`/livro/${item.livroId}`);
+
+          if (!respostaLivro.ok) {
+            continue;
+          }
+
           const livro = await respostaLivro.json();
           const div = document.createElement('div');
 
           div.innerHTML = `
-                    <h3>Nome: ${livro.title}</h3>
+            <h3>Nome: ${livro.title}</h3>
 
-                    <p>Ano: ${livro.ano}</p>
+            <p>Ano: ${livro.ano}</p>
 
-                    <p>Data do empréstimo: ${new Date(item.dataEmprestimo).toLocaleDateString('pt-BR', 
-                      { timeZone: 'UTC' })}</p>
+            <p>
+              Data do empréstimo:
+              ${formatarData(item.dataEmprestimo)}
+            </p>
 
-                    <p>Data da devolução:
-                        ${item.dataDevolucao ? new Date(item.dataDevolucao).toLocaleDateString('pt-BR', 
-                        { timeZone: 'UTC' }) : 'Ainda não devolvido'}
-                    </p>
+            <p>
+              Data da devolução:
+              ${formatarData(item.dataDevolucao)}
+            </p>
 
-                    <button onclick="devolverLivro('${item.id}')">
-                         Devolver livro
-                     </button>
+            <button onclick="devolverLivro('${item.id}')">
+              Devolver livro
+            </button>
 
-                    <hr>
-                `;
+            <hr>
+          `;
 
           lista.appendChild(div);
         }
-      }
 
-      carregarEmprestimo();
+        if (!lista.innerHTML) {
+          lista.innerHTML = '<p>Não existem livros emprestados no momento.</p>';
+        }
+      }
 
       async function devolverLivro(id) {
         const resposta = await fetch(`/emprestimo/${id}`, {
@@ -60,12 +97,15 @@
         });
 
         const resultado = await resposta.json();
+
         alert(resultado.mensagem);
 
         if (resposta.ok) {
           carregarEmprestimo();
         }
       }
+
+      carregarEmprestimo();
     </script>
 
     <button onclick="window.location.href = '/index'">Voltar</button>
