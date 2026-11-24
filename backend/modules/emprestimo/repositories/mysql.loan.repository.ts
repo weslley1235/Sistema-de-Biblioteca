@@ -44,14 +44,13 @@ export class MysqlLoanRepository implements ILoanRepository {
           loan.nomeLivro,
           loan.autor,
           loan.ano,
-          this.dateHandler.format(loan.dataEmprestimo,'YYYY-MM-DD HH:mm:ss'),
-          this.dateHandler.format(loan.dataDevolucao,'YYYY-MM-DD HH:mm:ss'),
+          this.dateHandler.format(loan.dataEmprestimo, 'yyyy-mm-dd HH:mm:ss'),
+          this.dateHandler.format(loan.dataDevolucao, 'yyyy-mm-dd HH:mm:ss'),
           loan.devolvido,
         ],
       );
 
       return { isFail: false };
-      
     });
   }
 
@@ -75,9 +74,12 @@ export class MysqlLoanRepository implements ILoanRepository {
 
       const value: LoanListItem[] = rows.map((row) => ({
         ...row,
-        dataEmprestimo: this.dateHandler.format(row.dataEmprestimo,'YYYY-MM-DD HH:mm:ss'),
+        dataEmprestimo: this.dateHandler.format(
+          row.dataEmprestimo,
+          'yyyy-mm-dd HH:mm:ss',
+        ),
         dataDevolucao: row.dataDevolucao
-          ? this.dateHandler.format(row.dataDevolucao,'YYYY-MM-DD HH:mm:ss')
+          ? this.dateHandler.format(row.dataDevolucao, 'yyyy-mm-dd HH:mm:ss')
           : null,
         devolvido: Boolean(row.devolvido),
       }));
@@ -112,9 +114,12 @@ export class MysqlLoanRepository implements ILoanRepository {
 
         const value: LoanListItem[] = rows.map((row) => ({
           ...row,
-          dataEmprestimo: this.dateHandler.format(row.dataEmprestimo,'YYYY-MM-DD HH:mm:ss'),
+          dataEmprestimo: this.dateHandler.format(
+            row.dataEmprestimo,
+            'yyyy-mm-dd HH:mm:ss',
+          ),
           dataDevolucao: row.dataDevolucao
-            ? this.dateHandler.format(row.dataDevolucao,'YYYY-MM-DD HH:mm:ss')
+            ? this.dateHandler.format(row.dataDevolucao, 'yyyy-mm-dd HH:mm:ss')
             : null,
           devolvido: Boolean(row.devolvido),
         }));
