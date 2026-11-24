@@ -1,4 +1,3 @@
-
 import 'dotenv/config';
 
 import type { IBookRepository } from '../modules/books/repositories/books.repository.interface.js';
@@ -11,6 +10,7 @@ import { MysqlLoanRepository } from '../modules/emprestimo/repositories/mysql.lo
 import type { IUserRepository } from '../modules/user/repositories/user.repository.interface.js';
 import { UserRepository as PostgresqlUserRepository } from '../modules/user/repositories/user.repository.js';
 import { MysqlUserRepository } from '../modules/user/repositories/mysql.user.repository.js';
+import { DateFns, Moment } from './adapters/index.js';
 
 export type DatabaseProvider = 'postgresql' | 'mysql';
 
@@ -29,12 +29,14 @@ export const databaseStrategy: Record<DatabaseProvider, () => Repositories> = {
 
   mysql: () => ({
     user: new MysqlUserRepository(),
-    loan: new MysqlLoanRepository(),
+    loan: new MysqlLoanRepository(new DateFns()),
     book: new PostgresqlBookRepository(),
   }),
 };
 
-export const createRepositories = (provider: DatabaseProvider): Repositories => {
+export const createRepositories = (
+  provider: DatabaseProvider,
+): Repositories => {
   return databaseStrategy[provider]();
 };
 

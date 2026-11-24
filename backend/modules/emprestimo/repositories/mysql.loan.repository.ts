@@ -1,21 +1,19 @@
-import moment from 'moment';
 import type { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 
 import mysqlDatabase from '../../../../database/mysql';
 import { LOAN_NOT_FOUND } from './loan.repository.interface.js';
-import type { Response } from '../../../shared/index.js';
+import type { IDateHandler, Response } from '../../../shared/index.js';
 import type { Loan } from '../entities/index.js';
 import type {
   ILoanRepository,
   LoanListItem,
 } from './loan.repository.interface.js';
 
-moment.locale('pt-br');
-
 type LoanRow = RowDataPacket &
   Omit<LoanListItem, 'devolvido'> & { devolvido: number };
 
 export class MysqlLoanRepository implements ILoanRepository {
+  constructor(private readonly dateHandler: IDateHandler) {}
   private async attempt<T>(
     fallback: string,
     action: () => Promise<Response<T>>,
@@ -46,13 +44,14 @@ export class MysqlLoanRepository implements ILoanRepository {
           loan.nomeLivro,
           loan.autor,
           loan.ano,
-          moment(loan.dataEmprestimo).format('YYYY-MM-DD HH:mm:ss'),
-          moment(loan.dataDevolucao).format('YYYY-MM-DD HH:mm:ss'),
+          this.dateHandler.format(loan.dataEmprestimo,'YYYY-MM-DD HH:mm:ss'),
+          this.dateHandler.format(loan.dataDevolucao,'YYYY-MM-DD HH:mm:ss'),
           loan.devolvido,
         ],
       );
 
       return { isFail: false };
+      
     });
   }
 
@@ -76,11 +75,9 @@ export class MysqlLoanRepository implements ILoanRepository {
 
       const value: LoanListItem[] = rows.map((row) => ({
         ...row,
-        dataEmprestimo: moment(row.dataEmprestimo).format(
-          'YYYY-MM-DD HH:mm:ss',
-        ),
+        dataEmprestimo: this.dateHandler.format(row.dataEmprestimo,'YYYY-MM-DD HH:mm:ss'),
         dataDevolucao: row.dataDevolucao
-          ? moment(row.dataDevolucao).format('YYYY-MM-DD HH:mm:ss')
+          ? this.dateHandler.format(row.dataDevolucao,'YYYY-MM-DD HH:mm:ss')
           : null,
         devolvido: Boolean(row.devolvido),
       }));
@@ -115,11 +112,9 @@ export class MysqlLoanRepository implements ILoanRepository {
 
         const value: LoanListItem[] = rows.map((row) => ({
           ...row,
-          dataEmprestimo: moment(row.dataEmprestimo).format(
-            'YYYY-MM-DD HH:mm:ss',
-          ),
+          dataEmprestimo: this.dateHandler.format(row.dataEmprestimo,'YYYY-MM-DD HH:mm:ss'),
           dataDevolucao: row.dataDevolucao
-            ? moment(row.dataDevolucao).format('YYYY-MM-DD HH:mm:ss')
+            ? this.dateHandler.format(row.dataDevolucao,'YYYY-MM-DD HH:mm:ss')
             : null,
           devolvido: Boolean(row.devolvido),
         }));
