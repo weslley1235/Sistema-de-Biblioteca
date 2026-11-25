@@ -1,7 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { ADMIN } from '../../../shared/authentication.js';
-import { databaseStrategy, type DatabaseProvider } from '../../../shared/index.js';
+import {
+  databaseStrategy,
+  type DatabaseProvider,
+} from '../../../shared/index.js';
 import { FindBookUsecase } from '../../books/usecases/index.js';
 import { USER_NOT_FOUND } from '../../user/repositories/index.js';
 import { Loan } from '../entities/index.js';
@@ -15,6 +18,10 @@ import type { LoanResponse } from './types.js';
 
 export type LoanActor = { id: string; tipoUsu: string };
 
+type LendBookInput = LoanInput & {
+  usuarioResponsavelId: string;
+};
+
 export class LendBookUsecase {
   constructor(
     private readonly userRepository: IUserRepository,
@@ -22,8 +29,43 @@ export class LendBookUsecase {
     private readonly bookRepository: IBookRepository,
   ) {}
 
-  public async execute(data: LoanInput, actor: LoanActor): Promise<LoanResponse> {
-    const borrower = await this.findBorrower(data, actor);
+  public async execute(data: LendBookInput): Promise<LoanResponse> {
+    const usuario = await this.userRepository.findById(data.usuarioId);
+
+    if (usuario.isFail) {
+      return {
+        isFail: true,
+        error: {
+          message: usuario.error?.message as string,
+        },
+      };
+    }
+
+    const responsavel = await this.userRepository.findById(
+      data.usuarioResponsavelId,
+    );
+
+    if (responsavel.isFail) {
+      return {
+        isFail: true,
+        error: {
+          message: responsavel.error?.message as string,
+        },
+      };
+    }
+
+    const livro = await this.bookRepository.findById(data.livroId);
+
+    if (livro.isFail) {
+      return {
+        isFail: true,
+        error: {
+          message: livro.error?.message as string,
+        },
+      };
+    }
+
+    const borrower = await this.findBorrower(data);
 
     if (borrower.isFail || !borrower.success) {
       return loanFailure(
@@ -89,17 +131,17 @@ export class LendBookUsecase {
     return { isFail: false };
   }
 
-  private async findBorrower(
-    data: LoanInput,
-    actor: LoanActor,
-  ): Promise<LoanResponse<User>> {
+  private async findBorrower(data: LendBookInput): Promise<LoanResponse<User>> {
     if (actor.tipoUsu !== ADMIN) {
       const own = await this.userRepository.findById(actor.id);
 
       if (own.isFail || !own.success) {
         return own.error?.message === USER_NOT_FOUND
           ? loanFailure<User>(401, 'Usuário não encontrado')
-          : loanFailure<User>(500, own.error?.message ?? 'Erro ao buscar usuário');
+          : loanFailure<User>(
+              500,
+              own.error?.message ?? 'Erro ao buscar usuário',
+            );
       }
 
       return { isFail: false, success: own.success };
@@ -114,7 +156,10 @@ export class LendBookUsecase {
     if (found.isFail || !found.success) {
       return found.error?.message === USER_NOT_FOUND
         ? loanFailure<User>(400, 'CPF ou telefone inválido')
-        : loanFailure<User>(500, found.error?.message ?? 'Erro ao buscar usuário');
+        : loanFailure<User>(
+            500,
+            found.error?.message ?? 'Erro ao buscar usuário',
+          );
     }
 
     if (found.success.value.tel !== data.tel) {

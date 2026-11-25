@@ -1,15 +1,17 @@
 import type { IEntity, Response } from '../../../shared/index';
 
+export type UserTypesProp = 'administracao' | 'usuario';
+
 export type UserProps = {
   id: string;
   nome: string;
   email: string;
   cpf: string;
   tel: string;
-  tipoUsu: string;
+  tipoUsu: UserTypesProp;
   matricula?: string;
-  cep: string;
-  state: string;
+  cep?: string;
+  state: string | undefined;
   city: string;
   street: string;
 };
@@ -26,14 +28,14 @@ export class User implements IEntity {
   email: string;
   cpf: string;
   tel: string;
-  tipoUsu: string;
+  tipoUsu: UserTypesProp;
   matricula?: string;
   cep: string;
   state: string;
   city: string;
   street: string;
 
-  constructor(props: UserProps) {
+  private constructor(props: UserProps) {
     this.id = props.id;
     this.nome = props.nome;
     this.email = props.email;
@@ -47,82 +49,106 @@ export class User implements IEntity {
     this.street = props.street;
   }
 
-  public validate(): Response<void> {
-    if (!isFilledText(this.id)) {
+  private static validate(props: UserProps): Response<void> {
+    if (!isFilledText(props.id)) {
       return {
         isFail: true,
         error: { message: 'ID precisa ser uma string válida' },
       };
     }
-    if (!isFilledText(this.nome) || !lettersRegex.test(this.nome.trim())) {
+    if (!isFilledText(props.nome) || !lettersRegex.test(props.nome.trim())) {
       return {
         isFail: true,
         error: { message: 'Nome deve conter apenas letras' },
       };
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(props.email)) {
       return { isFail: true, error: { message: 'E-mail inválido' } };
     }
 
-    if (!/^\d{11}$/.test(this.cpf)) {
+    if (!/^\d{11}$/.test(props.cpf)) {
       return {
         isFail: true,
         error: { message: 'O CPF deve conter 11 dígitos' },
       };
     }
 
-    if (!/^\d{11}$/.test(this.tel)) {
+    if (!/^\d{11}$/.test(props.tel)) {
       return {
         isFail: true,
         error: { message: 'O telefone deve conter 11 dígitos' },
       };
     }
 
-    if (!isFilledText(this.tipoUsu)) {
+    if (!isFilledText(props.tipoUsu)) {
       return {
         isFail: true,
         error: { message: 'Tipo de usuário obrigatório' },
       };
     }
 
-    if (!/^\d{8}$/.test(this.cep)) {
+    if (!/^\d{8}$/.test(props.cep)) {
       return {
         isFail: true,
         error: { message: 'O CEP deve conter 8 dígitos' },
       };
     }
 
-    if (!/^[A-Za-z]{2}$/.test(this.state)) {
+    if (!/^[A-Za-z]{2}$/.test(props.state)) {
       return {
         isFail: true,
         error: { message: 'O estado deve conter 2 letras' },
       };
     }
 
-    if (!isFilledText(this.city) || this.city.trim().length < 2) {
+    if (!isFilledText(props.city) || props.city.trim().length < 2) {
       return {
         isFail: true,
         error: { message: 'Cidade inválida' },
       };
     }
 
-    if (!isFilledText(this.street) || this.street.trim().length < 2) {
+    if (!isFilledText(props.street) || props.street.trim().length < 2) {
       return {
         isFail: true,
         error: { message: 'Rua inválida' },
       };
     }
 
-    if (this.tipoUsu === 'administracao') {
+    if (props.tipoUsu === 'administracao') {
       if (
-        !isFilledText(this.matricula) ||
-        !/^[A-Za-z0-9]{1,15}$/.test(this.matricula)
+        !isFilledText(props.matricula) ||
+        !/^[A-Za-z0-9]{1,15}$/.test(props.matricula)
       ) {
         return { isFail: true, error: { message: 'Matrícula inválida' } };
       }
     }
 
     return { isFail: false };
+  }
+
+  public static create(props: UserProps): Response<User> {
+    const validator = this.validate(props);
+
+    if (validator.isFail) {
+      return {
+        isFail: true,
+        error: {
+          message: validator.error?.message as string,
+        },
+      };
+    }
+
+    return {
+      isFail: false,
+      success: {
+        value: new User(props),
+      },
+    };
+  }
+
+  public isAdmin(): boolean {
+    return this.tipoUsu === 'administracao';
   }
 }

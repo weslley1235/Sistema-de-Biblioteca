@@ -2,7 +2,7 @@ import type { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 
 import mysqlDatabase from '../../../../database/mysql';
 import type { Response } from '../../../shared/index';
-import { User } from '../entities/index';
+import { User, UserTypesProp } from '../entities/index';
 import { USER_NOT_FOUND } from './user.repository.interface';
 import type {
   IUserRepository,
@@ -15,7 +15,7 @@ type UserRow = RowDataPacket & {
   email: string;
   cpf: string;
   tel: string;
-  tipousu: string;
+  tipousu: string | UserTypesProp;
   senha: string;
   matricula: string | null;
   cep: string;
@@ -86,14 +86,14 @@ export class MysqlUserRepository implements IUserRepository {
     });
   }
 
-  private toEntity(row: UserRow): User {
-    return new User({
+  private toEntity(row: UserRow): Response<User> {
+    return User.create({
       id: row.id,
       nome: row.nome,
       email: row.email,
       cpf: row.cpf,
       tel: row.tel,
-      tipoUsu: row.tipousu,
+      tipoUsu: row.tipousu as UserTypesProp,
       matricula: row.matricula ?? undefined,
       cep: row.cep,
       state: row.state,
@@ -119,7 +119,7 @@ export class MysqlUserRepository implements IUserRepository {
           user.cep,
           user.state,
           user.city,
-          user.street
+          user.street,
         ],
       );
 
