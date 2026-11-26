@@ -86,8 +86,8 @@ export class MysqlUserRepository implements IUserRepository {
     });
   }
 
-  private toEntity(row: UserRow): Response<User> {
-    return User.create({
+  private toEntity(row: UserRow): User {
+    const result = User.create({
       id: row.id,
       nome: row.nome,
       email: row.email,
@@ -100,6 +100,12 @@ export class MysqlUserRepository implements IUserRepository {
       city: row.city,
       street: row.street,
     });
+
+    if (result.isFail || !result.success) {
+      throw new Error(result.error?.message ?? 'Dados inválidos para o usuário');
+    }
+
+    return result.success.value;
   }
 
   public async save(user: User, passwordHash: string): Promise<Response<void>> {
@@ -203,7 +209,9 @@ export class MysqlUserRepository implements IUserRepository {
       'Houve um erro ao verificar os empréstimos',
       async () => {
         const [rows] = await mysqlDatabase.query<RowDataPacket[]>(
-          'SELECT 1 FROM emprestimos WHERE usuario_id = ? LIMIT 1',
+          `SELECT 1 FROM emprestimos
+           WHERE usuario_id = ? AND devolvido = FALSE
+           LIMIT 1`,
           [id],
         );
 

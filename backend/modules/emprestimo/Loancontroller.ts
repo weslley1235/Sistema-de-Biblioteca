@@ -2,16 +2,10 @@ import moment from 'moment';
 
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import {
-  getDatabaseProvider,
-  type DatabaseProvider,
-} from '../../shared/index.js';
+import {getDatabaseProvider,type DatabaseProvider} from '../../shared/index.js';
 import { loanValidation } from './validator.js';
 import { LendBookFactory } from './usecases/createLoan.js';
-import {
-  ListActiveBookIdsFactory,
-  ListLoansFactory,
-} from './usecases/listLoans.js';
+import {ListActiveBookIdsFactory,ListLoansFactory} from './usecases/listLoans.js';
 import { ReturnLoanFactory } from './usecases/returnLoan.js';
 
 moment.locale('pt-br');

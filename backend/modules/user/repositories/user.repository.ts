@@ -2,7 +2,7 @@ import type { QueryResult, QueryResultRow } from 'pg';
 
 import database from '../../../../database/db';
 import type { Response } from '../../../shared/index';
-import { User } from '../entities/index';
+import { User, type UserTypesProp } from '../entities/index';
 import { USER_NOT_FOUND } from './user.repository.interface.js';
 import type {IUserRepository,UserCredentials} from './user.repository.interface';
 
@@ -12,7 +12,7 @@ type UserRow = {
   email: string;
   cpf: string;
   tel: string;
-  tipousu: string;
+  tipousu: UserTypesProp;
   senha: string;
   cep: string;
   state: string;
@@ -211,7 +211,9 @@ export class UserRepository implements IUserRepository {
     try {
       const result = await this.query(
         'Erro ao verficar empréstimos do Usuário',
-        'SELECT 1 FROM emprestimos WHERE usuario_id = $1 LIMIT 1',
+        `SELECT 1 FROM emprestimos 
+         WHERE usuario_id = $1 AND devolvido = FALSE
+         LIMIT 1`,
         [id],
       );
 
@@ -224,3 +226,7 @@ export class UserRepository implements IUserRepository {
     }
   }
 }
+
+
+// TERMINAR DE ARRUMAR AS REGRAS DE NEGOCIO E VER SE TODAS SÃ TOTALMENTE NECESSARIAS
+// PARA O CASO DE USU 

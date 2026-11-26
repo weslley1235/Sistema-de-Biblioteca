@@ -1,6 +1,6 @@
 import type { IEntity, Response } from '../../../shared/index';
 
-export type UserTypesProp = 'administracao' | 'usuario';
+export type UserTypesProp = 'administracao' | 'usuario' | 'Professor' | 'Aluno';
 
 export type UserProps = {
   id: string;
@@ -10,8 +10,8 @@ export type UserProps = {
   tel: string;
   tipoUsu: UserTypesProp;
   matricula?: string;
-  cep?: string;
-  state: string | undefined;
+  cep: string;
+  state: string ;
   city: string;
   street: string;
 };
@@ -35,7 +35,7 @@ export class User implements IEntity {
   city: string;
   street: string;
 
-  private constructor(props: UserProps) {
+  public constructor(props: UserProps) {
     this.id = props.id;
     this.nome = props.nome;
     this.email = props.email;
@@ -150,5 +150,9 @@ export class User implements IEntity {
 
   public isAdmin(): boolean {
     return this.tipoUsu === 'administracao';
+  }
+
+  public validate(): Response<void> {
+    return User.validate(this);
   }
 }
