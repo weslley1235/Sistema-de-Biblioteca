@@ -1,3 +1,4 @@
+/* global moment */
 const formLivro = document.querySelector('#formLivro');
 const title = document.querySelector('#title');
 const autor = document.querySelector('#autor');
@@ -11,7 +12,11 @@ const carregarLivros = async () => {
   const livros = await respostaLivros.json();
 
   const respostaEmprestimos = await fetch('/emprestimo');
-  const emprestimos = await respostaEmprestimos.json();
+  let emprestimos = await respostaEmprestimos.json();
+
+  if (!Array.isArray(emprestimos)) {
+    emprestimos = [];
+  }
 
   listaLivros.innerHTML = '';
 
@@ -55,7 +60,7 @@ const editarLivro = (id, titleLivro, autorLivro, anoLivro) => {
 };
 
 formLivro.addEventListener('submit', async (evento) => {
-  evento.preventDefault()
+  evento.preventDefault();
 
   const id = formLivro.dataset.id;
   const dados = {
@@ -115,5 +120,22 @@ const carregarUsuario = async () => {
 window.editarLivro = editarLivro;
 window.excluirLivro = excluirLivro;
 
+// Carregar informações da página
 carregarLivros();
 carregarUsuario();
+
+moment.locale('pt-br');
+
+const atualizarRelogio = () => {
+  const data = moment();
+
+  document.querySelector('#dataAtual').textContent =
+    data.format('D [de] MMMM [de] YYYY');
+
+  document.querySelector('#horaAtual').textContent =
+    data.format('HH:mm:ss');
+};
+
+atualizarRelogio();
+
+setInterval(atualizarRelogio, 1000);

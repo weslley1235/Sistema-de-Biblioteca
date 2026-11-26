@@ -1,10 +1,10 @@
 import type { QueryResult, QueryResultRow } from 'pg';
 
-import database from '../../../../database/db.js';
-import type { Response } from '../../../shared/index.js';
-import { User } from '../entities/index.js';
-import { USER_NOT_FOUND} from './user.repository.interface.js'
-import type {IUserRepository,UserCredentials} from './user.repository.interface.js';
+import database from '../../../../database/db';
+import type { Response } from '../../../shared/index';
+import { User, type UserTypesProp } from '../entities/index';
+import { USER_NOT_FOUND } from './user.repository.interface.js';
+import type {IUserRepository,UserCredentials} from './user.repository.interface';
 
 type UserRow = {
   id: string;
@@ -12,8 +12,12 @@ type UserRow = {
   email: string;
   cpf: string;
   tel: string;
-  tipousu: string;
+  tipousu: UserTypesProp;
   senha: string;
+  cep: string;
+  state: string;
+  city: string;
+  street: string;
 };
 
 export class UserRepository implements IUserRepository {
@@ -37,6 +41,10 @@ export class UserRepository implements IUserRepository {
       cpf: row.cpf,
       tel: row.tel,
       tipoUsu: row.tipousu,
+      cep: row.cep,
+      state: row.state,
+      city: row.city,
+      street: row.street,
     });
   }
 
@@ -75,9 +83,21 @@ export class UserRepository implements IUserRepository {
     try {
       await this.query(
         'Erro ao salvar usuário',
-        `INSERT INTO usuarios (id, nome, email, cpf, tel, tipousu, senha)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [user.id,user.nome,user.email,user.cpf,user.tel,user.tipoUsu,passwordHash],
+        `INSERT INTO usuarios (id, nome, email, cpf, tel, tipousu, senha, cep, state, city, street)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+        [
+          user.id,
+          user.nome,
+          user.email,
+          user.cpf,
+          user.tel,
+          user.tipoUsu,
+          passwordHash,
+          user.cep,
+          user.state,
+          user.city,
+          user.street,
+        ],
       );
 
       return { isFail: false };
@@ -145,9 +165,19 @@ export class UserRepository implements IUserRepository {
       const result = await this.query(
         'Erro ao atualizar usuário',
         `UPDATE usuarios 
-             SET nome = $1, email = $2, cpf = $3, tel = $4
-             WHERE id = $5`,
-        [user.nome, user.email, user.cpf, user.tel, user.id],
+             SET nome = $1, email = $2, cpf = $3, tel = $4, cep = $5, state = $6, city = $7, street = $8
+             WHERE id = $9`,
+        [
+          user.nome,
+          user.email,
+          user.cpf,
+          user.tel,
+          user.cep,
+          user.state,
+          user.city,
+          user.street,
+          user.id,
+        ],
       );
 
       if ((result.rowCount ?? 0) == 0) {
@@ -181,7 +211,9 @@ export class UserRepository implements IUserRepository {
     try {
       const result = await this.query(
         'Erro ao verficar empréstimos do Usuário',
-        'SELECT 1 FROM emprestimos WHERE usuario_id = $1 LIMIT 1',
+        `SELECT 1 FROM emprestimos 
+         WHERE usuario_id = $1 AND devolvido = FALSE
+         LIMIT 1`,
         [id],
       );
 
@@ -193,5 +225,8 @@ export class UserRepository implements IUserRepository {
       return this.fail(error, 'Houve um erro ao verificar os empréstimos');
     }
   }
-
 }
+
+
+// TERMINAR DE ARRUMAR AS REGRAS DE NEGOCIO E VER SE TODAS SÃ TOTALMENTE NECESSARIAS
+// PARA O CASO DE USU 

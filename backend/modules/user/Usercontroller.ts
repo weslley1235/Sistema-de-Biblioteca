@@ -1,19 +1,50 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ZodError } from 'zod';
 import type { publicUser } from './usecases/types.js';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import { register, login, destroy, list, update } from './usecases/index.js';
+import {
+  Axios,
+  getDatabaseProvider,
+  IHttpRequest,
+  type DatabaseProvider,
+} from '../../shared/index.js';
+import {
+  DestroyUserFactory,
+  ListUsersFactory,
+  LoginUserFactory,
+  RegisterUserFactory,
+  UpdateUserFactory,
+} from './usecases/index.js';
 import {
   userValidation,
   userLoginValidation,
   userUpdateValidation,
 } from './validator.js';
+import { GetAddressFactory } from './usecases/getAddress.js';
 
 type IdParams = FastifyRequest<{
   Params: { id: string };
 }>;
 
+type CepParams = FastifyRequest<{
+  Params: {
+    cep: string;
+  };
+}>;
+
+type CepResponse = {
+  cep: string;
+  state: string;
+  city: string;
+  street: string;
+};
+
 export class UserController {
+  constructor(
+    private readonly provider: DatabaseProvider = getDatabaseProvider(),
+    private readonly httpRequest: IHttpRequest = new Axios(),
+  ) {}
+
   private sendInvalidData(reply: FastifyReply, error: ZodError) {
     return reply.code(400).send({
       message: error.issues[0].message,
@@ -44,15 +75,29 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const result = await register(validation.data);
+      const usuario = request.session.get('usuario');
+
+      if (
+        validation.data.tipoUsu === 'administracao' &&
+        usuario?.tipoUsu !== 'administracao'
+      ) {
+        return reply.code(403).send({
+          message:
+            'Somente um administrador pode cadastrar outro administrador',
+        });
+      }
+
+      const registerUserUsecase = RegisterUserFactory.factory(this.provider);
+      const result = await registerUserUsecase.execute(validation.data);
 
       if (result.status !== 201 || !result.user) {
         return reply.code(result.status).send(result);
       }
 
-      await this.startSession(request, result.user);
-
-      return reply.code(201).send({ message: result.message });
+      return reply.code(201).send({
+        message: result.message,
+        matricula: result.matricula,
+      });
     } catch (error) {
       return this.sendServerError(
         request,
@@ -63,6 +108,37 @@ export class UserController {
     }
   }
 
+  public async buscarCep(request: CepParams, reply: FastifyReply) {
+    const { cep } = request.params;
+
+    if (!/^\d{8o}$/.test(cep)) {
+      return reply.code(400).send({
+        message: 'O CEP deve conter 8 números',
+      });
+    }
+
+    let getAddressUsecase = GetAddressFactory.factory(
+      'brasil-api',
+      this.httpRequest,
+    );
+    let response = await getAddressUsecase.execute(cep);
+
+    if (response.isFail) {
+      getAddressUsecase = GetAddressFactory.factory('viacep', this.httpRequest);
+      response = await getAddressUsecase.execute(cep);
+
+      if (response.isFail) {
+        console.error(response.error?.metadata);
+
+        return reply.code(401).send({
+          message: response.error?.message,
+        });
+      }
+    }
+
+    return reply.send(response.success?.value);
+  }
+
   public async login(request: FastifyRequest, reply: FastifyReply) {
     try {
       const validation = userLoginValidation(request.body);
@@ -71,8 +147,15 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const { email, password } = validation.data;
-      const result = await login(email, password);
+      const { email, password, matricula, cpf } = validation.data;
+
+      const loginUserUsecase = LoginUserFactory.factory(this.provider);
+      const result = await loginUserUsecase.execute(
+        email,
+        password,
+        matricula,
+        cpf,
+      );
 
       if (result.status !== 200 || !result.user) {
         return reply.code(result.status).send(result);
@@ -80,7 +163,10 @@ export class UserController {
 
       await this.startSession(request, result.user);
 
-      return reply.send({ message: result.message });
+      return reply.send({
+        message: result.message,
+        tipoUsu: result.user.tipoUsu,
+      });
     } catch (error) {
       return this.sendServerError(
         request,
@@ -99,7 +185,11 @@ export class UserController {
         return this.sendInvalidData(reply, validation.error);
       }
 
-      const result = await update(request.params.id, validation.data);
+      const updateUserUsecase = UpdateUserFactory.factory(this.provider);
+      const result = await updateUserUsecase.execute(
+        request.params.id,
+        validation.data,
+      );
 
       if (result.status !== 200) {
         return reply.code(result.status).send(result);
@@ -118,7 +208,9 @@ export class UserController {
 
   public async list(request: FastifyRequest, reply: FastifyReply) {
     try {
-      return reply.send(await list());
+      const listUsersUsecase = ListUsersFactory.factory(this.provider);
+
+      return reply.send(await listUsersUsecase.execute());
     } catch (error) {
       return this.sendServerError(
         request,
@@ -137,7 +229,19 @@ export class UserController {
         return reply.code(401).send({ message: 'Usuário não autenticado' });
       }
 
-      return reply.send({ nome: usuario.nome });
+      const cpf = usuario.cpf;
+
+      return reply.send({
+        nome: usuario.nome,
+        email: usuario.email,
+        tel: usuario.tel,
+        tipoUsu: usuario.tipoUsu,
+        cep: usuario.cep,
+        state: usuario.state,
+        city: usuario.city,
+        street: usuario.street,
+        cpf: `${cpf.slice(0, 3)}${'*'.repeat(Math.max(0, cpf.length - 5))}${cpf.slice(-2)}`,
+      });
     } catch (error) {
       return this.sendServerError(
         request,
@@ -153,7 +257,8 @@ export class UserController {
       const { id } = request.params;
       const usuario = request.session.get('usuario');
 
-      const result = await destroy(id);
+      const destroyUserUsecase = DestroyUserFactory.factory(this.provider);
+      const result = await destroyUserUsecase.execute(id);
 
       if (result.status !== 200) {
         return reply.code(result.status).send(result);

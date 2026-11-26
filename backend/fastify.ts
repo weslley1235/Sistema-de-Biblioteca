@@ -1,5 +1,4 @@
-
-import { fastify } from './config.js';
+import { fastify } from './config';
 
 const server = fastify();
 

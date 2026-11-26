@@ -1,23 +1,22 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import {
-  fastifyStatic,
-  fastifyCookie,
-  fastifySession,
-  path,
-  fileURLToPath,
-} from './backend/config.js';
-import server from './backend/fastify.js';
 
-import userRoutes from './backend/modules/user/routes.js';
-import loanRoutes from './backend/modules/emprestimo/routes.js';
+import { PostBookRepository } from './backend/modules/books/repositories/book.repository';
+import {fastifyStatic,fastifyCookie,fastifySession,path,fileURLToPath} from './backend/config';
+import {ADMIN,requireLoginPage,requireAdminPage,requireLoginApi,requireAdminApi,requireBookListApi} from './backend/shared/authentication';
+import server from './backend/fastify';
 
-import { BookController } from './backend/modules/books/bookController.js';
+import userRoutes from './backend/modules/user/routes';
+import loanRoutes from './backend/modules/emprestimo/routes';
+
+import { BookController } from './backend/modules/books/bookController';
+import { getDatabaseProvider } from './backend/shared';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 3333);
 
 type FindRoute = { Params: { id: string } };
+
 type ListRoute = { Querystring: { inactive?: string } };
+
 type UpdateRoute = {
   Params: { id: string };
   Querystring: { reactivate?: string };
@@ -28,7 +27,8 @@ type DestroyRoute = {
   Querystring: { definitive?: string };
 };
 
-const bookController = new BookController();
+const bookRepository = new PostBookRepository();
+const bookController = new BookController(getDatabaseProvider());
 
 // Configurações
 
@@ -49,42 +49,34 @@ server.register(fastifyStatic, {
   root: path.join(__dirname, 'front'),
 });
 
-// Verificar login
+server.register(fastifyStatic, {
+  root: path.join(process.cwd(), 'node_modules/moment/min'),
+  prefix: '/moment/',
+  decorateReply: false,
+});
 
-async function verificarLogin(request: FastifyRequest, reply: FastifyReply) {
-  if (!request.session.get('usuario')) {
-    return reply.redirect('/');
-  }
-}
+server.get('/', (request, reply) => { return reply.sendFile('html/cadastro_usu.html')});
 
-const protegida = { preHandler: verificarLogin };
+server.get('/index', { preHandler: requireAdminPage }, (request, reply) => {return reply.sendFile('html/index.html')});
 
-// Páginas
+server.get('/usuarios', { preHandler: requireAdminPage }, (request, reply) => {return reply.sendFile('html/listaUsuarios.html')});
 
-const paginasProtegidas = {
-  '/index': 'html/index.html',
-  '/usuarios': 'html/listaUsuarios.html',
-  '/livros-inativos': 'html/livros_inativos.html',
-};
-
-server.get('/', (request, reply) => reply.sendFile('html/cadastro_usu.html'));
-
-for (const [rota, arquivo] of Object.entries(paginasProtegidas)) {
-  server.get(rota, protegida, (request, reply) => reply.sendFile(arquivo));
-}
+server.get('/livros-inativos',{ preHandler: requireAdminPage },(request, reply) => { return reply.sendFile('html/livros_inativos.html')});
 
 // Usuários e empréstimos
 
 server.register(userRoutes);
 server.register(loanRoutes);
 
-// Livros
+server.post('/livro', { preHandler: requireAdminApi }, (request, reply) => bookController.register(request, reply));
 
-server.post('/livro', protegida, (request, reply) => bookController.register(request, reply));
-server.get<ListRoute>('/livro', protegida, (request, reply) => bookController.list(request, reply));
-server.get<FindRoute>('/livro/:id', protegida, (request, reply) => bookController.detail(request, reply));
-server.put<UpdateRoute>('/livro/:id', protegida, (request, reply) => bookController.update(request, reply));
-server.delete<DestroyRoute>('/livro/:id', protegida, (request, reply) => bookController.destroy(request, reply));
+server.get<ListRoute>('/livro',{ preHandler: requireBookListApi },(request, reply) => bookController.list(request, reply));
+
+server.get<FindRoute>('/livro/:id',{ preHandler: requireAdminApi },(request, reply) => bookController.detail(request, reply));
+
+server.put<UpdateRoute>('/livro/:id',{ preHandler: requireAdminApi },(request, reply) => bookController.update(request, reply));
+
+server.delete<DestroyRoute>('/livro/:id',{ preHandler: requireAdminApi },(request, reply) => bookController.destroy(request, reply));
 
 // Logout
 

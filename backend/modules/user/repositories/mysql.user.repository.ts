@@ -1,13 +1,13 @@
 import type { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 
-import mysqlDatabase from '../../../../database/mysql.js';
-import type { Response } from '../../../shared/index.js';
-import { User } from '../entities/index.js';
-import { USER_NOT_FOUND } from './user.repository.interface.js';
+import mysqlDatabase from '../../../../database/mysql';
+import type { Response } from '../../../shared/index';
+import { User, UserTypesProp } from '../entities/index';
+import { USER_NOT_FOUND } from './user.repository.interface';
 import type {
   IUserRepository,
   UserCredentials,
-} from './user.repository.interface.js';
+} from './user.repository.interface';
 
 type UserRow = RowDataPacket & {
   id: string;
@@ -15,8 +15,13 @@ type UserRow = RowDataPacket & {
   email: string;
   cpf: string;
   tel: string;
-  tipousu: string;
+  tipousu: string | UserTypesProp;
   senha: string;
+  matricula: string | null;
+  cep: string;
+  state: string;
+  city: string;
+  street: string;
 };
 
 type SearchColumn = 'id' | 'email' | 'cpf';
@@ -82,21 +87,32 @@ export class MysqlUserRepository implements IUserRepository {
   }
 
   private toEntity(row: UserRow): User {
-    return new User({
+    const result = User.create({
       id: row.id,
       nome: row.nome,
       email: row.email,
       cpf: row.cpf,
       tel: row.tel,
-      tipoUsu: row.tipousu,
+      tipoUsu: row.tipousu as UserTypesProp,
+      matricula: row.matricula ?? undefined,
+      cep: row.cep,
+      state: row.state,
+      city: row.city,
+      street: row.street,
     });
+
+    if (result.isFail || !result.success) {
+      throw new Error(result.error?.message ?? 'Dados inválidos para o usuário');
+    }
+
+    return result.success.value;
   }
 
   public async save(user: User, passwordHash: string): Promise<Response<void>> {
     return this.attempt('Houve um erro ao salvar o usuário', async () => {
       await mysqlDatabase.query(
-        `INSERT INTO usuarios (id, nome, email, cpf, tel, tipousu, senha)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO usuarios (id, nome, email, cpf, tel, tipousu, senha, matricula, cep, state, city, street)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           user.id,
           user.nome,
@@ -105,6 +121,11 @@ export class MysqlUserRepository implements IUserRepository {
           user.tel,
           user.tipoUsu,
           passwordHash,
+          user.matricula ?? null,
+          user.cep,
+          user.state,
+          user.city,
+          user.street,
         ],
       );
 
@@ -159,9 +180,19 @@ export class MysqlUserRepository implements IUserRepository {
     return this.changeOne(
       'Houve um erro ao atualizar o usuário',
       `UPDATE usuarios
-       SET nome = ?, email = ?, cpf = ?, tel = ?
+       SET nome = ?, email = ?, cpf = ?, tel = ?, cep = ?, state = ?, city = ?, street = ?
        WHERE id = ?`,
-      [user.nome, user.email, user.cpf, user.tel, user.id],
+      [
+        user.nome,
+        user.email,
+        user.cpf,
+        user.tel,
+        user.cep,
+        user.state,
+        user.city,
+        user.street,
+        user.id,
+      ],
     );
   }
 
@@ -173,12 +204,14 @@ export class MysqlUserRepository implements IUserRepository {
     );
   }
 
-    public async hasLoans(id: string): Promise<Response<boolean>> {
+  public async hasLoans(id: string): Promise<Response<boolean>> {
     return this.attempt(
       'Houve um erro ao verificar os empréstimos',
       async () => {
         const [rows] = await mysqlDatabase.query<RowDataPacket[]>(
-          'SELECT 1 FROM emprestimos WHERE usuario_id = ? LIMIT 1',
+          `SELECT 1 FROM emprestimos
+           WHERE usuario_id = ? AND devolvido = FALSE
+           LIMIT 1`,
           [id],
         );
 

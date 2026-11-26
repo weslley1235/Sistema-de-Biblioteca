@@ -1,3 +1,4 @@
+
 import 'fastify';
 
 declare module 'fastify' {
@@ -9,6 +10,10 @@ declare module 'fastify' {
       cpf: string;
       tel: string;
       tipoUsu: string;
+      cep: string;
+      state: string;
+      city: string;
+      street: string;
     };
   }
 }

@@ -1,9 +1,9 @@
 import type { QueryResult, QueryResultRow } from 'pg';
 
-import database from '../../../database/db.js';
-import type { Response } from '../../shared/index.js';
-import type { BookProps } from './entities/index.js';
-import type { BookInput } from './validator.js';
+import database from '../../../database/db';
+import type { Response } from '../../shared/index';
+import type { BookProps } from './entities/index';
+import type { BookInput } from './validator';
 
 export type Book = {
   id: string;
@@ -88,7 +88,10 @@ async function findByTitle(title: string): Promise<Book | undefined> {
   return result.rows[0];
 }
 
-async function update(id: string,{ title, autor, ano }: BookInput): Promise<boolean> {
+async function update(
+  id: string,
+  { title, autor, ano }: BookInput,
+): Promise<boolean> {
   const result = await query(
     'Erro ao atualizar livro',
     `UPDATE livros
@@ -109,7 +112,6 @@ async function destroy(id: string, definitive = false): Promise<boolean> {
       'DELETE FROM emprestimos WHERE livro_id = $1',
       [id],
     );
-
 
     const result = await query(
       'Erro ao excluir livro',
@@ -139,4 +141,13 @@ async function reactivate(id: string): Promise<boolean> {
   return (result.rowCount ?? 0) > 0;
 }
 
-export {list,listInactive,save,findById,findByTitle,update,destroy,reactivate};
+export {
+  list,
+  listInactive,
+  save,
+  findById,
+  findByTitle,
+  update,
+  destroy,
+  reactivate,
+};

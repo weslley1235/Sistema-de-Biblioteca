@@ -1,3 +1,4 @@
+
 export type publicUser = {
   id: string;
   nome: string;
@@ -5,6 +6,10 @@ export type publicUser = {
   cpf: string;
   tel: string;
   tipoUsu: string;
+  cep: string;
+  state: string;
+  city: string;
+  street: string;
 };
 
 export type UseCaseResult = {
@@ -14,4 +19,5 @@ export type UseCaseResult = {
 
 export type UserResult = UseCaseResult & {
   user?: publicUser;
+  matricula?: string;
 };
